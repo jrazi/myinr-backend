@@ -1,0 +1,8 @@
+{
+  "dialectOptions": {
+    "instanceName": "MSSQL2014"
+  },
+  "cryptoCredentialsDetails": {
+    "minVersion": "TLSv1"
+  }
+}
