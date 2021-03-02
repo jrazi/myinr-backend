@@ -1,6 +1,7 @@
 
 var express = require('express');
 var router = express.Router();
+var AccessDenied = require("../../../api/errors").AccessDenied;
 
 router.use(authorizationFilter);
 
