@@ -7,6 +7,10 @@
 var app = require('../app');
 var debug = require('debug')('myinr-backend:server');
 var http = require('http');
+require('../models');
+var testConnection = require('../db').testConnection;
+
+testConnection();
 
 /**
  * Get port from environment and store in Express.

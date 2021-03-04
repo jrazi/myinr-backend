@@ -1,9 +1,9 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return phAnTbl.init(sequelize, DataTypes);
+  return PhAnTbl.init(sequelize, DataTypes);
 }
 
-class phAnTbl extends Sequelize.Model {
+class PhAnTbl extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   super.init({
     IDPhAn: {
@@ -35,6 +35,6 @@ class phAnTbl extends Sequelize.Model {
       },
     ]
   });
-  return phAnTbl;
+  return PhAnTbl;
   }
 }

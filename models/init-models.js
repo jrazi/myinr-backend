@@ -13,7 +13,7 @@ var _items = require("./Items");
 var _paDrTbl = require("./PaDrTbl");
 var _patientTbl = require("./PatientTbl");
 var _phAnTbl = require("./PhAnTbl");
-var _physicianTbl = require("./PhysicianTbl");
+var _physicianTbl = require("./Physician");
 var _ptToPyTbl = require("./PtToPyTbl");
 var _pyToPtTbl = require("./PyToPtTbl");
 var _secondTbl = require("./SecondTbl");
@@ -37,7 +37,7 @@ function initModels(sequelize) {
   var paDrTbl = _paDrTbl(sequelize, DataTypes);
   var patientTbl = _patientTbl(sequelize, DataTypes);
   var phAnTbl = _phAnTbl(sequelize, DataTypes);
-  var physicianTbl = _physicianTbl(sequelize, DataTypes);
+  var Physician = _physicianTbl(sequelize, DataTypes);
   var ptToPyTbl = _ptToPyTbl(sequelize, DataTypes);
   var pyToPtTbl = _pyToPtTbl(sequelize, DataTypes);
   var secondTbl = _secondTbl(sequelize, DataTypes);
@@ -62,7 +62,7 @@ function initModels(sequelize) {
     paDrTbl,
     patientTbl,
     phAnTbl,
-    physicianTbl,
+    Physician,
     ptToPyTbl,
     pyToPtTbl,
     secondTbl,

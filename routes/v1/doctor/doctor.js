@@ -2,6 +2,7 @@
 var express = require('express');
 var router = express.Router();
 var AccessDenied = require("../../../api/errors").AccessDenied;
+const Physician = require("../../../models").Physician
 
 router.use(authorizationFilter);
 
@@ -23,9 +24,9 @@ function authorizationFilter(req, res, next) {
 
 
 
-function getDoctorInfo(req, res, next) {
-    res.json({message: "Hello"});
-    next();
+async function getDoctorInfo(req, res, next) {
+    const list = await Physician.findAll();
+    res.json(list);
 }
 
 function getPatient(req, res, next) {
