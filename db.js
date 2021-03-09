@@ -1,11 +1,30 @@
 
-function connect() {
-    const {Sequelize} = require('sequelize');
-    const dbConnection = new Sequelize('myinrir_test', 'myinrir_test', 'kyIg72@2', {
+
+const devProps = {
+    database: 'myinrir_test',
+    user: 'myinrir_test',
+    password: 'kyIg72@2',
+    config: {
+        host: 'localhost',
+        dialect: 'mssql',
+        port: '1433',
+    }
+}
+
+const productionProps = {
+    database: 'myinrir_test',
+    user: 'myinrir_test',
+    password: 'kyIg72@2',
+    config: {
         host: '185.165.116.32',
         dialect: 'mssql',
         port: '1435',
-    });
+    }
+}
+function connect() {
+    const {Sequelize} = require('sequelize');
+    const props = devProps;
+    const dbConnection = new Sequelize(props.database, props.user, props.password, props.config);
     return dbConnection;
 }
 

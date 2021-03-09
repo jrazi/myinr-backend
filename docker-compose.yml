@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  mssql:
+    build: ./setup/database
+    environment:
+      - ACCEPT_EULA="Y"
+      - SA_PASSWORD="RootPassword"
+    volumes:
+      - myinr-db:/var/opt/mssql
+    networks:
+      - myinr-main-network
+    ports:
+      - 1433:1433
+    deploy:
+      resources:
+        limits:
+          cpus: 0.50
+          memory: 4000M
+        reservations:
+          cpus: 0.25
+          memory: 3500M
+volumes:
+  myinr-db:
+
+networks:
+  myinr-main-network:
