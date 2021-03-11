@@ -5,16 +5,16 @@ const devProps = {
     user: 'myinrir_test',
     password: 'kyIg72@2',
     config: {
-        host: 'localhost',
+        host: '192.168.0.100',
         dialect: 'mssql',
-        port: '1433',
+        port: '1436',
     }
 }
 
 const productionProps = {
     database: 'myinrir_test',
-    user: 'myinrir_test',
-    password: 'kyIg72@2',
+    user: 'CAUTION_myinrir_test',
+    password: 'CAUTION_kyIg72@2',
     config: {
         host: '185.165.116.32',
         dialect: 'mssql',

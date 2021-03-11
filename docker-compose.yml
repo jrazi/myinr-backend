@@ -4,14 +4,15 @@ services:
   mssql:
     build: ./setup/database
     environment:
-      - ACCEPT_EULA="Y"
-      - SA_PASSWORD="RootPassword"
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "1Secure*Password1"
+      MSSQL_SA_PASSWORD: "1Secure*Password1"
     volumes:
       - myinr-db:/var/opt/mssql
     networks:
       - myinr-main-network
     ports:
-      - 1433:1433
+      - 1436:1433
     deploy:
       resources:
         limits:
