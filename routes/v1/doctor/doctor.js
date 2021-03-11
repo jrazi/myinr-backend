@@ -1,10 +1,15 @@
 
 var express = require('express');
 var router = express.Router();
-var AccessDenied = require("../../../api/errors").AccessDenied;
+const { Op } = require("sequelize");
+
 const Physician = require("../../../models").Physician
 const User = require("../../../models").User
 const Patient = require("../../../models").Patient
+const models = require("../../../models");
+const errors = require("../../../api/errors");
+const ResponseTemplate = require("../../../api/ResponseTemplate");
+
 
 router.use(authorizationFilter);
 
@@ -22,8 +27,7 @@ router.put('/patient/:userId/firstVisit/finish', finishFirstVisit);
 
 function authorizationFilter(req, res, next) {
     req.principal = {
-        userId: 3122,
-        physicianId: 3017,
+        userId: 4129,
     }
     next();
 }
@@ -32,23 +36,75 @@ function authorizationFilter(req, res, next) {
 
 async function getDoctorInfo(req, res, next) {
     const doctor = await Physician.findOne({where: {userId: req.principal.userId}, include: 'userInfo'});
-    res.json(doctor);
+    if (doctor == null) {
+        next(new errors.PhysicianNotFound());
+        return;
+    }
+
+    const response = ResponseTemplate.create()
+        .withData({
+            doctor: doctor,
+        })
+        .toJson();
+
+    res.json(response);
 }
 
 
 async function getAllPatients(req, res, next) {
     const doctor = await Physician.findOne({where: {userId: req.principal.userId}, include: {model: Patient, as: 'patients'},});
-    res.json(doctor.patients);
+    if (doctor == null) {
+        next(new errors.PhysicianNotFound());
+        return;
+    }
+
+    const response = ResponseTemplate.create()
+        .withData({
+            patients: doctor.patients,
+        })
+        .toJson();
+
+    res.json(response);
 }
 
 async function getPatient(req, res, next) {
     const patientUserId = req.params.userId;
-    const patient = await Patient.findOne({where: {userId: patientUserId},});
-    res.json(patient);
+    const patient = await Patient.findOne({where: {userId: patientUserId, physicianUserId: req.principal.userId},});
+    if (patient == null) {
+        next(new errors.PatientNotFound());
+        return;
+    }
+
+    const response = ResponseTemplate.create()
+        .withData({
+            patient: patient,
+        })
+        .toJson();
+
+    res.json(response);
 }
 
-function getFirstVisitInfo(req, res, next) {
-    next();
+async function getFirstVisitInfo(req, res, next) {
+    const patientUserId = req.params.userId;
+    const patient = await Patient.findOne({where: {userId: patientUserId, physicianUserId: req.principal.userId}, include: 'firstVisit'});
+
+    if (patient == null) {
+        next(new errors.PatientNotFound());
+        return;
+    }
+
+    else if (patient.firstVisit == null) {
+        next(new errors.FirstVisitNotFound());
+        return;
+    }
+
+    const response = ResponseTemplate.create()
+        .withData({
+            firstVisit: patient.firstVisit,
+        })
+        .toJson();
+
+    res.json(response);
 }
 
 function updateFirstVisit(req, res, next) {

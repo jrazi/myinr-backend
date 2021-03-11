@@ -6,7 +6,7 @@ var _chadsVaScTbl = require("./ChadsVaScTbl");
 var _dosageTbl = require("./DosageTbl");
 var _drugTbl = require("./DrugTbl");
 var _firstDosageTbl = require("./FirstDosageTbl");
-var _firstTbl = require("./FirstTbl");
+var _firstTbl = require("./FirstVisit");
 var _hasBledTbl = require("./HasBledTbl");
 var _inrTestTbl = require("./InrTestTbl");
 var _items = require("./Items");
@@ -47,9 +47,12 @@ function initModels(sequelize) {
   var flagTbl = _flagTbl(sequelize, DataTypes);
 
   Physician.belongsTo(User, {foreignKey: {name: 'userId', allowNull: false}, as: 'userInfo'});
+
   Patient.belongsTo(Physician, {foreignKey: {name: 'physicianUserId', allowNull: true}, as: 'physician', targetKey: 'userId'});
   Physician.hasMany(Patient, {foreignKey: {name: 'physicianUserId', allowNull: true}, as: 'patients', sourceKey: 'userId'});
 
+  FirstVisit.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
+  Patient.hasOne(FirstVisit, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'firstVisit', sourceKey: 'userId'});
 
   return {
     adminTbl,
