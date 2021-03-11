@@ -1,33 +1,38 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return userTbl.init(sequelize, DataTypes);
+  return User.init(sequelize, DataTypes);
 }
 
-class userTbl extends Sequelize.Model {
+class User extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   super.init({
-    IDUser: {
+    userId: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      field: 'IDUser',
     },
-    RoleUser: {
+    role: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      field: 'RoleUser',
     },
-    UsernameUser: {
+    username: {
       type: DataTypes.STRING(100),
-      allowNull: false
+      allowNull: false,
+      field: 'UsernameUser',
     },
-    PasswordUser: {
+    password: {
       type: DataTypes.STRING(100),
-      allowNull: false
+      allowNull: false,
+      field: 'PasswordUser',
     },
-    StatusUser: {
+    status: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: 1
+      defaultValue: 1,
+      field: 'StatusUser',
     }
   }, {
     sequelize,
@@ -44,6 +49,6 @@ class userTbl extends Sequelize.Model {
       },
     ]
   });
-  return userTbl;
+  return User;
   }
 }

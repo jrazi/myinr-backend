@@ -6,52 +6,78 @@ module.exports = (sequelize, DataTypes) => {
 class Physician extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   super.init({
-    IDPhysician: {
+    physicianId: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      field: 'IDPhysician',
     },
-    FNamePhysician: {
+    firstName: {
       type: DataTypes.STRING(100),
-      allowNull: false
+      allowNull: false,
+      field: 'FNamePhysician',
     },
-    LNamePhysician: {
+    lastName: {
       type: DataTypes.STRING(100),
-      allowNull: true
+      allowNull: true,
+      field: 'LNamePhysician',
     },
-    NIDPhysician: {
+    fullName: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        const first = this.firstName == null ? "" : this.firstName;
+        const second = this.lastName == null ? "" : this.lastName;
+        return `${first} ${second}`;
+      },
+      set(value) {
+        throw new Error('This value cannot be set.');
+      }
+    },
+    nationalId: {
       type: DataTypes.STRING(50),
-      allowNull: false
+      allowNull: false,
+      field: 'NIDPhysician',
     },
-    MedicalIDPhysician: {
+    medicalId: {
       type: DataTypes.STRING(50),
-      allowNull: false
+      allowNull: false,
+      field: 'MedicalIDPhysician',
     },
-    PhonePhysician: {
+    phone: {
       type: DataTypes.STRING(50),
-      allowNull: false
+      allowNull: false,
+      field: 'PhonePhysician',
     },
-    EmailPhysician: {
+    email: {
       type: DataTypes.STRING(50),
-      allowNull: false
+      allowNull: false,
+      field: 'EmailPhysician',
     },
-    AddressPhysician: {
+    address: {
       type: DataTypes.STRING(200),
-      allowNull: true
+      allowNull: true,
+      field: 'AddressPhysician',
     },
-    IDUserPhysician: {
+    userId: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      field: 'IDUserPhysician',
+      // references: {
+      //   model: 'User',
+      //   key: 'userId'
+      // }
     },
-    ExpertisePhysician: {
+    expertise: {
       type: DataTypes.STRING(100),
-      allowNull: true
+      allowNull: true,
+      field: 'ExpertisePhysician',
     },
-    GotoSecretary: {
+    gotoSecretary: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: 0
+      defaultValue: 0,
+      field: 'GotoSecretary',
     }
   }, {
     sequelize,

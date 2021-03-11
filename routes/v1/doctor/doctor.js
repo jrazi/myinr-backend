@@ -3,6 +3,7 @@ var express = require('express');
 var router = express.Router();
 var AccessDenied = require("../../../api/errors").AccessDenied;
 const Physician = require("../../../models").Physician
+const User = require("../../../models").User
 
 router.use(authorizationFilter);
 
@@ -19,14 +20,18 @@ router.put('/patient/:userId/firstVisit', updateFirstVisit);
 router.put('/patient/:userId/firstVisit/finish', finishFirstVisit);
 
 function authorizationFilter(req, res, next) {
+    req.principal = {
+        userId: 3122,
+        physicianId: 3017,
+    }
     next();
 }
 
 
 
 async function getDoctorInfo(req, res, next) {
-    const list = await Physician.findAll();
-    res.json(list);
+    const doctor = await Physician.findOne({where: {userId: req.principal.userId}, include: 'userInfo'});
+    res.json(doctor);
 }
 
 function getPatient(req, res, next) {

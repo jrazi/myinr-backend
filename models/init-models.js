@@ -18,7 +18,7 @@ var _ptToPyTbl = require("./PtToPyTbl");
 var _pyToPtTbl = require("./PyToPtTbl");
 var _secondTbl = require("./SecondTbl");
 var _secretaryTbl = require("./SecretaryTbl");
-var _userTbl = require("./UserTbl");
+var _userTbl = require("./User");
 var _event = require("./Event");
 var _flagTbl = require("./FlagTbl");
 
@@ -30,7 +30,7 @@ function initModels(sequelize) {
   var dosageTbl = _dosageTbl(sequelize, DataTypes);
   var drugTbl = _drugTbl(sequelize, DataTypes);
   var firstDosageTbl = _firstDosageTbl(sequelize, DataTypes);
-  var firstTbl = _firstTbl(sequelize, DataTypes);
+  var FirstVisit = _firstTbl(sequelize, DataTypes);
   var hasBledTbl = _hasBledTbl(sequelize, DataTypes);
   var inrTestTbl = _inrTestTbl(sequelize, DataTypes);
   var items = _items(sequelize, DataTypes);
@@ -42,9 +42,11 @@ function initModels(sequelize) {
   var pyToPtTbl = _pyToPtTbl(sequelize, DataTypes);
   var secondTbl = _secondTbl(sequelize, DataTypes);
   var secretaryTbl = _secretaryTbl(sequelize, DataTypes);
-  var userTbl = _userTbl(sequelize, DataTypes);
+  var User = _userTbl(sequelize, DataTypes);
   var event = _event(sequelize, DataTypes);
   var flagTbl = _flagTbl(sequelize, DataTypes);
+
+  Physician.belongsTo(User, {foreignKey: {name: 'userId', allowNull: false}, as: 'userInfo'});
 
 
   return {
@@ -55,7 +57,7 @@ function initModels(sequelize) {
     dosageTbl,
     drugTbl,
     firstDosageTbl,
-    firstTbl,
+    FirstVisit,
     hasBledTbl,
     inrTestTbl,
     items,
@@ -67,7 +69,7 @@ function initModels(sequelize) {
     pyToPtTbl,
     secondTbl,
     secretaryTbl,
-    userTbl,
+    User,
     event,
     flagTbl,
   };
