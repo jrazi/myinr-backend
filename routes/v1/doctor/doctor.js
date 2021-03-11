@@ -4,6 +4,7 @@ var router = express.Router();
 var AccessDenied = require("../../../api/errors").AccessDenied;
 const Physician = require("../../../models").Physician
 const User = require("../../../models").User
+const Patient = require("../../../models").Patient
 
 router.use(authorizationFilter);
 
@@ -34,12 +35,16 @@ async function getDoctorInfo(req, res, next) {
     res.json(doctor);
 }
 
-function getPatient(req, res, next) {
-    next();
+
+async function getAllPatients(req, res, next) {
+    const doctor = await Physician.findOne({where: {userId: req.principal.userId}, include: {model: Patient, as: 'patients'},});
+    res.json(doctor.patients);
 }
 
-function getAllPatients(req, res, next) {
-    next();
+async function getPatient(req, res, next) {
+    const patientUserId = req.params.userId;
+    const patient = await Patient.findOne({where: {userId: patientUserId},});
+    res.json(patient);
 }
 
 function getFirstVisitInfo(req, res, next) {

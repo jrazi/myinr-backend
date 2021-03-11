@@ -11,7 +11,7 @@ var _hasBledTbl = require("./HasBledTbl");
 var _inrTestTbl = require("./InrTestTbl");
 var _items = require("./Items");
 var _paDrTbl = require("./PaDrTbl");
-var _patientTbl = require("./PatientTbl");
+var _patientTbl = require("./Patient");
 var _phAnTbl = require("./PhAnTbl");
 var _physicianTbl = require("./Physician");
 var _ptToPyTbl = require("./PtToPyTbl");
@@ -35,7 +35,7 @@ function initModels(sequelize) {
   var inrTestTbl = _inrTestTbl(sequelize, DataTypes);
   var items = _items(sequelize, DataTypes);
   var paDrTbl = _paDrTbl(sequelize, DataTypes);
-  var patientTbl = _patientTbl(sequelize, DataTypes);
+  var Patient = _patientTbl(sequelize, DataTypes);
   var phAnTbl = _phAnTbl(sequelize, DataTypes);
   var Physician = _physicianTbl(sequelize, DataTypes);
   var ptToPyTbl = _ptToPyTbl(sequelize, DataTypes);
@@ -47,6 +47,8 @@ function initModels(sequelize) {
   var flagTbl = _flagTbl(sequelize, DataTypes);
 
   Physician.belongsTo(User, {foreignKey: {name: 'userId', allowNull: false}, as: 'userInfo'});
+  Patient.belongsTo(Physician, {foreignKey: {name: 'physicianUserId', allowNull: true}, as: 'physician', targetKey: 'userId'});
+  Physician.hasMany(Patient, {foreignKey: {name: 'physicianUserId', allowNull: true}, as: 'patients', sourceKey: 'userId'});
 
 
   return {
@@ -62,7 +64,7 @@ function initModels(sequelize) {
     inrTestTbl,
     items,
     paDrTbl,
-    patientTbl,
+    Patient,
     phAnTbl,
     Physician,
     ptToPyTbl,
