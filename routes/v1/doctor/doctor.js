@@ -86,7 +86,7 @@ async function getPatient(req, res, next) {
 
 async function getFirstVisitInfo(req, res, next) {
     const patientUserId = req.params.userId;
-    const patient = await Patient.findOne({where: {userId: patientUserId, physicianUserId: req.principal.userId}, include: 'firstVisit'});
+    const patient = await Patient.findOne({where: {userId: patientUserId, physicianUserId: req.principal.userId}, include: ['firstVisit', 'hasBledStageInfo']});
 
     if (patient == null) {
         next(new errors.PatientNotFound());
@@ -100,7 +100,10 @@ async function getFirstVisitInfo(req, res, next) {
 
     const response = ResponseTemplate.create()
         .withData({
-            firstVisit: patient.firstVisit,
+            firstVisit: {
+                general: patient.firstVisit,
+                hasBledStageInfo: patient.hasBledStageInfo,
+            }
         })
         .toJson();
 

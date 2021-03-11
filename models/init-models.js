@@ -7,7 +7,7 @@ var _dosageTbl = require("./DosageTbl");
 var _drugTbl = require("./DrugTbl");
 var _firstDosageTbl = require("./FirstDosageTbl");
 var _firstTbl = require("./FirstVisit");
-var _hasBledTbl = require("./HasBledTbl");
+var _hasBledTbl = require("./HasBledStage");
 var _inrTestTbl = require("./InrTestTbl");
 var _items = require("./Items");
 var _paDrTbl = require("./PaDrTbl");
@@ -31,7 +31,7 @@ function initModels(sequelize) {
   var drugTbl = _drugTbl(sequelize, DataTypes);
   var firstDosageTbl = _firstDosageTbl(sequelize, DataTypes);
   var FirstVisit = _firstTbl(sequelize, DataTypes);
-  var hasBledTbl = _hasBledTbl(sequelize, DataTypes);
+  var HasBledStage = _hasBledTbl(sequelize, DataTypes);
   var inrTestTbl = _inrTestTbl(sequelize, DataTypes);
   var items = _items(sequelize, DataTypes);
   var paDrTbl = _paDrTbl(sequelize, DataTypes);
@@ -54,6 +54,10 @@ function initModels(sequelize) {
   FirstVisit.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
   Patient.hasOne(FirstVisit, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'firstVisit', sourceKey: 'userId'});
 
+  HasBledStage.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
+  Patient.hasMany(HasBledStage, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'hasBledStageInfo', sourceKey: 'userId'});
+
+
   return {
     adminTbl,
     ansectorTbl,
@@ -63,7 +67,7 @@ function initModels(sequelize) {
     drugTbl,
     firstDosageTbl,
     FirstVisit,
-    hasBledTbl,
+    HasBledStage,
     inrTestTbl,
     items,
     paDrTbl,
