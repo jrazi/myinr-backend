@@ -13,15 +13,184 @@ class FirstVisit extends Sequelize.Model {
       primaryKey: true,
       field: "IDFirst",
     },
-    reasonForWarfarin: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-      field: "ReasonforusingWarfarin",
-    },
     dateOfDiagnosis: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "dateofdiagnosis",
+    },
+    firstWarfarin: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return {
+          reasonForWarfarin: this.reasonForWarfarin,
+          dateOfFirstWarfarin: this.dateOfFirstWarfarin,
+        }
+      },
+      set(values) {
+        this.reasonForWarfarin= values.reasonForWarfarin;
+        this.dateOfFirstWarfarin= values.dateOfFirstWarfarin;
+      }
+    },
+    lastInrTest: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return {
+          hasUsedPortableDevice: this.hasUsedPortableDevice,
+          dateOfLastInrTest: this.dateOfLastInrTest,
+          lastInrValue: this.lastInrValue,
+          lastInrTestLabInfo: this.lastInrTestLabInfo,
+        }
+      },
+      set(values) {
+        this.hasUsedPortableDevice= values.hasUsedPortableDevice;
+        this.dateOfLastInrTest= values.dateOfLastInrTest;
+        this.lastInrValue= values.lastInrValue;
+        this.lastInrTestLabInfo= values.lastInrTestLabInfo;
+      }
+    },
+    testResult: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return {
+          Hb: this.Hb,
+          Hct: this.Hct,
+          Plt: this.Plt,
+          Bun: this.Bun,
+          Urea: this.Urea,
+          Cr: this.Cr,
+          Na: this.Na,
+          K: this.K,
+          Alt: this.Alt,
+          Ast: this.Ast,
+        }
+      },
+      set(values) {
+        this.Hb= values.Hb;
+        this.Hct= values.Hct;
+        this.Plt= values.Plt;
+        this.Bun= values.Bun;
+        this.Urea= values.Urea;
+        this.Cr= values.Cr;
+        this.Na= values.Na;
+        this.K= values.K;
+        this.Alt= values.Alt;
+        this.Ast= values.Ast;
+      }
+    },
+    medicalHistory: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return {
+          majorSurgery: this.majorSurgery,
+          minorSurgery: this.minorSurgery,
+          hospitalAdmission: this.hospitalAdmission,
+          pastConditions: this.pastConditions,
+        }
+      },
+      set(values) {
+        this.majorSurgery= values.majorSurgery;
+        this.minorSurgery= values.minorSurgery;
+        this.hospitalAdmission= values.hospitalAdmission;
+        this.pastConditions= values.pastConditions;
+      }
+    },
+    physicalExam: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return {
+          bloodPressure: this.bloodPressure,
+          heartBeat: this.heartBeat,
+          respiratoryRate: this.respiratoryRate,
+        }
+      },
+      set(values) {
+        this.bloodPressure= values.bloodPressure;
+        this.heartBeat= values.heartBeat;
+        this.respiratoryRate= values.respiratoryRate;
+      }
+    },
+    echocardiography: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return {
+          EF: this.EF,
+          LAVI: this.LAVI,
+          comment: this.comment,
+        }
+      },
+      set(values) {
+        this.EF= values.EF;
+        this.LAVI= values.LAVI;
+        this.comment= values.comment;
+      }
+    },
+    flags: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return {
+          visitFlag: this.visitFlag,
+          isSaved: this.isSaved,
+          isEnded: this.isEnded,
+        }
+      },
+      set(values) {
+        this.visitFlag= values.visitFlag;
+        this.isSaved= values.isSaved;
+        this.isEnded= values.isEnded;
+      }
+    },
+    inr: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return {
+          inrTargetRange: this.inrTargetRange,
+          nextInrCheckDate: this.nextInrCheckDate,
+        }
+      },
+      set(values) {
+        this.inrTargetRange= values.inrTargetRange;
+        this.nextInrCheckDate= values.nextInrCheckDate;
+      }
+    },
+    visitDate: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return {
+          day: this.day,
+          month: this.month,
+          year: this.year,
+        }
+      },
+      set(values) {
+        this.day= values.day;
+        this.month= values.month;
+        this.year= values.year;
+      }
+    },
+    ECG: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      field: "ECG",
+    },
+    patientUserId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      field: "IDUserPatient",
+    },
+    drugHistory: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      field: "DrugHistory",
+    },
+    habit: {
+      type: DataTypes.STRING(5),
+      allowNull: true,
+      field: "Habit",
+    },
+    reasonForWarfarin: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      field: "ReasonforusingWarfarin",
     },
     dateOfFirstWarfarin: {
       type: DataTypes.STRING(10),
@@ -63,7 +232,7 @@ class FirstVisit extends Sequelize.Model {
       allowNull: true,
       field: "BleedingorClotting",
     },
-    pastMedicalHistory: {
+    pastConditions: {
       type: DataTypes.STRING(50),
       allowNull: true,
       field: "PastMedicalHistory",
@@ -82,16 +251,6 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.STRING(255),
       allowNull: true,
       field: "HospitalAdmission",
-    },
-    drugHistory: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      field: "DrugHistory",
-    },
-    habit: {
-      type: DataTypes.STRING(5),
-      allowNull: true,
-      field: "Habit",
     },
     bloodPressure: {
       type: DataTypes.STRING(10),
@@ -158,11 +317,6 @@ class FirstVisit extends Sequelize.Model {
       allowNull: true,
       field: "Ast",
     },
-    ECG: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-      field: "ECG",
-    },
     EF: {
       type: DataTypes.STRING(10),
       allowNull: true,
@@ -177,11 +331,6 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.TEXT,
       allowNull: true,
       field: "Comment",
-    },
-    patientUserId: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      field: "IDUserPatient",
     },
     visitYear: {
       type: DataTypes.STRING(4),
@@ -223,7 +372,7 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "NextINRCheck",
-    }
+    },
   }, {
     sequelize,
     tableName: 'FirstTbl',

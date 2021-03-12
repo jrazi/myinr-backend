@@ -1,9 +1,13 @@
+const SimpleValidators = require("./SimpleValidators");
 
 
 class ListUtil {
 
-    getMaxOfObjectList(list, keyToCompare="id") {
 
+    static isList(list) {
+        if (!SimpleValidators.hasValue(list) || !SimpleValidators.hasValue(list.length))
+            return false;
+        return true;
     }
 }
 

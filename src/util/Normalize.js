@@ -1,15 +1,10 @@
+const SimpleValidators = require("./SimpleValidators");
 
 
 class Normalize {
 
-    static hasValue(obj) {
-        if (obj == null || obj == undefined)
-            return false;
-        return true;
-    }
-
     static getFirstWithValue(elements, hasValueChecker=Normalize.hasValue) {
-        if (!Normalize.hasValue(elements) || !Normalize.hasValue(elements.length)) return null;
+        if (!SimpleValidators.hasValue(elements) || !SimpleValidators.hasValue(elements.length)) return null;
         for (let element of elements) {
             if (hasValueChecker(element))
                 return element;

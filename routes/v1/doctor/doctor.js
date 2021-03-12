@@ -9,6 +9,7 @@ const Patient = require("../../../models").Patient
 const models = require("../../../models");
 const errors = require("../../../api/errors");
 const ResponseTemplate = require("../../../api/ResponseTemplate");
+const SequelizeUtil = require("../../../src/util/SequelizeUtil");
 
 
 router.use(authorizationFilter);
@@ -104,10 +105,10 @@ async function getFirstVisitInfo(req, res, next) {
     const response = ResponseTemplate.create()
         .withData({
             firstVisit: {
-                general: patient.firstVisit,
-                hasBledScore: patient.hasBledScore,
-                cha2ds2Score: patient.cha2ds2Score,
-                firstWarfarinDosage: patient.firstWarfarinDosage ,
+                general: SequelizeUtil.filterFields(patient.firstVisit.get({plain: true}), firstVisitIncludedFields),
+                hasBledScore: SequelizeUtil.getLastInList(patient.hasBledScore),
+                cha2ds2Score: SequelizeUtil.getLastInList(patient.cha2ds2Score),
+                firstWarfarinDosage: SequelizeUtil.getLastInList(patient.firstWarfarinDosage),
             }
         })
         .toJson();
@@ -125,3 +126,23 @@ function finishFirstVisit(req, res, next) {
 
 
 module.exports = router;
+
+const firstVisitIncludedFields = [
+    'id',
+    'patientUserId',
+    'visitDate',
+    'dateOfDiagnosis',
+    'firstWarfarin',
+    'lastInrTest',
+    'testResult',
+    'medicalHistory',
+    'physicalExam',
+    'echocardiography',
+    'ECG',
+    'bleedingOrClottingTypes',
+    'drugHistory',
+    'habit',
+    'flags',
+    'inr',
+    'reportComment',
+]
