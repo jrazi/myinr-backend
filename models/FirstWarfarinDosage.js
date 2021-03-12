@@ -1,48 +1,57 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return firstDosageTbl.init(sequelize, DataTypes);
+  return FirstWarfarinDosage.init(sequelize, DataTypes);
 }
 
-class firstDosageTbl extends Sequelize.Model {
+class FirstWarfarinDosage extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   super.init({
-    IDDosage: {
+    id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      field: 'IDDosage',
     },
-    IDUserPatient: {
+    patientUserId: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: true,
+      field: 'IDUserPatient',
     },
-    Saturday: {
+    saturday: {
       type: DataTypes.STRING(10),
-      allowNull: true
+      allowNull: true,
+      field: 'Saturday',
     },
-    Sunday: {
+    sunday: {
       type: DataTypes.STRING(10),
-      allowNull: true
+      allowNull: true,
+      field: 'Sunday',
     },
-    Monday: {
+    monday: {
       type: DataTypes.STRING(10),
-      allowNull: true
+      allowNull: true,
+      field: 'Monday',
     },
-    Tuesday: {
+    tuesday: {
       type: DataTypes.STRING(10),
-      allowNull: true
+      allowNull: true,
+      field: 'Tuesday',
     },
-    Wednesday: {
+    wednesday: {
       type: DataTypes.STRING(10),
-      allowNull: true
+      allowNull: true,
+      field: 'Wednesday',
     },
-    Thursday: {
+    thursday: {
       type: DataTypes.STRING(10),
-      allowNull: true
+      allowNull: true,
+      field: 'Thursday',
     },
-    Friday: {
+    friday: {
       type: DataTypes.STRING(10),
-      allowNull: true
+      allowNull: true,
+      field: 'Friday',
     }
   }, {
     sequelize,
@@ -59,6 +68,6 @@ class firstDosageTbl extends Sequelize.Model {
       },
     ]
   });
-  return firstDosageTbl;
+  return FirstWarfarinDosage;
   }
 }

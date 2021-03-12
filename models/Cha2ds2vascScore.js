@@ -1,48 +1,57 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return chadsVaScTbl.init(sequelize, DataTypes);
+  return Cha2ds2vascScore.init(sequelize, DataTypes);
 }
 
-class chadsVaScTbl extends Sequelize.Model {
+class Cha2ds2vascScore extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   super.init({
-    ID: {
+    id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      field: 'ID',
     },
-    PatientID: {
+    patientUserId: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      field: 'PatientID',
     },
-    Age: {
+    ageGroup: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: true,
+      field: 'Age',
     },
-    Sex: {
+    sex: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: true,
+      field: 'Sex',
     },
-    HeartFailure: {
+    heartFailureHistory: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: true,
+      field: 'HeartFailure',
     },
-    Hypertension: {
+    hypertensionHistory: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: true,
+      field: 'Hypertension',
     },
-    Stroke: {
+    strokeHistory: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: true,
+      field: 'Stroke',
     },
-    Vascular: {
+    Vvscular: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: true,
+      field: 'Vascular',
     },
-    Diabetes: {
+    diabetes: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: true,
+      field: 'Diabetes',
     }
   }, {
     sequelize,
@@ -59,6 +68,6 @@ class chadsVaScTbl extends Sequelize.Model {
       },
     ]
   });
-  return chadsVaScTbl;
+  return Cha2ds2vascScore;
   }
 }

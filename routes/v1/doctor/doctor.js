@@ -86,7 +86,10 @@ async function getPatient(req, res, next) {
 
 async function getFirstVisitInfo(req, res, next) {
     const patientUserId = req.params.userId;
-    const patient = await Patient.findOne({where: {userId: patientUserId, physicianUserId: req.principal.userId}, include: ['firstVisit', 'hasBledStageInfo']});
+    const patient = await Patient.findOne({
+        where: {userId: patientUserId, physicianUserId: req.principal.userId},
+        include: ['firstVisit', 'hasBledScore', 'cha2ds2Score', 'firstWarfarinDosage'],
+    });
 
     if (patient == null) {
         next(new errors.PatientNotFound());
@@ -102,7 +105,9 @@ async function getFirstVisitInfo(req, res, next) {
         .withData({
             firstVisit: {
                 general: patient.firstVisit,
-                hasBledStageInfo: patient.hasBledStageInfo,
+                hasBledScore: patient.hasBledScore,
+                cha2ds2Score: patient.cha2ds2Score,
+                firstWarfarinDosage: patient.firstWarfarinDosage ,
             }
         })
         .toJson();
