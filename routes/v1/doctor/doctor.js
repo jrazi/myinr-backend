@@ -53,15 +53,32 @@ async function getDoctorInfo(req, res, next) {
 
 
 async function getAllPatients(req, res, next) {
-    const doctor = await Physician.findOne({where: {userId: req.principal.userId}, include: {model: Patient, as: 'patients'},});
+    const doctor = await Physician.findOne({
+        where: {
+            userId: req.principal.userId
+        },
+        include: {
+            model: Patient,
+            as: 'patients',
+            include: 'firstVisit',
+        },
+    });
     if (doctor == null) {
         next(new errors.PhysicianNotFound());
         return;
     }
 
+    let patientsList = doctor.patients;
+
+    patientsList = patientsList.map(patient => {
+        patient.firstVisitStatus = patient.firstVisit;
+        const patientData =  SequelizeUtil.excludeFields(patient.get({plain: true}), ['firstVisit']);
+        return patientData;
+    })
+
     const response = ResponseTemplate.create()
         .withData({
-            patients: doctor.patients,
+            patients: patientsList,
         })
         .toJson();
 
@@ -70,15 +87,25 @@ async function getAllPatients(req, res, next) {
 
 async function getPatient(req, res, next) {
     const patientUserId = req.params.userId;
-    const patient = await Patient.findOne({where: {userId: patientUserId, physicianUserId: req.principal.userId},});
+    const patient = await Patient.findOne({
+        where: {
+            userId: patientUserId,
+            physicianUserId: req.principal.userId
+        },
+        include: 'firstVisit',
+    });
     if (patient == null) {
         next(new errors.PatientNotFound());
         return;
     }
 
+    patient.firstVisitStatus = patient.firstVisit;
+
+    const patientData = SequelizeUtil.excludeFields(patient.get({plain: true}), ['firstVisit']);
+
     const response = ResponseTemplate.create()
         .withData({
-            patient: patient,
+            patient: patientData,
         })
         .toJson();
 

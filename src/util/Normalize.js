@@ -12,6 +12,11 @@ class Normalize {
         return null;
     }
 
+    static safelyReadNestedValue(obj, ...keys) {
+        if (!SimpleValidators.hasValue(obj)) return null;
+
+        // TODO implement
+    }
 }
 
 

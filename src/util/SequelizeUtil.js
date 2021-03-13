@@ -16,6 +16,18 @@ class SequelizeUtil {
         return finalObject;
     }
 
+    static excludeFields(obj, exclude) {
+        if (!SimpleValidators.hasValue(obj))
+            return null;
+        const finalObject = {};
+        for (const key in obj) {
+            if (!exclude.includes(key)) {
+                finalObject[key] = obj[key];
+            }
+        }
+        return finalObject;
+    }
+
     static getFirstInList(list, compareFunction=(a, b) => a.id - b.id) {
         if (!ListUtil.isList(list))
             return null;

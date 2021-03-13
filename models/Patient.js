@@ -112,7 +112,20 @@ class Patient extends Sequelize.Model {
       type: DataTypes.STRING(100),
       allowNull: true,
       field: 'CausePatient',
-    }
+    },
+    firstVisitStatus: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return this.getDataValue('firstVisitStatus');
+      },
+      set(firstVisitInfo) {
+        const status = {
+          started: firstVisitInfo != null,
+          flags: firstVisitInfo != null ? firstVisitInfo.flags : null,
+        }
+        this.setDataValue('firstVisitStatus', status);
+      }
+    },
   }, {
     sequelize,
     tableName: 'PatientTbl',
