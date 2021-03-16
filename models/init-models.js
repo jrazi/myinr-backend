@@ -47,6 +47,7 @@ function initModels(sequelize) {
   var flagTbl = _flagTbl(sequelize, DataTypes);
 
   Physician.belongsTo(User, {foreignKey: {name: 'userId', allowNull: false}, as: 'userInfo'});
+  Patient.belongsTo(User, {foreignKey: {name: 'userId', allowNull: false}, as: 'userInfo'});
 
   Patient.belongsTo(Physician, {foreignKey: {name: 'physicianUserId', allowNull: true}, as: 'physician', targetKey: 'userId'});
   Physician.hasMany(Patient, {foreignKey: {name: 'physicianUserId', allowNull: true}, as: 'patients', sourceKey: 'userId'});

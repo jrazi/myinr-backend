@@ -5,7 +5,7 @@ const devProps = {
     user: 'myinrir_test',
     password: 'kyIg72@2',
     config: {
-        host: '192.168.0.100',
+        host: 'localhost',
         dialect: 'mssql',
         port: '1436',
     }
