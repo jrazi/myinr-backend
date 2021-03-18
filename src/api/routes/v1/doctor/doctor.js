@@ -3,9 +3,6 @@ var express = require('express');
 var router = express.Router();
 const { Op } = require("sequelize");
 
-const Physician = require("../../../../models").Physician
-const User = require("../../../../models").User
-const Patient = require("../../../../models").Patient
 const models = require("../../../../models");
 const errors = require("../../../errors");
 const ResponseTemplate = require("../../../ResponseTemplate");
@@ -27,7 +24,7 @@ router.put('/patient/:userId/firstVisit/finish', finishFirstVisit);
 
 
 async function getDoctorInfo(req, res, next) {
-    const doctor = await Physician.findOne({where: {userId: req.principal.userId}, include: 'userInfo'});
+    const doctor = await models.Physician.findOne({where: {userId: req.principal.userId}, include: 'userInfo'});
     if (doctor == null) {
         next(new errors.PhysicianNotFound());
         return;
@@ -44,12 +41,12 @@ async function getDoctorInfo(req, res, next) {
 
 
 async function getAllPatients(req, res, next) {
-    const doctor = await Physician.findOne({
+    const doctor = await models.Physician.findOne({
         where: {
             userId: req.principal.userId
         },
         include: {
-            model: Patient,
+            model: models.Patient,
             as: 'patients',
             include: 'firstVisit',
         },
@@ -78,7 +75,7 @@ async function getAllPatients(req, res, next) {
 
 async function getPatient(req, res, next) {
     const patientUserId = req.params.userId;
-    const patient = await Patient.findOne({
+    const patient = await models.Patient.findOne({
         where: {
             userId: patientUserId,
             physicianUserId: req.principal.userId
@@ -105,7 +102,7 @@ async function getPatient(req, res, next) {
 
 async function getFirstVisitInfo(req, res, next) {
     const patientUserId = req.params.userId;
-    const patient = await Patient.findOne({
+    const patient = await models.Patient.findOne({
         where: {userId: patientUserId, physicianUserId: req.principal.userId},
         include: ['firstVisit', 'hasBledScore', 'cha2ds2Score', 'firstWarfarinDosage'],
     });
