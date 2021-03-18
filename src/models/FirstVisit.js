@@ -1,5 +1,7 @@
 const Sequelize = require('sequelize');
 const DatabaseNormalizer = require("../util/DatabaseNormalizer");
+const DomainNameTable = require("./StaticDomainNameTable");
+
 module.exports = (sequelize, DataTypes) => {
   return FirstVisit.init(sequelize, DataTypes);
 }
@@ -192,6 +194,28 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.STRING(50),
       allowNull: true,
       field: "ReasonforusingWarfarin",
+      get() {
+        const rawValue = this.getDataValue('reasonForWarfarin');
+        const [conditionsAsString, heartValveConditionsAsString] = DatabaseNormalizer.stringToList(rawValue, '-');
+        const conditionIds = DatabaseNormalizer.stringToList(conditionsAsString, ',');
+        const heartValveReplacementConditionIds = DatabaseNormalizer.stringToList(heartValveConditionsAsString, ',');
+
+        const conditions = conditionIds.map(id => DomainNameTable[id]);
+        const heartValveReplacementConditions = heartValveReplacementConditionIds.map(id => DomainNameTable[id]);
+
+        return {
+          conditions,
+          heartValveReplacementConditions,
+        };
+      },
+      set(reasonIdList) {
+        const [conditions, heartValveReplacementConditions] = [reasonIdList.conditions, reasonIdList.heartValveReplacementConditions];
+
+        const conditionsAsString = DatabaseNormalizer.listToString(conditions, ',');
+        const heartValveConditionsAsString = DatabaseNormalizer.listToString(heartValveReplacementConditions, ',');
+        const rawValue = `${conditionsAsString}-${heartValveConditionsAsString}`;
+        this.setDataValue('reasonForWarfarin', rawValue);
+      }
     },
     dateOfFirstWarfarin: {
       type: DataTypes.STRING(10),
@@ -243,6 +267,19 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.STRING(50),
       allowNull: true,
       field: "PastMedicalHistory",
+      get() {
+        const rawValue = this.getDataValue('pastConditions');
+        const conditionIds = DatabaseNormalizer.stringToList(rawValue, ',');
+
+        const conditions = conditionIds.map(id => DomainNameTable[id]);
+
+        return conditions;
+      },
+      set(conditionIdList) {
+        const conditionsAsString = DatabaseNormalizer.listToString(conditionIdList, ',');
+        const rawValue = `${conditionsAsString}`;
+        this.setDataValue('pastConditions', rawValue);
+      }
     },
     majorSurgery: {
       type: DataTypes.STRING(255),
@@ -416,3 +453,4 @@ class FirstVisit extends Sequelize.Model {
   return FirstVisit;
   }
 }
+

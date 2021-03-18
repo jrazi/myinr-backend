@@ -11,6 +11,7 @@ module.exports.FirstVisit = models.FirstVisit;
 module.exports.HasBledStage = models.HasBledStage;
 module.exports.Cha2ds2vascScore = models.Cha2ds2vascScore;
 module.exports.FirstWarfarinDosage = models.FirstWarfarinDosage;
+module.exports.DomainNameTable = models.DomainNameTable;
 
 module.exports.UserRoles = {
     physician: {

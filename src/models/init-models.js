@@ -9,7 +9,7 @@ var _firstDosageTbl = require("./FirstWarfarinDosage");
 var _firstTbl = require("./FirstVisit");
 var _hasBledTbl = require("./HasBledStage");
 var _inrTestTbl = require("./InrTestTbl");
-var _items = require("./Items");
+var _items = require("./DomainNameTable");
 var _paDrTbl = require("./PaDrTbl");
 var _patientTbl = require("./Patient");
 var _phAnTbl = require("./PhAnTbl");
@@ -33,7 +33,7 @@ function initModels(sequelize) {
   var FirstVisit = _firstTbl(sequelize, DataTypes);
   var HasBledStage = _hasBledTbl(sequelize, DataTypes);
   var inrTestTbl = _inrTestTbl(sequelize, DataTypes);
-  var items = _items(sequelize, DataTypes);
+  var DomainNameTable = _items(sequelize, DataTypes);
   var paDrTbl = _paDrTbl(sequelize, DataTypes);
   var Patient = _patientTbl(sequelize, DataTypes);
   var phAnTbl = _phAnTbl(sequelize, DataTypes);
@@ -76,7 +76,7 @@ function initModels(sequelize) {
     FirstVisit,
     HasBledStage,
     inrTestTbl,
-    items,
+    DomainNameTable,
     paDrTbl,
     Patient,
     phAnTbl,

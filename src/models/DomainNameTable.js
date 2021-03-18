@@ -1,24 +1,27 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return items.init(sequelize, DataTypes);
+  return DomainNameTable.init(sequelize, DataTypes);
 }
 
-class items extends Sequelize.Model {
+class DomainNameTable extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   super.init({
-    IDItems: {
+    id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      field: 'IDItems',
     },
-    NameItems: {
+    name: {
       type: DataTypes.STRING(255),
-      allowNull: false
+      allowNull: false,
+      field: 'NameItems',
     },
-    groupItems: {
+    groupId: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      field: 'groupItems',
     }
   }, {
     sequelize,
@@ -35,6 +38,6 @@ class items extends Sequelize.Model {
       },
     ]
   });
-  return items;
+  return DomainNameTable;
   }
 }
