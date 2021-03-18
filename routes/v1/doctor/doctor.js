@@ -12,8 +12,6 @@ const ResponseTemplate = require("../../../api/ResponseTemplate");
 const SequelizeUtil = require("../../../src/util/SequelizeUtil");
 
 
-router.use(authorizationFilter);
-
 router.get('/me', getDoctorInfo);
 
 router.get('/patient', getAllPatients);
@@ -25,13 +23,6 @@ router.get('/patient/:userId/firstVisit', getFirstVisitInfo);
 router.put('/patient/:userId/firstVisit', updateFirstVisit);
 
 router.put('/patient/:userId/firstVisit/finish', finishFirstVisit);
-
-function authorizationFilter(req, res, next) {
-    req.principal = {
-        userId: 4129,
-    }
-    next();
-}
 
 
 

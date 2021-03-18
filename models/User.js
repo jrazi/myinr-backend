@@ -18,6 +18,16 @@ class User extends Sequelize.Model {
       allowNull: false,
       field: 'RoleUser',
     },
+    roleName: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        const roleNames = ['UNKNOWN', 'PHYSICIAN', 'UNKNOWN', 'PATIENT', 'UNKNOWN', 'UNKNOWN']
+        return roleNames[this.role];
+      },
+      set(roleName) {
+        throw new Error("Cannot set role name.");
+      }
+    },
     username: {
       type: DataTypes.STRING(100),
       allowNull: false,

@@ -22,6 +22,12 @@ class NotFound extends ApiError {
     }
 }
 
+class UserNotFound extends ApiError {
+    constructor (message = "User was not found.") {
+        super(400, "NOT_FOUND", message);
+    }
+}
+
 class PhysicianNotFound extends ApiError {
     constructor (message = "Physician was not found.") {
         super(400, "NOT_FOUND", message);
@@ -40,5 +46,22 @@ class FirstVisitNotFound extends ApiError {
     }
 }
 
+class UsernamePasswordMismatch extends ApiError {
+    constructor (message = "No user with this combination of username and password was found.") {
+        super(400, "USERNAME_PASSWORD_MISMATCH", message);
+    }
+}
 
-module.exports = {ApiError, AccessDenied, NotFound, PatientNotFound, FirstVisitNotFound, PhysicianNotFound};
+class UnauthorizedAccess extends ApiError {
+    constructor (message = "The request is not authorized.") {
+        super(401, "UNAUTHORIZED", message);
+    }
+}
+
+class QueryParameterMissing extends ApiError {
+    constructor (message = "Missing query parameter(s).") {
+        super(400, "QUERY_PARAM_MISSING", message);
+    }
+}
+
+module.exports = {ApiError, AccessDenied, NotFound, PatientNotFound, FirstVisitNotFound, PhysicianNotFound, UserNotFound, UsernamePasswordMismatch, QueryParameterMissing, UnauthorizedAccess};

@@ -10,9 +10,10 @@ var patientRouter = require('./routes/v1/patient/patient');
 var authRouter = require('./routes/v1/authentication/auth');
 var ApiError = require('./api/errors').ApiError;
 
-var connect = require('./db');
-
 var app = express();
+
+const dotenv = require("dotenv");
+dotenv.config();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

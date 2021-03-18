@@ -10,17 +10,8 @@ const ResponseTemplate = require("../../../api/ResponseTemplate");
 const SequelizeUtil = require("../../../src/util/SequelizeUtil");
 
 
-router.use(authorizationFilter);
-
 router.get('/me', getPatientInfo);
 
-
-function authorizationFilter(req, res, next) {
-    req.principal = {
-        userId: 9133,
-    }
-    next();
-}
 
 
 async function getPatientInfo(req, res, next) {
