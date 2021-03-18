@@ -1,32 +1,37 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return paDrTbl.init(sequelize, DataTypes);
+  return PatientMedicationRecord.init(sequelize, DataTypes);
 }
 
-class paDrTbl extends Sequelize.Model {
+class PatientMedicationRecord extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   super.init({
-    ID: {
+    id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      field: 'ID',
     },
-    Drug: {
-      type: DataTypes.STRING(100),
-      allowNull: false
-    },
-    IDPatient: {
+    patientUserId: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      field: 'IDPatient',
     },
-    Dateofstart: {
-      type: DataTypes.STRING(50),
-      allowNull: true
+    drugName: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+      field: 'Drug',
     },
-    Dateofend: {
+    startDate: {
       type: DataTypes.STRING(50),
-      allowNull: true
+      allowNull: true,
+      field: 'Dateofstart',
+    },
+    endDate: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      field: 'Dateofend',
     }
   }, {
     sequelize,
@@ -43,6 +48,6 @@ class paDrTbl extends Sequelize.Model {
       },
     ]
   });
-  return paDrTbl;
+  return PatientMedicationRecord;
   }
 }

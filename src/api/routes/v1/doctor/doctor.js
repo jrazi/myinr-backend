@@ -104,7 +104,7 @@ async function getFirstVisitInfo(req, res, next) {
     const patientUserId = req.params.userId;
     const patient = await models.Patient.findOne({
         where: {userId: patientUserId, physicianUserId: req.principal.userId},
-        include: ['firstVisit', 'hasBledScore', 'cha2ds2Score', 'firstWarfarinDosage'],
+        include: ['firstVisit', 'hasBledScore', 'cha2ds2Score', 'firstWarfarinDosage', 'medicationHistory'],
     });
 
     if (patient == null) {
@@ -121,6 +121,7 @@ async function getFirstVisitInfo(req, res, next) {
         .withData({
             firstVisit: {
                 general: SequelizeUtil.filterFields(patient.firstVisit.get({plain: true}), firstVisitIncludedFields),
+                medicationHistory: patient.medicationHistory,
                 hasBledScore: SequelizeUtil.getLastInList(patient.hasBledScore),
                 cha2ds2Score: SequelizeUtil.getLastInList(patient.cha2ds2Score),
                 firstWarfarinDosage: SequelizeUtil.getLastInList(patient.firstWarfarinDosage),

@@ -210,6 +210,21 @@ const StaticDomainNameTable = {
         name: 'CRT',
         groupId: 4,
     },
+    43: {
+        id: 43,
+        name: 'Smoking',
+        groupId: 5,
+    },
+    44: {
+        id: 44,
+        name: 'Opium Addiction',
+        groupId: 5,
+    },
+    45: {
+        id: 45,
+        name: 'Alcohol',
+        groupId: 5,
+    },
     46: {
         id: 46,
         name: 'Normal Sinus Rhythm',

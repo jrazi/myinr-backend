@@ -202,6 +202,19 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.STRING(5),
       allowNull: true,
       field: "Habit",
+      get() {
+        const rawValue = this.getDataValue('habit');
+        const habitIds = DatabaseNormalizer.stringToList(rawValue, ',');
+
+        const habits = habitIds.map(id => DomainNameTable[id]);
+
+        return habits;
+      },
+      set(habitIdList) {
+        const habitsAsString = DatabaseNormalizer.listToString(habitIdList, ',');
+        const rawValue = `${habitsAsString}`;
+        this.setDataValue('habit', rawValue);
+      }
     },
     reasonForWarfarin: {
       type: DataTypes.STRING(50),

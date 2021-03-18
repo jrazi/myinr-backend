@@ -4,13 +4,13 @@ var _ansectorTbl = require("./AnsectorTbl");
 var _appointmentTbl = require("./AppointmentTbl");
 var _chadsVaScTbl = require("./Cha2ds2vascScore");
 var _dosageTbl = require("./DosageTbl");
-var _drugTbl = require("./DrugTbl");
+var _drugTbl = require("./DrugInfo");
 var _firstDosageTbl = require("./FirstWarfarinDosage");
 var _firstTbl = require("./FirstVisit");
 var _hasBledTbl = require("./HasBledStage");
 var _inrTestTbl = require("./InrTestTbl");
 var _items = require("./DomainNameTable");
-var _paDrTbl = require("./PaDrTbl");
+var _paDrTbl = require("./PatientMedicationRecord");
 var _patientTbl = require("./Patient");
 var _phAnTbl = require("./PhAnTbl");
 var _physicianTbl = require("./Physician");
@@ -28,13 +28,13 @@ function initModels(sequelize) {
   var appointmentTbl = _appointmentTbl(sequelize, DataTypes);
   var Cha2ds2vascScore = _chadsVaScTbl(sequelize, DataTypes);
   var dosageTbl = _dosageTbl(sequelize, DataTypes);
-  var drugTbl = _drugTbl(sequelize, DataTypes);
+  var DrugInfo = _drugTbl(sequelize, DataTypes);
   var FirstWarfarinDosage = _firstDosageTbl(sequelize, DataTypes);
   var FirstVisit = _firstTbl(sequelize, DataTypes);
   var HasBledStage = _hasBledTbl(sequelize, DataTypes);
   var inrTestTbl = _inrTestTbl(sequelize, DataTypes);
   var DomainNameTable = _items(sequelize, DataTypes);
-  var paDrTbl = _paDrTbl(sequelize, DataTypes);
+  var PatientMedicationRecord = _paDrTbl(sequelize, DataTypes);
   var Patient = _patientTbl(sequelize, DataTypes);
   var phAnTbl = _phAnTbl(sequelize, DataTypes);
   var Physician = _physicianTbl(sequelize, DataTypes);
@@ -61,6 +61,9 @@ function initModels(sequelize) {
   Cha2ds2vascScore.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
   Patient.hasMany(Cha2ds2vascScore, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'cha2ds2Score', sourceKey: 'userId'});
 
+  PatientMedicationRecord.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
+  Patient.hasMany(PatientMedicationRecord, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'medicationHistory', sourceKey: 'userId'});
+
   FirstWarfarinDosage.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
   Patient.hasMany(FirstWarfarinDosage, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'firstWarfarinDosage', sourceKey: 'userId'});
 
@@ -71,13 +74,13 @@ function initModels(sequelize) {
     appointmentTbl,
     Cha2ds2vascScore,
     dosageTbl,
-    drugTbl,
+    DrugInfo,
     FirstWarfarinDosage,
     FirstVisit,
     HasBledStage,
     inrTestTbl,
     DomainNameTable,
-    paDrTbl,
+    PatientMedicationRecord,
     Patient,
     phAnTbl,
     Physician,
