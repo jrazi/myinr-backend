@@ -33,7 +33,7 @@ class DatabaseNormalizer {
         if (!Array.isArray(list))
             return "";
 
-        let listAsString = list.reduce((acc, currentValue) => acc + currentValue + "," , "");
+        let listAsString = list.reduce((acc, currentValue) =>  acc + (currentValue || "") + separator , "");
         listAsString = listAsString.substring(0, listAsString.length - 1);
 
         return listAsString;

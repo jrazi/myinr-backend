@@ -174,6 +174,19 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.STRING(50),
       allowNull: true,
       field: "ECG",
+      get() {
+        const rawValue = this.getDataValue('ECG');
+        const conditionIds = DatabaseNormalizer.stringToList(rawValue, '-');
+
+        const conditions = conditionIds.map(id => DomainNameTable[id]);
+
+        return conditions;
+      },
+      set(conditionIdList) {
+        const conditionsAsString = DatabaseNormalizer.listToString(conditionIdList, '-');
+        const rawValue = `${conditionsAsString}`;
+        this.setDataValue('ECG', rawValue);
+      }
     },
     patientUserId: {
       type: DataTypes.INTEGER,
@@ -262,6 +275,19 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.STRING(50),
       allowNull: true,
       field: "BleedingorClotting",
+      get() {
+        const rawValue = this.getDataValue('bleedingOrClottingTypes');
+        const conditionIds = DatabaseNormalizer.stringToList(rawValue, ',');
+
+        const conditions = conditionIds.map(id => DomainNameTable[id]);
+
+        return conditions;
+      },
+      set(conditionIdList) {
+        const conditionsAsString = DatabaseNormalizer.listToString(conditionIdList, ',');
+        const rawValue = `${conditionsAsString}`;
+        this.setDataValue('bleedingOrClottingTypes', rawValue);
+      }
     },
     pastConditions: {
       type: DataTypes.STRING(50),
@@ -300,6 +326,17 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "bloodPressure",
+      get() {
+        const rawValue = this.getDataValue('bloodPressure');
+        const [systolic, diastolic] = DatabaseNormalizer.stringToList(rawValue, '-');
+
+        return {systolic, diastolic};
+      },
+      set(conditionIdList) {
+        const conditionsAsString = DatabaseNormalizer.listToString(conditionIdList, ',');
+        const rawValue = `${conditionsAsString}`;
+        this.setDataValue('pastConditions', rawValue);
+      }
     },
     heartBeat: {
       type: DataTypes.STRING(10),
