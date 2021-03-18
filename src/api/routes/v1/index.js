@@ -1,12 +1,7 @@
 var express = require('express');
-const errors = require("../../api/errors");
+const errors = require("../../errors");
 const jwt = require("jsonwebtoken");
 var router = express.Router();
-
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
 
 const unless = function(path, middleware) {
   return function(req, res, next) {

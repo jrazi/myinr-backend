@@ -46,7 +46,7 @@ async function testConnection() {
     }
 }
 
-const _initModels = require('./models/init-models');
+const _initModels = require('../models/init-models');
 
 async function initModels(sequelize) {
     return _initModels(sequelize);

@@ -1,14 +1,14 @@
 
 var express = require('express');
 var router = express.Router();
-const errors = require("../../../api/errors");
-const models = require("../../../models");
-const User = require("../../../models").User
+const errors = require("../../../errors");
+const models = require("../../../../models");
+const User = require("../../../../models").User
 
 const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
-const SimpleValidators = require("../../../src/util/SimpleValidators");
-const ResponseTemplate = require("../../../api/ResponseTemplate");
+const SimpleValidators = require("../../../../util/SimpleValidators");
+const ResponseTemplate = require("../../../ResponseTemplate");
 
 router.get('/login', login);
 

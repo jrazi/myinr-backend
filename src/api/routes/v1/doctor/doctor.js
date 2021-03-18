@@ -3,13 +3,13 @@ var express = require('express');
 var router = express.Router();
 const { Op } = require("sequelize");
 
-const Physician = require("../../../models").Physician
-const User = require("../../../models").User
-const Patient = require("../../../models").Patient
-const models = require("../../../models");
-const errors = require("../../../api/errors");
-const ResponseTemplate = require("../../../api/ResponseTemplate");
-const SequelizeUtil = require("../../../src/util/SequelizeUtil");
+const Physician = require("../../../../models").Physician
+const User = require("../../../../models").User
+const Patient = require("../../../../models").Patient
+const models = require("../../../../models");
+const errors = require("../../../errors");
+const ResponseTemplate = require("../../../ResponseTemplate");
+const SequelizeUtil = require("../../../../util/SequelizeUtil");
 
 
 router.get('/me', getDoctorInfo);

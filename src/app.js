@@ -4,10 +4,10 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var indexRouter = require('./routes/v1');
-var doctorRouter = require('./routes/v1/doctor/doctor');
-var patientRouter = require('./routes/v1/patient/patient');
-var authRouter = require('./routes/v1/authentication/auth');
+var indexRouter = require('./api/routes/v1');
+var doctorRouter = require('./api/routes/v1/doctor/doctor');
+var patientRouter = require('./api/routes/v1/patient/patient');
+var authRouter = require('./api/routes/v1/authentication/auth');
 var ApiError = require('./api/errors').ApiError;
 
 var app = express();

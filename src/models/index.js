@@ -1,4 +1,4 @@
-const sequelize = require('../db').sequelize;
+const sequelize = require('../database/db').sequelize;
 const initModels = require('./init-models').initModels;
 
 const models = initModels(sequelize);
