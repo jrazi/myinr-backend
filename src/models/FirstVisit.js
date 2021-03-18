@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const Normalize = require("../util/Normalize");
+const DatabaseNormalizer = require("../util/DatabaseNormalizer");
 module.exports = (sequelize, DataTypes) => {
   return FirstVisit.init(sequelize, DataTypes);
 }
@@ -218,10 +218,10 @@ class FirstVisit extends Sequelize.Model {
       allowNull: true,
       field: "PortableDevice",
       get() {
-        return Normalize.booleanValue(this.getDataValue('hasUsedPortableDevice'));
+        return DatabaseNormalizer.booleanValue(this.getDataValue('hasUsedPortableDevice'));
       },
       set(value) {
-        this.setDataValue('hasUsedPortableDevice', Normalize.booleanToNumberedString(value));
+        this.setDataValue('hasUsedPortableDevice', DatabaseNormalizer.booleanToNumberedString(value));
       }
     },
     timeOfLastInrTest: {
@@ -359,10 +359,10 @@ class FirstVisit extends Sequelize.Model {
       allowNull: true,
       field: "FFlagVisit",
       get() {
-        return Normalize.booleanValue(this.getDataValue('visitFlag'));
+        return DatabaseNormalizer.booleanValue(this.getDataValue('visitFlag'));
       },
       set(value) {
-        this.setDataValue('visitFlag', Normalize.booleanToNumberedString(value));
+        this.setDataValue('visitFlag', DatabaseNormalizer.booleanToNumberedString(value));
       }
     },
     isSaved: {
@@ -370,10 +370,10 @@ class FirstVisit extends Sequelize.Model {
       allowNull: true,
       field: "FFlagSave",
       get() {
-        return Normalize.booleanValue(this.getDataValue('isSaved'));
+        return DatabaseNormalizer.booleanValue(this.getDataValue('isSaved'));
       },
       set(value) {
-        this.setDataValue('isSaved', Normalize.booleanToNumberedString(value));
+        this.setDataValue('isSaved', DatabaseNormalizer.booleanToNumberedString(value));
       }
     },
     isEnded: {
@@ -382,10 +382,10 @@ class FirstVisit extends Sequelize.Model {
       defaultValue: "0",
       field: "FlagEndVisit",
       get() {
-        return Normalize.booleanValue(this.getDataValue('isEnded'));
+        return DatabaseNormalizer.booleanValue(this.getDataValue('isEnded'));
       },
       set(value) {
-        this.setDataValue('isEnded', Normalize.booleanToNumberedString(value));
+        this.setDataValue('isEnded', DatabaseNormalizer.booleanToNumberedString(value));
       }
     },
     reportComment: {
