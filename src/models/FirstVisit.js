@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+const Normalize = require("../util/Normalize");
 module.exports = (sequelize, DataTypes) => {
   return FirstVisit.init(sequelize, DataTypes);
 }
@@ -216,6 +217,12 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.STRING(1),
       allowNull: true,
       field: "PortableDevice",
+      get() {
+        return Normalize.booleanValue(this.getDataValue('hasUsedPortableDevice'));
+      },
+      set(value) {
+        this.setDataValue('hasUsedPortableDevice', Normalize.booleanToNumberedString(value));
+      }
     },
     timeOfLastInrTest: {
       type: DataTypes.STRING(10),
@@ -351,17 +358,35 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.STRING(1),
       allowNull: true,
       field: "FFlagVisit",
+      get() {
+        return Normalize.booleanValue(this.getDataValue('visitFlag'));
+      },
+      set(value) {
+        this.setDataValue('visitFlag', Normalize.booleanToNumberedString(value));
+      }
     },
     isSaved: {
       type: DataTypes.STRING(1),
       allowNull: true,
       field: "FFlagSave",
+      get() {
+        return Normalize.booleanValue(this.getDataValue('isSaved'));
+      },
+      set(value) {
+        this.setDataValue('isSaved', Normalize.booleanToNumberedString(value));
+      }
     },
     isEnded: {
       type: DataTypes.STRING(1),
       allowNull: true,
       defaultValue: "0",
       field: "FlagEndVisit",
+      get() {
+        return Normalize.booleanValue(this.getDataValue('isEnded'));
+      },
+      set(value) {
+        this.setDataValue('isEnded', Normalize.booleanToNumberedString(value));
+      }
     },
     reportComment: {
       type: DataTypes.TEXT,
