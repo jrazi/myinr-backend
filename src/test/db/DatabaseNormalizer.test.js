@@ -1,11 +1,5 @@
 const {stringToList, listToString} = require("../../app/util/DatabaseNormalizer");
 
-
-test('adds 1 + 2 to equal 3', () => {
-    expect(1+2).toBe(3);
-});
-
-
 describe("string to list converter", () => {
     it('should convert null to empty list', function () {
         let list = stringToList(null, ',');
