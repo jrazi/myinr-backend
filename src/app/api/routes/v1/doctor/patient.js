@@ -114,6 +114,43 @@ async function getFirstVisitInfo(req, res, next) {
 }
 
 async function startFirstVisit(req, res, next) {
+    const patientUserId = req.params.userId;
+    const patient = await models.Patient.findOne({
+        where: {userId: patientUserId, physicianUserId: req.principal.userId},
+        include: ['firstVisit', ],
+    });
+
+    if (patient == null) {
+        next(new errors.PatientNotFound());
+        return;
+    }
+
+    else if (patient.firstVisit != null) {
+        next(new errors.AlreadyExistsException("First visit is already started."));
+        return;
+    }
+
+    models.FirstVisit.max('id', {})
+        .then((maxId) => {
+            return models.FirstVisit.create({
+                id: maxId + 1,
+                patientUserId: patientUserId,
+            })
+        })
+        .then(firstVisit => {
+            const response = ResponseTemplate.create()
+                .withData({
+                    firstVisit,
+                })
+                .withMessage("First visit started")
+                .toJson();
+
+            res.json(response);
+
+        }).catch(err => {
+            console.log(err);
+            next(new Error());
+        })
 
 }
 

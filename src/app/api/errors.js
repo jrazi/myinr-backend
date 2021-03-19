@@ -77,6 +77,13 @@ class QueryParameterMissing extends ApiError {
     }
 }
 
+class AlreadyExistsException extends ApiError {
+    constructor (message = "This item already exists.") {
+        super(400, "ALREADY_EXISTS", message);
+    }
+}
+
+
 module.exports = {
     ApiError,
     AccessDenied,
@@ -90,4 +97,5 @@ module.exports = {
     UnauthorizedAccess,
     AccessForbidden,
     IllegalOperation,
+    AlreadyExistsException,
 };

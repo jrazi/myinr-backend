@@ -20,6 +20,7 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "dateofdiagnosis",
+      defaultValue: "",
     },
     warfarinInfo: {
       type: DataTypes.VIRTUAL,
@@ -174,6 +175,7 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.STRING(50),
       allowNull: true,
       field: "ECG",
+      defaultValue: "-",
       get() {
         const rawValue = this.getDataValue('ECG');
         const [ecgId, avrBlockId] = DatabaseNormalizer.stringToList(rawValue, '-');
@@ -202,11 +204,13 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: "DrugHistory",
+      defaultValue: 1,
     },
     habit: {
       type: DataTypes.STRING(5),
       allowNull: true,
       field: "Habit",
+      defaultValue: "",
       get() {
         const rawValue = this.getDataValue('habit');
         const habitIds = DatabaseNormalizer.stringToList(rawValue, ',');
@@ -225,6 +229,7 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.STRING(50),
       allowNull: true,
       field: "ReasonforusingWarfarin",
+      defaultValue: "-",
       get() {
         const rawValue = this.getDataValue('reasonForWarfarin');
         const [conditionsAsString, heartValveConditionsAsString] = DatabaseNormalizer.stringToList(rawValue, '-');
@@ -252,26 +257,41 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "dateoffirstWarfarin",
+      defaultValue: "",
     },
     inrTargetRange: {
       type: DataTypes.STRING(20),
       allowNull: true,
       field: "INRtargetrange",
+      defaultValue: "-",
+      get() {
+        const rawValue = this.getDataValue('inrTargetRange');
+        const [from, to] = DatabaseNormalizer.stringToList(rawValue, '-');
+
+        return {from, to};
+      },
+      set(inrRange) {
+        const rangeAsString = DatabaseNormalizer.listToString([inrRange.from, inrRange.to], '-');
+        this.setDataValue('inrTargetRange', rangeAsString);
+      }
     },
     lastInrValue: {
       type: DataTypes.STRING(20),
       allowNull: true,
       field: "LastINR",
+      defaultValue: "",
     },
     lastInrTestLabInfo: {
       type: DataTypes.STRING(255),
       allowNull: true,
       field: "Lab",
+      defaultValue: "",
     },
     hasUsedPortableDevice: {
       type: DataTypes.STRING(1),
       allowNull: true,
       field: "PortableDevice",
+      defaultValue: "0",
       get() {
         return DatabaseNormalizer.booleanValue(this.getDataValue('hasUsedPortableDevice'));
       },
@@ -283,16 +303,19 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "TimeofINRTest",
+      defaultValue: "",
     },
     dateOfLastInrTest: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "DateofINRTest",
+      defaultValue: "",
     },
     bleedingOrClottingTypes: {
       type: DataTypes.STRING(50),
       allowNull: true,
       field: "BleedingorClotting",
+      defaultValue: "",
       get() {
         const rawValue = this.getDataValue('bleedingOrClottingTypes');
         const conditionIds = DatabaseNormalizer.stringToList(rawValue, ',');
@@ -311,6 +334,7 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.STRING(50),
       allowNull: true,
       field: "PastMedicalHistory",
+      defaultValue: "",
       get() {
         const rawValue = this.getDataValue('pastConditions');
         const conditionIds = DatabaseNormalizer.stringToList(rawValue, ',');
@@ -329,21 +353,25 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.STRING(255),
       allowNull: true,
       field: "MajorSurgery",
+      defaultValue: "",
     },
     minorSurgery: {
       type: DataTypes.STRING(255),
       allowNull: true,
       field: "MinorSurgery",
+      defaultValue: "",
     },
     hospitalAdmission: {
       type: DataTypes.STRING(255),
       allowNull: true,
       field: "HospitalAdmission",
+      defaultValue: "",
     },
     bloodPressure: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "bloodPressure",
+      defaultValue: "-",
       get() {
         const rawValue = this.getDataValue('bloodPressure');
         const [systolic, diastolic] = DatabaseNormalizer.stringToList(rawValue, '-');
@@ -360,96 +388,115 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "PulseRate",
+      defaultValue: "",
     },
     respiratoryRate: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "RespiratoryRate",
+      defaultValue: "",
     },
     Hb: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "Hb",
+      defaultValue: "",
     },
     Hct: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "Hct",
+      defaultValue: "",
     },
     Plt: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "Plt",
+      defaultValue: "",
     },
     Bun: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "Bun",
+      defaultValue: "",
     },
     Urea: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "Urea",
+      defaultValue: "",
     },
     Cr: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "Cr",
+      defaultValue: "",
     },
     Na: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "Na",
+      defaultValue: "",
     },
     K: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "K",
+      defaultValue: "",
     },
     Alt: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "Alt",
+      defaultValue: "",
     },
     Ast: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "Ast",
+      defaultValue: "",
     },
     EF: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "EF",
+      defaultValue: "",
     },
     LAVI: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "LAVI",
+      defaultValue: "",
     },
     comment: {
       type: DataTypes.TEXT,
       allowNull: true,
       field: "Comment",
+      defaultValue: "",
     },
     visitYear: {
       type: DataTypes.STRING(4),
       allowNull: true,
       field: "FYearVisit",
+      defaultValue: "",
     },
     visitMonth: {
       type: DataTypes.STRING(2),
       allowNull: true,
       field: "FMonthVisit",
+      defaultValue: "",
     },
     visitDay: {
       type: DataTypes.STRING(2),
       allowNull: true,
       field: "FDayVisit",
+      defaultValue: "",
     },
     visitFlag: {
       type: DataTypes.STRING(1),
       allowNull: true,
       field: "FFlagVisit",
+      defaultValue: "0",
       get() {
         return DatabaseNormalizer.booleanValue(this.getDataValue('visitFlag'));
       },
@@ -461,6 +508,7 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.STRING(1),
       allowNull: true,
       field: "FFlagSave",
+      defaultValue: "1",
       get() {
         return DatabaseNormalizer.booleanValue(this.getDataValue('isSaved'));
       },
@@ -484,11 +532,13 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.TEXT,
       allowNull: true,
       field: "CommentReport",
+      defaultValue: "",
     },
     nextInrCheckDate: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: "NextINRCheck",
+      defaultValue: "",
     },
   }, {
     sequelize,
