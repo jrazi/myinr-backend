@@ -1,7 +1,7 @@
 
 var express = require('express');
 var router = express.Router();
-const { Op } = require("sequelize");
+const {QueryTypes} = require("sequelize");
 
 const models = require("../../../../models");
 const errors = require("../../../errors");
@@ -130,27 +130,37 @@ async function startFirstVisit(req, res, next) {
         return;
     }
 
-    models.FirstVisit.max('id', {})
-        .then((maxId) => {
-            return models.FirstVisit.create({
-                id: maxId + 1,
-                patientUserId: patientUserId,
-            })
-        })
-        .then(firstVisit => {
+
+    try {
+        const result = await models.FirstVisit.sequelize.transaction(async (tr) => {
+            const maxId = await models.FirstVisit.max('id', {transaction: tr});
+            const id = maxId + 1;
+            const insertResult = await models.FirstVisit.sequelize.query(
+                `INSERT INTO [myinrir_test].[FirstTbl] ([IDFirst],[IDUserPatient]) VALUES (${id}, ${patientUserId})`,
+                {type: QueryTypes.INSERT, transaction: tr}
+            );
+
+            const firstVisit = models.FirstVisit.build({});
+
+            const updateResult = await models.FirstVisit.update(firstVisit.get({plain: true}), {where: {id:  id}, transaction: tr});
+
+            const firstVisitData = firstVisit.get({plain: true});
+            firstVisitData.id = id;
+            firstVisitData.patientUserId = patient.userId;
+
             const response = ResponseTemplate.create()
                 .withData({
-                    firstVisit,
+                    firstVisit: firstVisit,
                 })
                 .withMessage("First visit started")
                 .toJson();
 
             res.json(response);
-
-        }).catch(err => {
-            console.log(err);
-            next(new Error());
         })
+    } catch(err) {
+        console.log(err);
+        next(new Error());
+    }
 
 }
 
