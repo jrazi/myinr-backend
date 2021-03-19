@@ -58,10 +58,28 @@ class UnauthorizedAccess extends ApiError {
     }
 }
 
+class AccessForbidden extends ApiError {
+    constructor (message = "You are not authorized to access this endpoint.") {
+        super(403, "ACCESS_FORBIDDEN", message);
+    }
+}
+
 class QueryParameterMissing extends ApiError {
     constructor (message = "Missing query parameter(s).") {
         super(400, "QUERY_PARAM_MISSING", message);
     }
 }
 
-module.exports = {ApiError, AccessDenied, NotFound, PatientNotFound, FirstVisitNotFound, PhysicianNotFound, UserNotFound, UsernamePasswordMismatch, QueryParameterMissing, UnauthorizedAccess};
+module.exports = {
+    ApiError,
+    AccessDenied,
+    NotFound,
+    PatientNotFound,
+    FirstVisitNotFound,
+    PhysicianNotFound,
+    UserNotFound,
+    UsernamePasswordMismatch,
+    QueryParameterMissing,
+    UnauthorizedAccess,
+    AccessForbidden,
+};

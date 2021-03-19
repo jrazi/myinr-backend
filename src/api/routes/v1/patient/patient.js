@@ -6,26 +6,19 @@ const errors = require("../../../errors");
 const ResponseTemplate = require("../../../ResponseTemplate");
 const SequelizeUtil = require("../../../../util/SequelizeUtil");
 
+const meRouter = require('./me');
 
-router.get('/me', getPatientInfo);
+router.use(patientAuthorizationFilter);
+router.use('/me', meRouter);
 
 
+function patientAuthorizationFilter(req, res, next) {
+    const principal = req.principal;
 
-async function getPatientInfo(req, res, next) {
-    const patient = await models.Patient.findOne({where: {userId: req.principal.userId}, include: ['userInfo', 'physician']});
-    if (patient == null) {
-        next(new errors.PatientNotFound());
-        return;
+    if (principal.role !== models.UserRoles.patient.id) {
+        throw new errors.AccessForbidden();
     }
-
-    const response = ResponseTemplate.create()
-        .withData({
-            patient: patient,
-        })
-        .toJson();
-
-    res.json(response);
+    next();
 }
-
 
 module.exports = router;
