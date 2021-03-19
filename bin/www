@@ -4,11 +4,11 @@
  * Module dependencies.
  */
 
-var app = require('../src/app');
+var app = require('../src/app/app');
 var debug = require('debug')('myinr-backend:server');
 var http = require('http');
-require('../src/models');
-var testConnection = require('../src/database/db').testConnection;
+require('../src/app/models');
+var testConnection = require('../src/app/database/db').testConnection;
 
 testConnection();
 

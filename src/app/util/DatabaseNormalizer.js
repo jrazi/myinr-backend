@@ -28,7 +28,7 @@ class DatabaseNormalizer {
 
 
     static listToString(list, separator=',') {
-        if (!SimpleValidators.hasValue(listAsString))
+        if (!SimpleValidators.hasValue(list))
             return "";
         if (!Array.isArray(list))
             return "";
