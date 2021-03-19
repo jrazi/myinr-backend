@@ -9,11 +9,10 @@ module.exports = (sequelize, DataTypes) => {
 class FirstVisit extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   super.init({
-    id: {
-      autoIncrement: true,
+    itemId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true,
+      // primaryKey: true,
       field: "IDFirst",
     },
     dateOfDiagnosis: {
@@ -215,7 +214,7 @@ class FirstVisit extends Sequelize.Model {
         const rawValue = this.getDataValue('habit');
         const habitIds = DatabaseNormalizer.stringToList(rawValue, ',');
 
-        const habits = habitIds.map(id => DomainNameTable[id]);
+        const habits = habitIds.map(itemId => DomainNameTable[itemId]);
 
         return habits;
       },
@@ -236,8 +235,8 @@ class FirstVisit extends Sequelize.Model {
         const conditionIds = DatabaseNormalizer.stringToList(conditionsAsString, ',');
         const heartValveReplacementConditionIds = DatabaseNormalizer.stringToList(heartValveConditionsAsString, ',');
 
-        const conditions = conditionIds.map(id => DomainNameTable[id]);
-        const heartValveReplacementConditions = heartValveReplacementConditionIds.map(id => DomainNameTable[id]);
+        const conditions = conditionIds.map(itemId => DomainNameTable[itemId]);
+        const heartValveReplacementConditions = heartValveReplacementConditionIds.map(itemId => DomainNameTable[itemId]);
 
         return {
           conditions,
@@ -320,7 +319,7 @@ class FirstVisit extends Sequelize.Model {
         const rawValue = this.getDataValue('bleedingOrClottingTypes');
         const conditionIds = DatabaseNormalizer.stringToList(rawValue, ',');
 
-        const conditions = conditionIds.map(id => DomainNameTable[id]);
+        const conditions = conditionIds.map(itemId => DomainNameTable[itemId]);
 
         return conditions;
       },
@@ -339,7 +338,7 @@ class FirstVisit extends Sequelize.Model {
         const rawValue = this.getDataValue('pastConditions');
         const conditionIds = DatabaseNormalizer.stringToList(rawValue, ',');
 
-        const conditions = conditionIds.map(id => DomainNameTable[id]);
+        const conditions = conditionIds.map(itemId => DomainNameTable[itemId]);
 
         return conditions;
       },

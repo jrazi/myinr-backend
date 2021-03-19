@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
 class DomainNameTable extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   super.init({
-    id: {
+    itemId: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,

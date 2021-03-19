@@ -18,11 +18,11 @@ module.exports.DomainNameTable = models.DomainNameTable;
 
 module.exports.UserRoles = {
     physician: {
-        id: 1,
+        itemId: 1,
         name: 'PHYSICIAN',
     },
     patient: {
-        id: 3,
+        itemId: 3,
         name: 'PATIENT',
     },
 }

@@ -49,6 +49,10 @@ class SequelizeUtil {
             if (TypeChecker.isObject(element)) {
                 if (TypeChecker.isNumber(element.id))
                     return Number(element.id);
+                else if (TypeChecker.isNumber(element._id))
+                    return Number(element._id);
+                else if (TypeChecker.isNumber(element.itemId))
+                    return Number(element.itemId);
             }
             else return null;
         }

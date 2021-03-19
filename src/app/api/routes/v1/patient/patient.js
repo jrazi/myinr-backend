@@ -15,7 +15,7 @@ router.use('/me', meRouter);
 function patientAuthorizationFilter(req, res, next) {
     const principal = req.principal;
 
-    if (principal.role !== models.UserRoles.patient.id) {
+    if (principal.role !== models.UserRoles.patient.itemId) {
         throw new errors.AccessForbidden();
     }
     next();

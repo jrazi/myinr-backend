@@ -52,23 +52,28 @@ function initModels(sequelize) {
   Patient.belongsTo(Physician, {foreignKey: {name: 'physicianUserId', allowNull: true}, as: 'physician', targetKey: 'userId'});
   Physician.hasMany(Patient, {foreignKey: {name: 'physicianUserId', allowNull: true}, as: 'patients', sourceKey: 'userId'});
 
-  FirstVisit.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
-  Patient.hasOne(FirstVisit, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'firstVisit', sourceKey: 'userId'});
+  FirstVisit.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId', sourceKey: 'itemId',});
+  Patient.hasOne(FirstVisit, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'firstVisit', sourceKey: 'userId', targetKey: 'itemId',});
 
-  HasBledStage.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
-  Patient.hasMany(HasBledStage, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'hasBledScore', sourceKey: 'userId'});
+  HasBledStage.removeAttribute('id');
+  HasBledStage.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId', sourceKey: 'itemId',});
+  Patient.hasMany(HasBledStage, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'hasBledScore', sourceKey: 'userId', targetKey: 'itemId',});
 
-  Cha2ds2vascScore.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
-  Patient.hasMany(Cha2ds2vascScore, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'cha2ds2Score', sourceKey: 'userId'});
+  Cha2ds2vascScore.removeAttribute('id');
+  Cha2ds2vascScore.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId', sourceKey: 'itemId',});
+  Patient.hasMany(Cha2ds2vascScore, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'cha2ds2Score', sourceKey: 'userId', targetKey: 'itemId',});
 
-  PatientMedicationRecord.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
-  Patient.hasMany(PatientMedicationRecord, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'medicationHistory', sourceKey: 'userId'});
+  PatientMedicationRecord.removeAttribute('id');
+  PatientMedicationRecord.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId', sourceKey: 'itemId',});
+  Patient.hasMany(PatientMedicationRecord, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'medicationHistory', sourceKey: 'userId', targetKey: 'itemId',});
 
-  WarfarinWeekDosage.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
-  Patient.hasMany(WarfarinWeekDosage, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'warfarinWeeklyDosages', sourceKey: 'userId'});
+  FirstVisit.removeAttribute('id');
+  WarfarinWeekDosage.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId', sourceKey: 'itemId',});
+  Patient.hasMany(WarfarinWeekDosage, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'warfarinWeeklyDosages', sourceKey: 'userId', targetKey: 'itemId',});
 
-  WarfarinDosageRecord.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
-  Patient.hasMany(WarfarinDosageRecord, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'warfarinDosageRecords', sourceKey: 'userId'});
+  WarfarinDosageRecord.removeAttribute('id');
+  WarfarinDosageRecord.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId', sourceKey: 'itemId',});
+  Patient.hasMany(WarfarinDosageRecord, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'warfarinDosageRecords', sourceKey: 'userId', targetKey: 'itemId',});
 
   return {
     adminTbl,

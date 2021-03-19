@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
 class PatientMedicationRecord extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   super.init({
-    id: {
+    itemId: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,

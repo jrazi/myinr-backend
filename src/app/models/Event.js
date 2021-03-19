@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
 class event extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   super.init({
-    id: {
+    itemId: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -38,7 +38,7 @@ class event extends Sequelize.Model {
         name: "PK_event",
         unique: true,
         fields: [
-          { name: "id" },
+          { name: "itemId" },
         ]
       },
     ]

@@ -21,7 +21,7 @@ router.use('/drugs', drugsRouter);
 function doctorAuthorizationFilter(req, res, next) {
     const principal = req.principal;
 
-    if (principal.role !== models.UserRoles.physician.id) {
+    if (principal.role !== models.UserRoles.physician.itemId) {
         throw new errors.AccessForbidden();
     }
     next();

@@ -130,10 +130,10 @@ async function startFirstVisit(req, res, next) {
         return;
     }
 
-    models.FirstVisit.max('id', {})
+    models.FirstVisit.max('itemId', {})
         .then((maxId) => {
             return models.FirstVisit.create({
-                id: maxId + 1,
+                itemId: maxId + 1,
                 patientUserId: patientUserId,
             })
         })
@@ -197,7 +197,7 @@ async function finishFirstVisit(req, res, next) {
 }
 
 const firstVisitIncludedFields = [
-    'id',
+    'itemId',
     'patientUserId',
     'visitDate',
     'dateOfDiagnosis',
