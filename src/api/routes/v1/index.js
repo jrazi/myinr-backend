@@ -2,6 +2,9 @@ var express = require('express');
 const errors = require("../../errors");
 const jwt = require("jsonwebtoken");
 var router = express.Router();
+var doctorRouter = require('./doctor/doctor');
+var patientRouter = require('./patient/patient');
+var authRouter = require('./authentication/auth');
 
 const unless = function(path, middleware) {
   return function(req, res, next) {
@@ -14,6 +17,10 @@ const unless = function(path, middleware) {
 };
 
 router.use(unless(/^\/(auth).*$/, authorizationFilter));
+router.use('/doctor', doctorRouter);
+router.use('/patient', patientRouter);
+router.use('/auth', authRouter);
+
 
 function authorizationFilter(req, res, next) {
 
