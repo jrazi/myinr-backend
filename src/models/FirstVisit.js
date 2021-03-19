@@ -21,7 +21,7 @@ class FirstVisit extends Sequelize.Model {
       allowNull: true,
       field: "dateofdiagnosis",
     },
-    firstWarfarin: {
+    warfarinInfo: {
       type: DataTypes.VIRTUAL,
       get() {
         return {
@@ -176,14 +176,19 @@ class FirstVisit extends Sequelize.Model {
       field: "ECG",
       get() {
         const rawValue = this.getDataValue('ECG');
-        const conditionIds = DatabaseNormalizer.stringToList(rawValue, '-');
+        const [ecgId, avrBlockId] = DatabaseNormalizer.stringToList(rawValue, '-');
 
-        const conditions = conditionIds.map(id => DomainNameTable[id]);
+        const ecg = DomainNameTable[ecgId] || null;
+        const avrBlock = DomainNameTable[avrBlockId] || null;
 
-        return conditions;
+        return {
+          ecg: ecg,
+          avrBlock: avrBlock,
+        };
       },
-      set(conditionIdList) {
-        const conditionsAsString = DatabaseNormalizer.listToString(conditionIdList, '-');
+      set(value) {
+        const {ecg, avrBlock} = value;
+        const conditionsAsString = DatabaseNormalizer.listToString([ecg, avrBlock], '-');
         const rawValue = `${conditionsAsString}`;
         this.setDataValue('ECG', rawValue);
       }

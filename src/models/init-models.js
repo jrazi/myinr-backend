@@ -3,9 +3,9 @@ var _adminTbl = require("./AdminTbl");
 var _ansectorTbl = require("./AnsectorTbl");
 var _appointmentTbl = require("./AppointmentTbl");
 var _chadsVaScTbl = require("./Cha2ds2vascScore");
-var _dosageTbl = require("./DosageTbl");
+var _dosageTbl = require("./WarfarinDosageRecord");
 var _drugTbl = require("./DrugInfo");
-var _firstDosageTbl = require("./FirstWarfarinDosage");
+var _firstDosageTbl = require("./WarfarinWeekDosage");
 var _firstTbl = require("./FirstVisit");
 var _hasBledTbl = require("./HasBledStage");
 var _inrTestTbl = require("./InrTestTbl");
@@ -27,9 +27,9 @@ function initModels(sequelize) {
   var ansectorTbl = _ansectorTbl(sequelize, DataTypes);
   var appointmentTbl = _appointmentTbl(sequelize, DataTypes);
   var Cha2ds2vascScore = _chadsVaScTbl(sequelize, DataTypes);
-  var dosageTbl = _dosageTbl(sequelize, DataTypes);
+  var WarfarinDosageRecord = _dosageTbl(sequelize, DataTypes);
   var DrugInfo = _drugTbl(sequelize, DataTypes);
-  var FirstWarfarinDosage = _firstDosageTbl(sequelize, DataTypes);
+  var WarfarinWeekDosage = _firstDosageTbl(sequelize, DataTypes);
   var FirstVisit = _firstTbl(sequelize, DataTypes);
   var HasBledStage = _hasBledTbl(sequelize, DataTypes);
   var inrTestTbl = _inrTestTbl(sequelize, DataTypes);
@@ -64,18 +64,20 @@ function initModels(sequelize) {
   PatientMedicationRecord.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
   Patient.hasMany(PatientMedicationRecord, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'medicationHistory', sourceKey: 'userId'});
 
-  FirstWarfarinDosage.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
-  Patient.hasMany(FirstWarfarinDosage, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'firstWarfarinDosage', sourceKey: 'userId'});
+  WarfarinWeekDosage.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
+  Patient.hasMany(WarfarinWeekDosage, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'warfarinWeeklyDosages', sourceKey: 'userId'});
 
+  WarfarinDosageRecord.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
+  Patient.hasMany(WarfarinDosageRecord, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'warfarinDosageRecords', sourceKey: 'userId'});
 
   return {
     adminTbl,
     ansectorTbl,
     appointmentTbl,
     Cha2ds2vascScore,
-    dosageTbl,
+    WarfarinDosageRecord,
     DrugInfo,
-    FirstWarfarinDosage,
+    WarfarinWeekDosage,
     FirstVisit,
     HasBledStage,
     inrTestTbl,

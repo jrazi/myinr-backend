@@ -1,40 +1,47 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return dosageTbl.init(sequelize, DataTypes);
+  return WarfarinDosageRecord.init(sequelize, DataTypes);
 }
 
-class dosageTbl extends Sequelize.Model {
+class WarfarinDosageRecord extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   super.init({
-    IDDosage: {
+    id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      field: 'IDDosage',
     },
-    IDUserPatient: {
+    patientUserId: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: true,
+      field: 'IDUserPatient',
     },
-    PHDosage: {
+    dosagePH: {
       type: DataTypes.FLOAT,
-      allowNull: true
+      allowNull: true,
+      field: 'PHDosage',
     },
-    PADosage: {
+    dosagePA: {
       type: DataTypes.FLOAT,
-      allowNull: true
+      allowNull: true,
+      field: 'PADosage',
     },
-    DayDosage: {
+    dosageDay: {
       type: DataTypes.STRING(2),
-      allowNull: true
+      allowNull: true,
+      field: 'DayDosage',
     },
-    MonthDosage: {
+    dosageMonth: {
       type: DataTypes.STRING(2),
-      allowNull: true
+      allowNull: true,
+      field: 'MonthDosage',
     },
-    YearDosage: {
+    dosageYear: {
       type: DataTypes.STRING(4),
-      allowNull: true
+      allowNull: true,
+      field: 'YearDosage',
     }
   }, {
     sequelize,
@@ -51,6 +58,6 @@ class dosageTbl extends Sequelize.Model {
       },
     ]
   });
-  return dosageTbl;
+  return WarfarinDosageRecord;
   }
 }

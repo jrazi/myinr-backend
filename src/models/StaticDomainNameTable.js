@@ -255,6 +255,21 @@ const StaticDomainNameTable = {
         name: 'RVH',
         groupId: 6,
     },
+    52: {
+        id: 52,
+        name: 'First',
+        groupId: 7,
+    },
+    53: {
+        id: 53,
+        name: 'Second',
+        groupId: 7,
+    },
+    54: {
+        id: 54,
+        name: 'Third',
+        groupId: 7,
+    },
 }
 
 module.exports = StaticDomainNameTable;

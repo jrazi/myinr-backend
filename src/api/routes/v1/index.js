@@ -28,7 +28,6 @@ function authorizationFilter(req, res, next) {
       next(new errors.UnauthorizedAccess());
       return;
     }
-    console.log("user is", user);
     req.principal = {
       userId: user.userId,
       role: user.role,

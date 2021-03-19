@@ -104,7 +104,7 @@ async function getFirstVisitInfo(req, res, next) {
     const patientUserId = req.params.userId;
     const patient = await models.Patient.findOne({
         where: {userId: patientUserId, physicianUserId: req.principal.userId},
-        include: ['firstVisit', 'hasBledScore', 'cha2ds2Score', 'firstWarfarinDosage', 'medicationHistory'],
+        include: ['firstVisit', 'hasBledScore', 'cha2ds2Score', 'warfarinWeeklyDosages', 'medicationHistory',],
     });
 
     if (patient == null) {
@@ -117,15 +117,16 @@ async function getFirstVisitInfo(req, res, next) {
         return;
     }
 
+    const firstVisit = SequelizeUtil.filterFields(patient.firstVisit.get({plain: true}), firstVisitIncludedFields);
+    firstVisit.medicationHistory = patient.medicationHistory;
+    firstVisit.hasBledScore = SequelizeUtil.getLastInList(patient.hasBledScore);
+    firstVisit.cha2ds2Score = SequelizeUtil.getLastInList(patient.cha2ds2Score);
+    firstVisit.warfarinInfo.lastWarfarinDosage = SequelizeUtil.getLastInList(patient.warfarinWeeklyDosages);
+    // firstVisit.recommendedDosage = patient.warfarinDosageRecords;
+
     const response = ResponseTemplate.create()
         .withData({
-            firstVisit: {
-                general: SequelizeUtil.filterFields(patient.firstVisit.get({plain: true}), firstVisitIncludedFields),
-                medicationHistory: patient.medicationHistory,
-                hasBledScore: SequelizeUtil.getLastInList(patient.hasBledScore),
-                cha2ds2Score: SequelizeUtil.getLastInList(patient.cha2ds2Score),
-                firstWarfarinDosage: SequelizeUtil.getLastInList(patient.firstWarfarinDosage),
-            }
+            firstVisit,
         })
         .toJson();
 
@@ -148,7 +149,7 @@ const firstVisitIncludedFields = [
     'patientUserId',
     'visitDate',
     'dateOfDiagnosis',
-    'firstWarfarin',
+    'warfarinInfo',
     'lastInrTest',
     'testResult',
     'medicalHistory',

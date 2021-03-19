@@ -1,9 +1,9 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return FirstWarfarinDosage.init(sequelize, DataTypes);
+  return WarfarinWeekDosage.init(sequelize, DataTypes);
 }
 
-class FirstWarfarinDosage extends Sequelize.Model {
+class WarfarinWeekDosage extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   super.init({
     id: {
@@ -68,6 +68,6 @@ class FirstWarfarinDosage extends Sequelize.Model {
       },
     ]
   });
-  return FirstWarfarinDosage;
+  return WarfarinWeekDosage;
   }
 }
