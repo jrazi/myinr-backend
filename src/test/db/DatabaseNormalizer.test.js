@@ -1,4 +1,4 @@
-const {stringToList, listToString} = require("../../app/util/DatabaseNormalizer");
+const {stringToList, listToString, getL} = require("../../app/util/DatabaseNormalizer");
 
 describe("string to list converter", () => {
     it('should convert null to empty list', function () {
@@ -86,3 +86,4 @@ describe("list to string converter", () => {
     });
 
 })
+

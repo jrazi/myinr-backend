@@ -46,6 +46,13 @@ class FirstVisitNotFound extends ApiError {
     }
 }
 
+class IllegalOperation extends ApiError {
+    constructor (message = "You can not do this operation.") {
+        super(400, "ILLEGAL_OPERATION", message);
+    }
+}
+
+
 class UsernamePasswordMismatch extends ApiError {
     constructor (message = "No user with this combination of username and password was found.") {
         super(400, "USERNAME_PASSWORD_MISMATCH", message);
@@ -82,4 +89,5 @@ module.exports = {
     QueryParameterMissing,
     UnauthorizedAccess,
     AccessForbidden,
+    IllegalOperation,
 };

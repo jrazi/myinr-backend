@@ -1,6 +1,6 @@
 const Normalize = require("./Normalize");
 const SimpleValidators = require("./SimpleValidators");
-const ListUtil = require("./ListUtil");
+const TypeChecker = require("./TypeChecker");
 
 class SequelizeUtil {
 
@@ -28,21 +28,39 @@ class SequelizeUtil {
         return finalObject;
     }
 
-    static getFirstInList(list, compareFunction=(a, b) => a.id - b.id) {
-        if (!ListUtil.isList(list))
-            return null;
-        const first = list.reduce(function(prev, current) {
-            return compareFunction(prev, current) > 0 ? prev : current
-        })
-        return first;
+    static getMinOfList(list) {
+        return SequelizeUtil.extractEst(list, (a, b) => b - a)
     }
 
-    static getLastInList(list, compareFunction=(a, b) => a.id - b.id) {
-        if (!ListUtil.isList(list))
+    static getMaxOfList(list) {
+        return SequelizeUtil.extractEst(list, (a, b) => a - b)
+    }
+
+
+    static extractEst(list, compareFunction) {
+        if (!TypeChecker.isList(list))
             return null;
+        if (list.length == 0) return null;
+
+        const getIdentifier = (element) => {
+            if (!SimpleValidators.hasValue(element)) return null;
+            if (TypeChecker.isNumber(element))
+                return Number(element);
+            if (TypeChecker.isObject(element)) {
+                if (TypeChecker.isNumber(element.id))
+                    return Number(element.id);
+            }
+            else return null;
+        }
         const last = list.reduce(function(prev, current) {
-            return compareFunction(prev, current) <= 0 ? prev : current
-        })
+            const prevValue = getIdentifier(prev);
+            const currentValue = getIdentifier(current);
+
+            if (!SimpleValidators.hasValue(currentValue)) return prev;
+            if (!SimpleValidators.hasValue(prevValue)) return current;
+
+            return compareFunction(prevValue, currentValue) > 0 ? prev : current
+        }, list[0])
         return last;
     }
 }

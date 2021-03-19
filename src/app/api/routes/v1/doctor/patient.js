@@ -16,6 +16,8 @@ router.get('/:userId/firstVisit', getFirstVisitInfo);
 
 router.put('/:userId/firstVisit', updateFirstVisit);
 
+router.put('/:userId/firstVisit/start', startFirstVisit);
+
 router.put('/:userId/firstVisit/finish', finishFirstVisit);
 
 async function getAllPatients(req, res, next) {
@@ -97,9 +99,9 @@ async function getFirstVisitInfo(req, res, next) {
 
     const firstVisit = SequelizeUtil.filterFields(patient.firstVisit.get({plain: true}), firstVisitIncludedFields);
     firstVisit.medicationHistory = patient.medicationHistory;
-    firstVisit.hasBledScore = SequelizeUtil.getLastInList(patient.hasBledScore);
-    firstVisit.cha2ds2Score = SequelizeUtil.getLastInList(patient.cha2ds2Score);
-    firstVisit.warfarinInfo.lastWarfarinDosage = SequelizeUtil.getLastInList(patient.warfarinWeeklyDosages);
+    firstVisit.hasBledScore = SequelizeUtil.getMaxOfList(patient.hasBledScore);
+    firstVisit.cha2ds2Score = SequelizeUtil.getMaxOfList(patient.cha2ds2Score);
+    firstVisit.warfarinInfo.lastWarfarinDosage = SequelizeUtil.getMaxOfList(patient.warfarinWeeklyDosages);
     // firstVisit.recommendedDosage = patient.warfarinDosageRecords;
 
     const response = ResponseTemplate.create()
@@ -111,12 +113,57 @@ async function getFirstVisitInfo(req, res, next) {
     res.json(response);
 }
 
-function updateFirstVisit(req, res, next) {
+async function startFirstVisit(req, res, next) {
+
+}
+
+async function updateFirstVisit(req, res, next) {
     next();
 }
 
-function finishFirstVisit(req, res, next) {
-    next();
+async function finishFirstVisit(req, res, next) {
+    const patientUserId = req.params.userId;
+    const patient = await models.Patient.findOne({
+        where: {userId: patientUserId, physicianUserId: req.principal.userId},
+        include: ['firstVisit', ],
+    });
+
+    if (patient == null) {
+        next(new errors.PatientNotFound());
+        return;
+    }
+
+    else if (patient.firstVisit == null) {
+        next(new errors.FirstVisitNotFound());
+        return;
+    }
+
+    else if (!patient.firstVisit.started) {
+        next(new errors.IllegalOperation("First visit is not started yet."));
+        return;
+    }
+
+    else if (patient.firstVisit.flags.isEnded) {
+        next(new errors.IllegalOperation("First visit is already finished."));
+        return;
+    }
+
+    patient.firstVisit.flags = {
+        isSaved: patient.firstVisit.flags.isSaved,
+        visitFlag: patient.firstVisit.flags.visitFlag,
+        isEnded: true,
+    }
+
+    const firstVisit = await models.FirstVisit.save(patient.firstVisit);
+
+    const response = ResponseTemplate.create()
+        .withData({
+        })
+        .withMessage("First visit status changed to 'finished'")
+        .toJson();
+
+    res.json(response);
+
 }
 
 const firstVisitIncludedFields = [
