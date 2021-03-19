@@ -138,23 +138,16 @@ async function finishFirstVisit(req, res, next) {
         return;
     }
 
-    else if (!patient.firstVisit.started) {
-        next(new errors.IllegalOperation("First visit is not started yet."));
-        return;
-    }
-
     else if (patient.firstVisit.flags.isEnded) {
         next(new errors.IllegalOperation("First visit is already finished."));
         return;
     }
 
     patient.firstVisit.flags = {
-        isSaved: patient.firstVisit.flags.isSaved,
-        visitFlag: patient.firstVisit.flags.visitFlag,
         isEnded: true,
     }
 
-    const firstVisit = await models.FirstVisit.save(patient.firstVisit);
+    await patient.firstVisit.save();
 
     const response = ResponseTemplate.create()
         .withData({

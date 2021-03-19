@@ -137,9 +137,9 @@ class FirstVisit extends Sequelize.Model {
         }
       },
       set(values) {
-        this.visitFlag= values.visitFlag;
-        this.isSaved= values.isSaved;
-        this.isEnded= values.isEnded;
+        this.visitFlag= values.visitFlag || this.visitFlag;
+        this.isSaved= values.isSaved || this.isSaved;
+        this.isEnded= values.isEnded || this.isEnded;
       }
     },
     inr: {
