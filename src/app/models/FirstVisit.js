@@ -17,6 +17,11 @@ class FirstVisit extends Sequelize.Model {
       primaryKey: true,
       field: "IDFirst",
     },
+    patientUserId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      field: "IDUserPatient",
+    },
     dateOfDiagnosis: {
       type: DataTypes.STRING(10),
       allowNull: true,
@@ -161,15 +166,37 @@ class FirstVisit extends Sequelize.Model {
       type: DataTypes.VIRTUAL,
       get() {
         return {
-          day: this.day,
-          month: this.month,
-          year: this.year,
+          value: `${this.visitYear}/${this.visitMonth}/${this.visitDay}`,
+          details: {
+            visitDay: this.visitDay,
+            visitMonth: this.visitMonth,
+            visitYear: this.visitYear,
+          }
         }
       },
       set(values) {
-        this.day= values.day;
-        this.month= values.month;
-        this.year= values.year;
+        this.visitDay= firstWithValue(values.visitDay, this.visitDay);
+        this.visitMonth= firstWithValue(values.visitMonth, this.visitMonth);
+        this.visitYear= firstWithValue(values.visitYear, this.visitYear);
+      }
+    },
+    bleedingOrClottingTypes: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      field: "BleedingorClotting",
+      defaultValue: "",
+      get() {
+        const rawValue = this.getDataValue('bleedingOrClottingTypes');
+        const conditionIds = DatabaseNormalizer.stringToList(rawValue, ',');
+
+        const conditions = conditionIds.map(id => DomainNameTable[id]);
+
+        return conditions;
+      },
+      set(conditionIdList) {
+        const conditionsAsString = DatabaseNormalizer.listToString(conditionIdList, ',');
+        const rawValue = `${conditionsAsString}`;
+        this.setDataValue('bleedingOrClottingTypes', rawValue);
       }
     },
     electrocardiography: {
@@ -195,11 +222,6 @@ class FirstVisit extends Sequelize.Model {
         const rawValue = `${conditionsAsString}`;
         this.setDataValue('electrocardiography', rawValue);
       }
-    },
-    patientUserId: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      field: "IDUserPatient",
     },
     drugHistory: {
       type: DataTypes.INTEGER,
@@ -311,25 +333,6 @@ class FirstVisit extends Sequelize.Model {
       allowNull: true,
       field: "DateofINRTest",
       defaultValue: "",
-    },
-    bleedingOrClottingTypes: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-      field: "BleedingorClotting",
-      defaultValue: "",
-      get() {
-        const rawValue = this.getDataValue('bleedingOrClottingTypes');
-        const conditionIds = DatabaseNormalizer.stringToList(rawValue, ',');
-
-        const conditions = conditionIds.map(id => DomainNameTable[id]);
-
-        return conditions;
-      },
-      set(conditionIdList) {
-        const conditionsAsString = DatabaseNormalizer.listToString(conditionIdList, ',');
-        const rawValue = `${conditionsAsString}`;
-        this.setDataValue('bleedingOrClottingTypes', rawValue);
-      }
     },
     pastConditions: {
       type: DataTypes.STRING(50),
