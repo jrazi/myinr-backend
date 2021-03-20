@@ -232,6 +232,7 @@ async function updateFirstVisit(req, res, next) {
         await models.FirstVisit.sequelize.transaction(async (tr) => {
             const result = await patient.firstVisit.save({transaction: tr});
             await insertToSecondaryTableIfValueProvided('hasBledScore', models.HasBledStage, 'HAS-BLEDTbl', tr);
+            await insertToSecondaryTableIfValueProvided('cha2ds2Score', models.Cha2ds2vascScore, 'CHADS-VAScTbl', tr);
 
             const firstVisit = SequelizeUtil.filterFields(result.get({plain: true}), firstVisitIncludedFields);
             const response = ResponseTemplate.create()

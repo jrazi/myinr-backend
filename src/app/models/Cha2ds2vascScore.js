@@ -48,7 +48,7 @@ class Cha2ds2vascScore extends Sequelize.Model {
       field: 'Stroke',
       defaultValue: 0,
     },
-    Vvscular: {
+    vascular: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'Vascular',
