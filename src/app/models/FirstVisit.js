@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const DatabaseNormalizer = require("../util/DatabaseNormalizer");
+const {firstWithValue} = DatabaseNormalizer;
 const DomainNameTable = require("./StaticDomainNameTable");
 
 module.exports = (sequelize, DataTypes) => {
@@ -31,8 +32,8 @@ class FirstVisit extends Sequelize.Model {
         }
       },
       set(values) {
-        this.reasonForWarfarin= values.reasonForWarfarin || this.reasonForWarfarin;
-        this.dateOfFirstWarfarin= values.dateOfFirstWarfarin || this.dateOfFirstWarfarin;
+        this.reasonForWarfarin= firstWithValue(values.reasonForWarfarin, this.reasonForWarfarin);
+        this.dateOfFirstWarfarin= firstWithValue(values.dateOfFirstWarfarin, this.dateOfFirstWarfarin);
       }
     },
     lastInrTest: {
@@ -46,10 +47,10 @@ class FirstVisit extends Sequelize.Model {
         }
       },
       set(values) {
-        this.hasUsedPortableDevice= values.hasUsedPortableDevice;
-        this.dateOfLastInrTest= values.dateOfLastInrTest;
-        this.lastInrValue= values.lastInrValue;
-        this.lastInrTestLabInfo= values.lastInrTestLabInfo;
+        this.hasUsedPortableDevice= firstWithValue(values.hasUsedPortableDevice, this.hasUsedPortableDevice);
+        this.dateOfLastInrTest= firstWithValue(values.dateOfLastInrTest, this.dateOfLastInrTest);
+        this.lastInrValue= firstWithValue(values.lastInrValue, this.lastInrValue);
+        this.lastInrTestLabInfo= firstWithValue(values.lastInrTestLabInfo, this.lastInrTestLabInfo);
       }
     },
     testResult: {
@@ -69,16 +70,16 @@ class FirstVisit extends Sequelize.Model {
         }
       },
       set(values) {
-        this.Hb= values.Hb;
-        this.Hct= values.Hct;
-        this.Plt= values.Plt;
-        this.Bun= values.Bun;
-        this.Urea= values.Urea;
-        this.Cr= values.Cr;
-        this.Na= values.Na;
-        this.K= values.K;
-        this.Alt= values.Alt;
-        this.Ast= values.Ast;
+        this.Hb= firstWithValue(values.Hb, this.Hb);
+        this.Hct= firstWithValue(values.Hct, this.Hct);
+        this.Plt= firstWithValue(values.Plt, this.Plt);
+        this.Bun= firstWithValue(values.Bun, this.Bun);
+        this.Urea= firstWithValue(values.Urea, this.Urea);
+        this.Cr= firstWithValue(values.Cr, this.Cr);
+        this.Na= firstWithValue(values.Na, this.Na);
+        this.K= firstWithValue(values.K, this.K);
+        this.Alt= firstWithValue(values.Alt, this.Alt);
+        this.Ast= firstWithValue(values.Ast, this.Ast);
       }
     },
     medicalHistory: {
@@ -92,10 +93,10 @@ class FirstVisit extends Sequelize.Model {
         }
       },
       set(values) {
-        this.majorSurgery= values.majorSurgery;
-        this.minorSurgery= values.minorSurgery;
-        this.hospitalAdmission= values.hospitalAdmission;
-        this.pastConditions= values.pastConditions;
+        this.majorSurgery= firstWithValue(values.majorSurgery, this.majorSurgery);
+        this.minorSurgery= firstWithValue(values.minorSurgery, this.minorSurgery);
+        this.hospitalAdmission= firstWithValue(values.hospitalAdmission, this.hospitalAdmission);
+        this.pastConditions= firstWithValue(values.pastConditions, this.pastConditions);
       }
     },
     physicalExam: {
@@ -108,9 +109,9 @@ class FirstVisit extends Sequelize.Model {
         }
       },
       set(values) {
-        this.bloodPressure= values.bloodPressure;
-        this.heartBeat= values.heartBeat;
-        this.respiratoryRate= values.respiratoryRate;
+        this.bloodPressure= firstWithValue(values.bloodPressure, this.bloodPressure);
+        this.heartBeat= firstWithValue(values.heartBeat, this.heartBeat);
+        this.respiratoryRate= firstWithValue(values.respiratoryRate, this.respiratoryRate);
       }
     },
     echocardiography: {
@@ -378,10 +379,10 @@ class FirstVisit extends Sequelize.Model {
 
         return {systolic, diastolic};
       },
-      set(conditionIdList) {
-        const conditionsAsString = DatabaseNormalizer.listToString(conditionIdList, ',');
-        const rawValue = `${conditionsAsString}`;
-        this.setDataValue('pastConditions', rawValue);
+      set(values) {
+        const bloodPressureAsString = DatabaseNormalizer.listToString([values.systolic, values.diastolic], '-');
+        const rawValue = `${bloodPressureAsString}`;
+        this.setDataValue('bloodPressure', rawValue);
       }
     },
     heartBeat: {

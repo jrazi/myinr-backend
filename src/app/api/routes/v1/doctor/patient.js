@@ -198,13 +198,24 @@ async function updateFirstVisit(req, res, next) {
     try {
         updateIfHasValue('dateOfDiagnosis');
         updateIfHasValue('warfarinInfo');
+        updateIfHasValue('lastInrTest');
+        updateIfHasValue('testResult');
+        updateIfHasValue('medicalHistory');
+        updateIfHasValue('physicalExam');
 
         await models.FirstVisit.sequelize.transaction(async (tr) => {
             const result = await patient.firstVisit.save({transaction: tr});
-            res.json({result});
+            const response = ResponseTemplate.create()
+                .withData({
+                    firstVisit: result,
+                })
+                .withMessage("First visit updated with success")
+                .toJson();
+
+            res.json(response);
         })
 
-    }  catch(err) {
+    } catch(err) {
         console.log(err);
         next(err);
     }
