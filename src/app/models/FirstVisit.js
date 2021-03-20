@@ -172,13 +172,13 @@ class FirstVisit extends Sequelize.Model {
         this.year= values.year;
       }
     },
-    ECG: {
+    electrocardiography: {
       type: DataTypes.STRING(50),
       allowNull: true,
       field: "ECG",
       defaultValue: "-",
       get() {
-        const rawValue = this.getDataValue('ECG');
+        const rawValue = this.getDataValue('electrocardiography');
         const [ecgId, avrBlockId] = DatabaseNormalizer.stringToList(rawValue, '-');
 
         const ecg = DomainNameTable[ecgId] || null;
@@ -193,7 +193,7 @@ class FirstVisit extends Sequelize.Model {
         const {ecg, avrBlock} = value;
         const conditionsAsString = DatabaseNormalizer.listToString([ecg, avrBlock], '-');
         const rawValue = `${conditionsAsString}`;
-        this.setDataValue('ECG', rawValue);
+        this.setDataValue('electrocardiography', rawValue);
       }
     },
     patientUserId: {

@@ -205,7 +205,7 @@ async function updateFirstVisit(req, res, next) {
         updateIfHasValue('echocardiography');
         updateIfHasValue('inr');
         updateIfHasValue('habit');
-        updateIfHasValue('ECG');
+        updateIfHasValue('electrocardiography');
 
         await models.FirstVisit.sequelize.transaction(async (tr) => {
             const result = await patient.firstVisit.save({transaction: tr});
@@ -276,7 +276,7 @@ const firstVisitIncludedFields = [
     'medicalHistory',
     'physicalExam',
     'echocardiography',
-    'ECG',
+    'electrocardiography',
     'bleedingOrClottingTypes',
     'drugHistory',
     'habit',
