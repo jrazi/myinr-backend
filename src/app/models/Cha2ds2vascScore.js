@@ -22,36 +22,43 @@ class Cha2ds2vascScore extends Sequelize.Model {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'Age',
+      defaultValue: 0,
     },
     sex: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'Sex',
+      defaultValue: 0,
     },
     heartFailureHistory: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'HeartFailure',
+      defaultValue: 0,
     },
     hypertensionHistory: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'Hypertension',
+      defaultValue: 0,
     },
     strokeHistory: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'Stroke',
+      defaultValue: 0,
     },
     Vvscular: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'Vascular',
+      defaultValue: 0,
     },
     diabetes: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'Diabetes',
+      defaultValue: 0,
     }
   }, {
     sequelize,

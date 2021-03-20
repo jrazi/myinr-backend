@@ -22,46 +22,55 @@ class HasBledStage extends Sequelize.Model {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'Hypertension',
+      defaultValue: 0,
     },
     renalDisease: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'Renaldisease',
+      defaultValue: 0,
     },
     liverDisease: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'Liverdisease',
+      defaultValue: 0,
     },
     strokeHistory: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'Stroke',
+      defaultValue: 0,
     },
     priorBleeding: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'bleeding',
+      defaultValue: 0,
     },
     labileInr: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'LabileINR',
+      defaultValue: 0,
     },
-    oldAgeGroup: {
+    ageGroup: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'Age',
+      defaultValue: 0,
     },
     medUsagePredisposingToBleeding: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'predisposing',
+      defaultValue: 0,
     },
     alcaholOrDrugUsageHistory: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'drug',
+      defaultValue: 0,
     }
   }, {
     sequelize,

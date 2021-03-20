@@ -209,8 +209,23 @@ async function updateFirstVisit(req, res, next) {
         updateIfHasValue('reportComment');
         updateIfHasValue('bleedingOrClottingTypes');
 
+
         await models.FirstVisit.sequelize.transaction(async (tr) => {
             const result = await patient.firstVisit.save({transaction: tr});
+            if (hasValue(firstVisitUpdatedInfo['hasBledScore'])) {
+                const maxId = await models.HasBledStage.max('id', {transaction: tr});
+                const id = maxId + 1;
+                const insertResult = await models.FirstVisit.sequelize.query(
+                    `INSERT INTO [myinrir_test].[HAS-BLEDTbl] ([ID],[PatientID]) VALUES (${id}, ${patientUserId})`,
+                    {type: QueryTypes.INSERT, transaction: tr}
+                );
+
+                firstVisitUpdatedInfo['hasBledScore'].patientUserId = patientUserId;
+                firstVisitUpdatedInfo['hasBledScore'].id = id;
+                const hasBledScore = models.HasBledStage.build(firstVisitUpdatedInfo['hasBledScore']);
+                const updateResult = await models.HasBledStage.update(hasBledScore.get({plain: true}), {where: {id: id, patientUserId: patientUserId}, transaction: tr});
+            }
+
             const firstVisit = SequelizeUtil.filterFields(result.get({plain: true}), firstVisitIncludedFields);
             const response = ResponseTemplate.create()
                 .withData({
