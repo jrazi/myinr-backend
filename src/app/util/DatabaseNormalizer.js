@@ -1,4 +1,5 @@
 const SimpleValidators = require("./SimpleValidators");
+const TypeChecker = require("./TypeChecker");
 
 
 class DatabaseNormalizer {
@@ -33,10 +34,23 @@ class DatabaseNormalizer {
         if (!Array.isArray(list))
             return "";
 
-        let listAsString = list.reduce((acc, currentValue) =>  acc + (currentValue || "") + separator , "");
+        const valueAsString = (value) => {
+            return TypeChecker.isObject(value) ? (value.id || "") : (value || "");
+        }
+
+        let listAsString = list.reduce((acc, currentValue) =>  acc + valueAsString(currentValue) + separator , "");
         listAsString = listAsString.substring(0, listAsString.length - 1);
 
         return listAsString;
+    }
+
+    static firstWithValue(...items) {
+        if (items == null) return null;
+        for (let item of items) {
+            if (SimpleValidators.hasValue(item))
+                return item;
+        }
+        return null;
     }
 }
 

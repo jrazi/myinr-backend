@@ -1,4 +1,4 @@
-const {stringToList, listToString, getL} = require("../../app/util/DatabaseNormalizer");
+const {stringToList, listToString, firstWithValue} = require("../../app/util/DatabaseNormalizer");
 
 describe("string to list converter", () => {
     it('should convert null to empty list', function () {
@@ -87,3 +87,36 @@ describe("list to string converter", () => {
 
 })
 
+
+describe("first item with value function", function() {
+
+    it("should return null when no item passed", function() {
+        const first = firstWithValue();
+        expect(first).toBeNull();
+    });
+    it("should return null when all items are null", function() {
+        const first = firstWithValue(null, null);
+        expect(first).toBeNull();
+
+    });
+    it("should return string when first in list", function() {
+        const first = firstWithValue("hi", null, "night");
+        expect(first).toEqual("hi");
+    });
+    it("should return string that is first non-null", function() {
+        const first = firstWithValue(null, null, "bro", null);
+        expect(first).toEqual("bro");
+    });
+    it("should return 'null' when that is first non-empty", function() {
+        const first = firstWithValue(null, 'null', "bro", null);
+        expect(first).toEqual("null");
+    });
+    it("should return 'undefined' that is first non-null", function() {
+        const first = firstWithValue("undefined", null, "bro", null);
+        expect(first).toEqual("undefined");
+    });
+    it("should return empty string when is first non-null", function() {
+        const first = firstWithValue(null, "", "night");
+        expect(first).toEqual("");
+    });
+})

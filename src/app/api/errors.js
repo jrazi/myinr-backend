@@ -77,6 +77,12 @@ class QueryParameterMissing extends ApiError {
     }
 }
 
+class IncompleteRequest extends ApiError {
+    constructor (message = "The request has not provided required information to process.") {
+        super(400, "INCOMPLETE_REQUEST", message);
+    }
+}
+
 class AlreadyExistsException extends ApiError {
     constructor (message = "This item already exists.") {
         super(400, "ALREADY_EXISTS", message);
@@ -98,4 +104,5 @@ module.exports = {
     AccessForbidden,
     IllegalOperation,
     AlreadyExistsException,
+    IncompleteRequest,
 };

@@ -7,6 +7,7 @@ const models = require("../../../../models");
 const errors = require("../../../errors");
 const ResponseTemplate = require("../../../ResponseTemplate");
 const SequelizeUtil = require("../../../../util/SequelizeUtil");
+const {hasValue} = require("../../../../util/SimpleValidators");
 
 router.get('', getAllPatients);
 
@@ -165,7 +166,49 @@ async function startFirstVisit(req, res, next) {
 }
 
 async function updateFirstVisit(req, res, next) {
-    next();
+    const patientUserId = req.params.userId;
+    const patient = await models.Patient.findOne({
+        where: {userId: patientUserId, physicianUserId: req.principal.userId},
+        include: ['firstVisit', ],
+    });
+
+    if (patient == null) {
+        next(new errors.PatientNotFound());
+        return;
+    }
+
+    else if (patient.firstVisit == null) {
+        next(new errors.FirstVisitNotFound());
+        return;
+    }
+
+    const firstVisitUpdatedInfo = req.body.firstVisit;
+
+    if (!hasValue(firstVisitUpdatedInfo)) {
+        next(new errors.IncompleteRequest("First visit info is not provided."));
+        return;
+    }
+
+    const updateIfHasValue = (key) => {
+        if (!hasValue(firstVisitUpdatedInfo[key]))
+            return;
+        patient.firstVisit[key] = firstVisitUpdatedInfo[key];
+    }
+
+    try {
+        updateIfHasValue('dateOfDiagnosis');
+        updateIfHasValue('warfarinInfo');
+
+        await models.FirstVisit.sequelize.transaction(async (tr) => {
+            const result = await patient.firstVisit.save({transaction: tr});
+            res.json({result});
+        })
+
+    }  catch(err) {
+        console.log(err);
+        next(err);
+    }
+
 }
 
 async function finishFirstVisit(req, res, next) {

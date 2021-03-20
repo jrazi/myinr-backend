@@ -31,8 +31,8 @@ class FirstVisit extends Sequelize.Model {
         }
       },
       set(values) {
-        this.reasonForWarfarin= values.reasonForWarfarin;
-        this.dateOfFirstWarfarin= values.dateOfFirstWarfarin;
+        this.reasonForWarfarin= values.reasonForWarfarin || this.reasonForWarfarin;
+        this.dateOfFirstWarfarin= values.dateOfFirstWarfarin || this.dateOfFirstWarfarin;
       }
     },
     lastInrTest: {
