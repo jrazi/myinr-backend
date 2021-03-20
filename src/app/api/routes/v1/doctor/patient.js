@@ -195,6 +195,25 @@ async function updateFirstVisit(req, res, next) {
         patient.firstVisit[key] = firstVisitUpdatedInfo[key];
     }
 
+    const insertToSecondaryTableIfValueProvided = async (key, modelToUpdate, tableName, tr) => {
+        const recordToUpdate = firstVisitUpdatedInfo[key];
+        if (hasValue(recordToUpdate)) {
+            const maxId = await modelToUpdate.max('id', {transaction: tr});
+            const id = maxId + 1;
+            const insertResult = await modelToUpdate.sequelize.query(
+                `INSERT INTO [myinrir_test].[${tableName}] ([ID],[PatientID]) VALUES (${id}, ${patientUserId})`,
+                {type: QueryTypes.INSERT, transaction: tr}
+            );
+
+            recordToUpdate.patientUserId = patientUserId;
+            recordToUpdate.id = id;
+
+            const record = modelToUpdate.build(recordToUpdate);
+            const updateResult = await modelToUpdate.update(record.get({plain: true}), {where: {id: id, patientUserId: patientUserId}, transaction: tr});
+            return updateResult;
+        }
+    }
+
     try {
         updateIfHasValue('dateOfDiagnosis');
         updateIfHasValue('warfarinInfo');
@@ -212,19 +231,7 @@ async function updateFirstVisit(req, res, next) {
 
         await models.FirstVisit.sequelize.transaction(async (tr) => {
             const result = await patient.firstVisit.save({transaction: tr});
-            if (hasValue(firstVisitUpdatedInfo['hasBledScore'])) {
-                const maxId = await models.HasBledStage.max('id', {transaction: tr});
-                const id = maxId + 1;
-                const insertResult = await models.FirstVisit.sequelize.query(
-                    `INSERT INTO [myinrir_test].[HAS-BLEDTbl] ([ID],[PatientID]) VALUES (${id}, ${patientUserId})`,
-                    {type: QueryTypes.INSERT, transaction: tr}
-                );
-
-                firstVisitUpdatedInfo['hasBledScore'].patientUserId = patientUserId;
-                firstVisitUpdatedInfo['hasBledScore'].id = id;
-                const hasBledScore = models.HasBledStage.build(firstVisitUpdatedInfo['hasBledScore']);
-                const updateResult = await models.HasBledStage.update(hasBledScore.get({plain: true}), {where: {id: id, patientUserId: patientUserId}, transaction: tr});
-            }
+            await insertToSecondaryTableIfValueProvided('hasBledScore', models.HasBledStage, 'HAS-BLEDTbl', tr);
 
             const firstVisit = SequelizeUtil.filterFields(result.get({plain: true}), firstVisitIncludedFields);
             const response = ResponseTemplate.create()
