@@ -124,9 +124,9 @@ class FirstVisit extends Sequelize.Model {
         }
       },
       set(values) {
-        this.EF= values.EF;
-        this.LAVI= values.LAVI;
-        this.comment= values.comment;
+        this.EF= firstWithValue(values.EF, this.EF);
+        this.LAVI= firstWithValue(values.LAVI, this.LAVI);
+        this.comment= firstWithValue(values.comment, this.comment);
       }
     },
     flags: {
@@ -153,8 +153,8 @@ class FirstVisit extends Sequelize.Model {
         }
       },
       set(values) {
-        this.inrTargetRange= values.inrTargetRange;
-        this.nextInrCheckDate= values.nextInrCheckDate;
+        this.inrTargetRange= firstWithValue(values.inrTargetRange, this.inrTargetRange);
+        this.nextInrCheckDate= firstWithValue(values.nextInrCheckDate, this.nextInrCheckDate);
       }
     },
     visitDate: {

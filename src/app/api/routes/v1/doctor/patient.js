@@ -202,12 +202,17 @@ async function updateFirstVisit(req, res, next) {
         updateIfHasValue('testResult');
         updateIfHasValue('medicalHistory');
         updateIfHasValue('physicalExam');
+        updateIfHasValue('echocardiography');
+        updateIfHasValue('inr');
+        updateIfHasValue('habit');
+        updateIfHasValue('ECG');
 
         await models.FirstVisit.sequelize.transaction(async (tr) => {
             const result = await patient.firstVisit.save({transaction: tr});
+            const firstVisit = SequelizeUtil.filterFields(result.get({plain: true}), firstVisitIncludedFields);
             const response = ResponseTemplate.create()
                 .withData({
-                    firstVisit: result,
+                    firstVisit,
                 })
                 .withMessage("First visit updated with success")
                 .toJson();
