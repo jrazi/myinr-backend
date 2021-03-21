@@ -22,36 +22,43 @@ class WarfarinWeekDosage extends Sequelize.Model {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: 'Saturday',
+      defaultValue: '0',
     },
     sunday: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: 'Sunday',
+      defaultValue: '0',
     },
     monday: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: 'Monday',
+      defaultValue: '0',
     },
     tuesday: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: 'Tuesday',
+      defaultValue: '0',
     },
     wednesday: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: 'Wednesday',
+      defaultValue: '0',
     },
     thursday: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: 'Thursday',
+      defaultValue: '0',
     },
     friday: {
       type: DataTypes.STRING(10),
       allowNull: true,
       field: 'Friday',
+      defaultValue: '0',
     }
   }, {
     sequelize,

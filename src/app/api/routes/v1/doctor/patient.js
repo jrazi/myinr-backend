@@ -238,6 +238,53 @@ async function updateFirstVisit(req, res, next) {
         }
     }
 
+    const upsertLastWarfarinDosageIfProvided = async (tr) => {
+        const firstTimeWarfarin = (firstVisitUpdatedInfo['warfarinInfo'] || {})['firstTimeWarfarin'];
+        let lastWarfarinDosageToUpdate = (firstVisitUpdatedInfo['warfarinInfo'] || {})['lastWarfarinDosage'];
+
+        const destroy = async () => {
+            await models.WarfarinWeekDosage.destroy({
+                where: {
+                    patientUserId: patientUserId,
+                },
+                transaction: tr,
+            });
+        }
+
+        const lastWarfarin = await models.WarfarinWeekDosage.findOne({
+            where: {
+                patientUserId: patientUserId,
+            },
+            transaction: tr,
+        });
+
+        if (firstTimeWarfarin === true && lastWarfarin != null) {
+            await destroy();
+            return;
+        }
+        else if (firstTimeWarfarin !== true && hasValue(lastWarfarinDosageToUpdate) && TypeChecker.isObject(lastWarfarinDosageToUpdate)) {
+            lastWarfarinDosageToUpdate = models.WarfarinWeekDosage.build(lastWarfarinDosageToUpdate);
+            lastWarfarinDosageToUpdate.patientUserId = patientUserId;
+            if (lastWarfarin != null) {
+                lastWarfarinDosageToUpdate.id = lastWarfarin.id;
+                const updateResult = await models.WarfarinWeekDosage.update(lastWarfarinDosageToUpdate.get({plain: true}), {where: {id: lastWarfarin.id, patientUserId: patientUserId}, transaction: tr});
+                return;
+            }
+            else {
+                const maxId = await models.WarfarinWeekDosage.max('id', {transaction: tr});
+                const id = maxId + 1;
+                const insertResult = await models.WarfarinWeekDosage.sequelize.query(
+                    `INSERT INTO [myinrir_test].[FirstDosageTbl] ([IDDosage],[IDUserPatient]) VALUES (${id}, ${patientUserId})`,
+                    {type: QueryTypes.INSERT, transaction: tr}
+                );
+                lastWarfarinDosageToUpdate.id = id;
+                const updateResult = await models.WarfarinWeekDosage.update(lastWarfarinDosageToUpdate.get({plain: true}), {where: {id: id, patientUserId: patientUserId}, transaction: tr});
+                return;
+            }
+        }
+    }
+
+
     try {
         updateIfHasValue('dateOfDiagnosis');
         updateIfHasValue('warfarinInfo');
@@ -268,6 +315,7 @@ async function updateFirstVisit(req, res, next) {
                 });
                 await insertMedicationRecordsIfProvided('medicationHistory', models.PatientMedicationRecord, 'PaDrTbl', tr);
             }
+            await upsertLastWarfarinDosageIfProvided(tr);
 
                 // include: ['firstVisit', 'hasBledScore', 'cha2ds2Score', 'warfarinWeeklyDosages', 'medicationHistory',],
 
