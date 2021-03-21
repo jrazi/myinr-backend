@@ -1,24 +1,28 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return ansectorTbl.init(sequelize, DataTypes);
+  return Place.init(sequelize, DataTypes);
 }
 
-class ansectorTbl extends Sequelize.Model {
+class Place extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   super.init({
-    IDAnsector: {
+    id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      field: 'IDAnsector',
     },
-    NameAnsector: {
+    name: {
       type: DataTypes.STRING(100),
-      allowNull: false
+      allowNull: false,
+      field: 'NameAnsector',
     },
-    StatusAncestor: {
+    status: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: true,
+      field: 'StatusAncestor',
+      defaultValue: 0,
     }
   }, {
     sequelize,
@@ -35,6 +39,6 @@ class ansectorTbl extends Sequelize.Model {
       },
     ]
   });
-  return ansectorTbl;
+  return Place;
   }
 }

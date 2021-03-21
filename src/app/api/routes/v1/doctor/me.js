@@ -11,19 +11,24 @@ const SequelizeUtil = require("../../../../util/SequelizeUtil");
 router.get('', getDoctorInfo);
 
 async function getDoctorInfo(req, res, next) {
-    const doctor = await models.Physician.findOne({where: {userId: req.principal.userId}, include: 'userInfo'});
-    if (doctor == null) {
-        next(new errors.PhysicianNotFound());
-        return;
+    try {
+        const doctor = await models.Physician.findOne({where: {userId: req.principal.userId}, include: ['userInfo', 'workPlaces']});
+        if (doctor == null) {
+            next(new errors.PhysicianNotFound());
+            return;
+        }
+
+        const response = ResponseTemplate.create()
+            .withData({
+                doctor: doctor,
+            })
+            .toJson();
+
+        res.json(response);
+    } catch(err) {
+        console.log(err);
+        next(err);
     }
-
-    const response = ResponseTemplate.create()
-        .withData({
-            doctor: doctor,
-        })
-        .toJson();
-
-    res.json(response);
 }
 
 module.exports = router;

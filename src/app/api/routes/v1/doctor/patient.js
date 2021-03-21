@@ -105,6 +105,7 @@ async function getFirstVisitInfo(req, res, next) {
     firstVisit.hasBledScore = SequelizeUtil.getMaxOfList(patient.hasBledScore);
     firstVisit.cha2ds2Score = SequelizeUtil.getMaxOfList(patient.cha2ds2Score);
     firstVisit.warfarinInfo.lastWarfarinDosage = SequelizeUtil.getMaxOfList(patient.warfarinWeeklyDosages);
+    firstVisit.warfarinInfo.firstTimeWarfarin = !hasValue(firstVisit.warfarinInfo.lastWarfarinDosage) && (firstWithValue(firstVisit.warfarinInfo.dateOfFirstWarfarin, "") == "");
     // firstVisit.recommendedDosage = patient.warfarinDosageRecords;
 
     const response = ResponseTemplate.create()

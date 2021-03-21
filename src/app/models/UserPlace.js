@@ -1,24 +1,27 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return PhAnTbl.init(sequelize, DataTypes);
+  return UserPlace.init(sequelize, DataTypes);
 }
 
-class PhAnTbl extends Sequelize.Model {
+class UserPlace extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   super.init({
-    IDPhAn: {
+    id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      field: 'IDPhAn',
     },
-    IDUserPhAn: {
+    userId: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      field: 'IDUserPhAn',
     },
-    IDAncestorPhAn: {
+    placeId: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      field: 'IDAncestorPhAn',
     }
   }, {
     sequelize,
@@ -35,6 +38,6 @@ class PhAnTbl extends Sequelize.Model {
       },
     ]
   });
-  return PhAnTbl;
+  return UserPlace;
   }
 }

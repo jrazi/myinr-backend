@@ -1,6 +1,6 @@
 var DataTypes = require("sequelize").DataTypes;
 var _adminTbl = require("./AdminTbl");
-var _ansectorTbl = require("./AnsectorTbl");
+var _ansectorTbl = require("./Place");
 var _appointmentTbl = require("./AppointmentTbl");
 var _chadsVaScTbl = require("./Cha2ds2vascScore");
 var _dosageTbl = require("./WarfarinDosageRecord");
@@ -12,7 +12,7 @@ var _inrTestTbl = require("./InrTestTbl");
 var _items = require("./DomainNameTable");
 var _paDrTbl = require("./PatientMedicationRecord");
 var _patientTbl = require("./Patient");
-var _phAnTbl = require("./PhAnTbl");
+var _phAnTbl = require("./UserPlace");
 var _physicianTbl = require("./Physician");
 var _ptToPyTbl = require("./PtToPyTbl");
 var _pyToPtTbl = require("./PyToPtTbl");
@@ -24,7 +24,7 @@ var _flagTbl = require("./FlagTbl");
 
 function initModels(sequelize) {
   var adminTbl = _adminTbl(sequelize, DataTypes);
-  var ansectorTbl = _ansectorTbl(sequelize, DataTypes);
+  var Place = _ansectorTbl(sequelize, DataTypes);
   var appointmentTbl = _appointmentTbl(sequelize, DataTypes);
   var Cha2ds2vascScore = _chadsVaScTbl(sequelize, DataTypes);
   var WarfarinDosageRecord = _dosageTbl(sequelize, DataTypes);
@@ -36,7 +36,7 @@ function initModels(sequelize) {
   var DomainNameTable = _items(sequelize, DataTypes);
   var PatientMedicationRecord = _paDrTbl(sequelize, DataTypes);
   var Patient = _patientTbl(sequelize, DataTypes);
-  var phAnTbl = _phAnTbl(sequelize, DataTypes);
+  var UserPlace = _phAnTbl(sequelize, DataTypes);
   var Physician = _physicianTbl(sequelize, DataTypes);
   var ptToPyTbl = _ptToPyTbl(sequelize, DataTypes);
   var pyToPtTbl = _pyToPtTbl(sequelize, DataTypes);
@@ -70,9 +70,11 @@ function initModels(sequelize) {
   WarfarinDosageRecord.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
   Patient.hasMany(WarfarinDosageRecord, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'warfarinDosageRecords', sourceKey: 'userId'});
 
+  Physician.belongsToMany(Place, {through: UserPlace, foreignKey: 'userId', otherKey: 'placeId', uniqueKey: 'id', sourceKey: 'userId', targetKey: 'id', as: 'workPlaces', });
+
   return {
     adminTbl,
-    ansectorTbl,
+    Place,
     appointmentTbl,
     Cha2ds2vascScore,
     WarfarinDosageRecord,
@@ -84,7 +86,7 @@ function initModels(sequelize) {
     DomainNameTable,
     PatientMedicationRecord,
     Patient,
-    phAnTbl,
+    UserPlace,
     Physician,
     ptToPyTbl,
     pyToPtTbl,
