@@ -7,6 +7,8 @@ const models = require("../../../../models");
 const errors = require("../../../errors");
 const ResponseTemplate = require("../../../ResponseTemplate");
 const SequelizeUtil = require("../../../../util/SequelizeUtil");
+const TypeChecker = require("../../../../util/TypeChecker");
+const {firstWithValue} = require("../../../../util/DatabaseNormalizer");
 const {hasValue} = require("../../../../util/SimpleValidators");
 
 router.get('', getAllPatients);
@@ -214,6 +216,28 @@ async function updateFirstVisit(req, res, next) {
         }
     }
 
+    const insertMedicationRecordsIfProvided = async (key, modelToUpdate, tableName, tr) => {
+        const recordsToUpdate = firstVisitUpdatedInfo[key];
+        if (hasValue(recordsToUpdate) && TypeChecker.isList(recordsToUpdate)) {
+            for (let recordToUpdate of recordsToUpdate) {
+                const maxId = await modelToUpdate.max('id', {transaction: tr});
+                const id = maxId + 1;
+
+                recordToUpdate.patientUserId = patientUserId;
+                recordToUpdate.id = id;
+
+                const record = modelToUpdate.build(recordToUpdate);
+                const insertResult = await modelToUpdate.sequelize.query(
+                    `INSERT INTO [myinrir_test].[${tableName}] ([ID],[IDPatient],[Drug],[Dateofstart],[Dateofend]) VALUES (${id}, ${patientUserId}, '${firstWithValue(record.drugName, '')}', '${firstWithValue(record.startDate, '')}', '${firstWithValue(record.endDate, '')}')`,
+                    {
+                        type: QueryTypes.INSERT,
+                        transaction: tr,
+                    }
+                );
+            }
+        }
+    }
+
     try {
         updateIfHasValue('dateOfDiagnosis');
         updateIfHasValue('warfarinInfo');
@@ -233,6 +257,19 @@ async function updateFirstVisit(req, res, next) {
             const result = await patient.firstVisit.save({transaction: tr});
             await insertToSecondaryTableIfValueProvided('hasBledScore', models.HasBledStage, 'HAS-BLEDTbl', tr);
             await insertToSecondaryTableIfValueProvided('cha2ds2Score', models.Cha2ds2vascScore, 'CHADS-VAScTbl', tr);
+
+            const medicationHistory = firstVisitUpdatedInfo['medicationHistory'];
+            if (hasValue(medicationHistory) && TypeChecker.isList(medicationHistory)) {
+                await models.PatientMedicationRecord.destroy({
+                    where: {
+                        patientUserId: patientUserId,
+                    },
+                    transaction: tr,
+                });
+                await insertMedicationRecordsIfProvided('medicationHistory', models.PatientMedicationRecord, 'PaDrTbl', tr);
+            }
+
+                // include: ['firstVisit', 'hasBledScore', 'cha2ds2Score', 'warfarinWeeklyDosages', 'medicationHistory',],
 
             const firstVisit = SequelizeUtil.filterFields(result.get({plain: true}), firstVisitIncludedFields);
             const response = ResponseTemplate.create()
