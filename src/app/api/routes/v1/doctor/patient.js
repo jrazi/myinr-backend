@@ -185,6 +185,11 @@ async function updateFirstVisit(req, res, next) {
         return;
     }
 
+    else if (patient.firstVisit.flags.isEnded === true) {
+        next(new errors.IllegalOperation("First visit is ended. You can no longer update it."));
+        return;
+    }
+
     const firstVisitUpdatedInfo = req.body.firstVisit;
 
     if (!hasValue(firstVisitUpdatedInfo)) {

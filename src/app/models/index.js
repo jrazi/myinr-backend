@@ -14,8 +14,8 @@ module.exports.WarfarinWeekDosage = models.WarfarinWeekDosage;
 module.exports.DrugInfo = models.DrugInfo;
 module.exports.WarfarinDosageRecord = models.WarfarinDosageRecord;
 module.exports.PatientMedicationRecord = models.PatientMedicationRecord;
-module.exports.PatientMedicationRecord = models.Place;
-module.exports.PatientMedicationRecord = models.UserPlace
+module.exports.Place = models.Place;
+module.exports.UserPlace = models.UserPlace
 ;
 module.exports.DomainNameTable = models.DomainNameTable;
 

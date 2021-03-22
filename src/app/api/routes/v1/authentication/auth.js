@@ -20,7 +20,7 @@ async function login(req, res, next) {
         next(new errors.QueryParameterMissing());
     }
 
-    const user = await User.findOne({where: {username: username, password: password}});
+    const user = await User.scope('withPassword').findOne({where: {username: username, password: password}});
 
     if (user == null) {
         next(new errors.UsernamePasswordMismatch());

@@ -57,7 +57,13 @@ class User extends Sequelize.Model {
           { name: "IDUser" },
         ]
       },
-    ]
+    ],
+    defaultScope: {
+      attributes: { exclude: ['password'] },
+    },
+    scopes: {
+      withPassword: { exclude: [] }
+    }
   });
   return User;
   }
