@@ -9,8 +9,9 @@ const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 const SimpleValidators = require("../../../../util/SimpleValidators");
 const ResponseTemplate = require("../../../ResponseTemplate");
+const {asyncFunctionWrapper} = require("../../util");
 
-router.get('/login', login);
+router.get('/login', asyncFunctionWrapper(login));
 
 async function login(req, res, next) {
     const username = req.query.username;
@@ -27,11 +28,19 @@ async function login(req, res, next) {
         return;
     }
 
+    let details = {};
+    if (user.role == models.UserRoles.patient.id) {
+        details = await models.Patient.findOne({where: {userId: user.userId}, include: ['userInfo', 'physician']});
+    }
+    else if (user.role == models.UserRoles.physician.id) {
+        details = await models.Physician.findOne({where: {userId: user.userId}, include: ['userInfo', 'workPlaces'] });
+    }
+
     const tokenSecret = process.env.TOKEN_SECRET;
     const accessToken = jwt.sign(
         {
             userId: user.userId,
-            role: user.role
+            role: user.role,
         },
         tokenSecret,
         {
@@ -41,6 +50,8 @@ async function login(req, res, next) {
     const response = ResponseTemplate.create()
         .withData({
             accessToken,
+            role: models.UserRoles.getById(user.role),
+            details,
         })
         .toJson();
 

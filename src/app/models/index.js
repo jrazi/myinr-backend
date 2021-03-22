@@ -28,4 +28,12 @@ module.exports.UserRoles = {
         id: 3,
         name: 'PATIENT',
     },
+
+    getById(id) {
+        if (this.physician.id == id)
+            return this.physician;
+        else if (this.patient.id == id)
+            return this.patient;
+        return null;
+    }
 }
