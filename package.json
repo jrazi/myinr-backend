@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node --tls-min-v1.0  ./bin/www",
-    "test":  "jest"
+    "test": "jest"
   },
   "dependencies": {
     "body-parser": "^1.19.0",
@@ -21,6 +21,7 @@
     "tedious": "^11.0.4"
   },
   "devDependencies": {
-    "jest": "^26.6.3"
+    "jest": "^26.6.3",
+    "supertest": "^6.1.3"
   }
 }
