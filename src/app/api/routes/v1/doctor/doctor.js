@@ -9,7 +9,7 @@ const ResponseTemplate = require("../../../ResponseTemplate");
 const SequelizeUtil = require("../../../../util/SequelizeUtil");
 
 const meRouter = require('./me');
-const patientRouter = require('./patient');
+const patientRouter = require('./patient/patient');
 const drugsRouter = require('./drugs');
 
 router.use(doctorAuthorizationFilter);

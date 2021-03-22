@@ -3,91 +3,27 @@ var express = require('express');
 var router = express.Router();
 const {QueryTypes} = require("sequelize");
 
-const models = require("../../../../models");
-const errors = require("../../../errors");
-const ResponseTemplate = require("../../../ResponseTemplate");
-const SequelizeUtil = require("../../../../util/SequelizeUtil");
-const TypeChecker = require("../../../../util/TypeChecker");
-const {asyncFunctionWrapper} = require("../../util");
-const {firstWithValue} = require("../../../../util/DatabaseNormalizer");
-const {hasValue} = require("../../../../util/SimpleValidators");
-
-router.get('', asyncFunctionWrapper(getAllPatients));
-
-router.get('/:userId', asyncFunctionWrapper(getPatient));
-
-router.get('/:userId/firstVisit', asyncFunctionWrapper(getFirstVisitInfo));
-
-router.put('/:userId/firstVisit', asyncFunctionWrapper(updateFirstVisit));
-
-router.put('/:userId/firstVisit/start', asyncFunctionWrapper(startFirstVisit));
-
-router.put('/:userId/firstVisit/finish', asyncFunctionWrapper(finishFirstVisit));
+const models = require("../../../../../models");
+const errors = require("../../../../errors");
+const ResponseTemplate = require("../../../../ResponseTemplate");
+const SequelizeUtil = require("../../../../../util/SequelizeUtil");
+const TypeChecker = require("../../../../../util/TypeChecker");
+const {asyncFunctionWrapper} = require("../../../util");
+const {firstWithValue} = require("../../../../../util/DatabaseNormalizer");
+const {hasValue} = require("../../../../../util/SimpleValidators");
 
 
+router.get('', asyncFunctionWrapper(getFirstVisitInfo));
 
-async function getAllPatients(req, res, next) {
-    const doctor = await models.Physician.findOne({
-        where: {
-            userId: req.principal.userId
-        },
-        include: {
-            model: models.Patient,
-            as: 'patients',
-            include: 'firstVisit',
-        },
-    });
-    if (doctor == null) {
-        next(new errors.PhysicianNotFound());
-        return;
-    }
+router.put('', asyncFunctionWrapper(updateFirstVisit));
 
-    let patientsList = doctor.patients;
+router.put('start', asyncFunctionWrapper(startFirstVisit));
 
-    patientsList = patientsList.map(patient => {
-        patient.firstVisitStatus = patient.firstVisit;
-        const patientData =  SequelizeUtil.excludeFields(patient.get({plain: true}), ['firstVisit']);
-        return patientData;
-    })
+router.put('/finish', asyncFunctionWrapper(finishFirstVisit));
 
-    const response = ResponseTemplate.create()
-        .withData({
-            patients: patientsList,
-        })
-        .toJson();
-
-    res.json(response);
-}
-
-async function getPatient(req, res, next) {
-    const patientUserId = req.params.userId;
-    const patient = await models.Patient.findOne({
-        where: {
-            userId: patientUserId,
-            physicianUserId: req.principal.userId
-        },
-        include: 'firstVisit',
-    });
-    if (patient == null) {
-        next(new errors.PatientNotFound());
-        return;
-    }
-
-    patient.firstVisitStatus = patient.firstVisit;
-
-    const patientData = SequelizeUtil.excludeFields(patient.get({plain: true}), ['firstVisit']);
-
-    const response = ResponseTemplate.create()
-        .withData({
-            patient: patientData,
-        })
-        .toJson();
-
-    res.json(response);
-}
 
 async function getFirstVisitInfo(req, res, next) {
-    const patientUserId = req.params.userId;
+    const patientUserId = req.patientInfo.userId;
     const patient = await models.Patient.findOne({
         where: {userId: patientUserId, physicianUserId: req.principal.userId},
         include: ['firstVisit', 'hasBledScore', 'cha2ds2Score', 'warfarinWeeklyDosages', 'medicationHistory',],
@@ -121,7 +57,7 @@ async function getFirstVisitInfo(req, res, next) {
 }
 
 async function startFirstVisit(req, res, next) {
-    const patientUserId = req.params.userId;
+    const patientUserId = req.patientInfo.userId;
     const patient = await models.Patient.findOne({
         where: {userId: patientUserId, physicianUserId: req.principal.userId},
         include: ['firstVisit', ],
@@ -172,7 +108,7 @@ async function startFirstVisit(req, res, next) {
 }
 
 async function updateFirstVisit(req, res, next) {
-    const patientUserId = req.params.userId;
+    const patientUserId = req.patientInfo.userId;
     const patient = await models.Patient.findOne({
         where: {userId: patientUserId, physicianUserId: req.principal.userId},
         include: ['firstVisit', ],
@@ -326,7 +262,7 @@ async function updateFirstVisit(req, res, next) {
             }
             await upsertLastWarfarinDosageIfProvided(tr);
 
-                // include: ['firstVisit', 'hasBledScore', 'cha2ds2Score', 'warfarinWeeklyDosages', 'medicationHistory',],
+            // include: ['firstVisit', 'hasBledScore', 'cha2ds2Score', 'warfarinWeeklyDosages', 'medicationHistory',],
 
             const firstVisit = SequelizeUtil.filterFields(result.get({plain: true}), firstVisitIncludedFields);
             const response = ResponseTemplate.create()
@@ -347,7 +283,7 @@ async function updateFirstVisit(req, res, next) {
 }
 
 async function finishFirstVisit(req, res, next) {
-    const patientUserId = req.params.userId;
+    const patientUserId = req.patientInfo.userId;
     const patient = await models.Patient.findOne({
         where: {userId: patientUserId, physicianUserId: req.principal.userId},
         include: ['firstVisit', ],
