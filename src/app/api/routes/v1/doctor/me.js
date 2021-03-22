@@ -7,8 +7,9 @@ const models = require("../../../../models");
 const errors = require("../../../errors");
 const ResponseTemplate = require("../../../ResponseTemplate");
 const SequelizeUtil = require("../../../../util/SequelizeUtil");
+const {asyncFunctionWrapper} = require("../../util");
 
-router.get('', getDoctorInfo);
+router.get('', asyncFunctionWrapper(getDoctorInfo));
 
 async function getDoctorInfo(req, res, next) {
     try {

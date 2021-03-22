@@ -8,9 +8,10 @@ const errors = require("../../../errors");
 const ResponseTemplate = require("../../../ResponseTemplate");
 const SequelizeUtil = require("../../../../util/SequelizeUtil");
 const SimpleValidators = require("../../../../util/SimpleValidators");
+const {asyncFunctionWrapper} = require("../../util");
 
 
-router.get('/search', searchDrugs);
+router.get('/search', asyncFunctionWrapper(searchDrugs));
 
 
 async function searchDrugs(req, res, next) {

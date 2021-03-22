@@ -8,20 +8,23 @@ const errors = require("../../../errors");
 const ResponseTemplate = require("../../../ResponseTemplate");
 const SequelizeUtil = require("../../../../util/SequelizeUtil");
 const TypeChecker = require("../../../../util/TypeChecker");
+const {asyncFunctionWrapper} = require("../../util");
 const {firstWithValue} = require("../../../../util/DatabaseNormalizer");
 const {hasValue} = require("../../../../util/SimpleValidators");
 
-router.get('', getAllPatients);
+router.get('', asyncFunctionWrapper(getAllPatients));
 
-router.get('/:userId', getPatient);
+router.get('/:userId', asyncFunctionWrapper(getPatient));
 
-router.get('/:userId/firstVisit', getFirstVisitInfo);
+router.get('/:userId/firstVisit', asyncFunctionWrapper(getFirstVisitInfo));
 
-router.put('/:userId/firstVisit', updateFirstVisit);
+router.put('/:userId/firstVisit', asyncFunctionWrapper(updateFirstVisit));
 
-router.put('/:userId/firstVisit/start', startFirstVisit);
+router.put('/:userId/firstVisit/start', asyncFunctionWrapper(startFirstVisit));
 
-router.put('/:userId/firstVisit/finish', finishFirstVisit);
+router.put('/:userId/firstVisit/finish', asyncFunctionWrapper(finishFirstVisit));
+
+
 
 async function getAllPatients(req, res, next) {
     const doctor = await models.Physician.findOne({

@@ -5,9 +5,10 @@ const models = require("../../../../models");
 const errors = require("../../../errors");
 const ResponseTemplate = require("../../../ResponseTemplate");
 const SequelizeUtil = require("../../../../util/SequelizeUtil");
+const {asyncFunctionWrapper} = require("../../util");
 
 
-router.get('', getPatientInfo);
+router.get('', asyncFunctionWrapper(getPatientInfo));
 
 
 
