@@ -165,8 +165,18 @@ class FirstVisit extends Sequelize.Model {
     visitDate: {
       type: DataTypes.VIRTUAL,
       get() {
+        let value = "";
+        if ((this.visitYear || "") != "") {
+          value += this.visitYear;
+          if ((this.visitMonth || "") != "") {
+            value += '/' + this.visitMonth;
+            if ((this.visitDay || "") != "") {
+              value += '/' + this.visitDay;
+            }
+          }
+        }
         return {
-          value: `${this.visitYear}/${this.visitMonth}/${this.visitDay}`,
+          value: value,
           details: {
             visitDay: this.visitDay,
             visitMonth: this.visitMonth,

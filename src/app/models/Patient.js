@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+const DatabaseNormalizer = require("../util/DatabaseNormalizer");
 module.exports = (sequelize, DataTypes) => {
   return Patient.init(sequelize, DataTypes);
 }
@@ -112,6 +113,16 @@ class Patient extends Sequelize.Model {
       type: DataTypes.STRING(100),
       allowNull: true,
       field: 'CausePatient',
+      get() {
+        const rawValue = this.getDataValue('medicalCondition');
+        const conditions = DatabaseNormalizer.stringToList(rawValue, '-');
+
+        return conditions.map(condition => {return {name: condition};})
+      },
+      set(conditionNameList) {
+        const conditionsAsString = DatabaseNormalizer.listToString(conditionNameList, '-');
+        this.setDataValue('medicalCondition', conditionsAsString);
+      }
     },
     firstVisitStatus: {
       type: DataTypes.VIRTUAL,
