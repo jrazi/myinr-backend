@@ -18,31 +18,31 @@ class AccessDenied extends ApiError {
 
 class NotFound extends ApiError {
     constructor (message = "The item you were looking for was not found.") {
-        super(400, "NOT_FOUND", message);
+        super(400, "RECORD_NOT_FOUND", message);
     }
 }
 
 class UserNotFound extends ApiError {
     constructor (message = "User was not found.") {
-        super(400, "NOT_FOUND", message);
+        super(400, "RECORD_NOT_FOUND", message);
     }
 }
 
 class PhysicianNotFound extends ApiError {
     constructor (message = "Physician was not found.") {
-        super(400, "NOT_FOUND", message);
+        super(400, "RECORD_NOT_FOUND", message);
     }
 }
 
 class PatientNotFound extends ApiError {
     constructor (message = "Patient was not found.") {
-        super(400, "NOT_FOUND", message);
+        super(400, "RECORD_NOT_FOUND", message);
     }
 }
 
 class FirstVisitNotFound extends ApiError {
     constructor (message = "No first visit was found for this patient.") {
-        super(400, "NOT_FOUND", message);
+        super(400, "RECORD_NOT_FOUND", message);
     }
 }
 
