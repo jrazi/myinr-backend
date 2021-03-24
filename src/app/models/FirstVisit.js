@@ -41,21 +41,19 @@ class FirstVisit extends Sequelize.Model {
         this.dateOfFirstWarfarin= firstWithValue(values.dateOfFirstWarfarin, this.dateOfFirstWarfarin);
       }
     },
-    lastInrTest: {
+    inr: {
       type: DataTypes.VIRTUAL,
       get() {
         return {
-          hasUsedPortableDevice: this.hasUsedPortableDevice,
-          dateOfLastInrTest: this.dateOfLastInrTest,
-          lastInrValue: this.lastInrValue,
-          lastInrTestLabInfo: this.lastInrTestLabInfo,
+          inrTargetRange: this.inrTargetRange,
+          nextInrCheckDate: this.nextInrCheckDate,
+          lastInrTest: this.lastInrTest,
         }
       },
       set(values) {
-        this.hasUsedPortableDevice= firstWithValue(values.hasUsedPortableDevice, this.hasUsedPortableDevice);
-        this.dateOfLastInrTest= firstWithValue(values.dateOfLastInrTest, this.dateOfLastInrTest);
-        this.lastInrValue= firstWithValue(values.lastInrValue, this.lastInrValue);
-        this.lastInrTestLabInfo= firstWithValue(values.lastInrTestLabInfo, this.lastInrTestLabInfo);
+        this.inrTargetRange= firstWithValue(values.inrTargetRange, this.inrTargetRange);
+        this.nextInrCheckDate= firstWithValue(values.nextInrCheckDate, this.nextInrCheckDate);
+        this.lastInrTest= firstWithValue(values.lastInrTest, this.lastInrTest);
       }
     },
     testResult: {
@@ -147,19 +145,6 @@ class FirstVisit extends Sequelize.Model {
         this.visitFlag= values.visitFlag || this.visitFlag;
         this.isSaved= values.isSaved || this.isSaved;
         this.isEnded= values.isEnded || this.isEnded;
-      }
-    },
-    inr: {
-      type: DataTypes.VIRTUAL,
-      get() {
-        return {
-          inrTargetRange: this.inrTargetRange,
-          nextInrCheckDate: this.nextInrCheckDate,
-        }
-      },
-      set(values) {
-        this.inrTargetRange= firstWithValue(values.inrTargetRange, this.inrTargetRange);
-        this.nextInrCheckDate= firstWithValue(values.nextInrCheckDate, this.nextInrCheckDate);
       }
     },
     visitDate: {
@@ -256,6 +241,23 @@ class FirstVisit extends Sequelize.Model {
         const habitsAsString = DatabaseNormalizer.listToString(habitIdList, ',');
         const rawValue = `${habitsAsString}`;
         this.setDataValue('habit', rawValue);
+      }
+    },
+    lastInrTest: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return {
+          hasUsedPortableDevice: this.hasUsedPortableDevice,
+          dateOfLastInrTest: this.dateOfLastInrTest,
+          lastInrValue: this.lastInrValue,
+          lastInrTestLabInfo: this.lastInrTestLabInfo,
+        }
+      },
+      set(values) {
+        this.hasUsedPortableDevice= firstWithValue(values.hasUsedPortableDevice, this.hasUsedPortableDevice);
+        this.dateOfLastInrTest= firstWithValue(values.dateOfLastInrTest, this.dateOfLastInrTest);
+        this.lastInrValue= firstWithValue(values.lastInrValue, this.lastInrValue);
+        this.lastInrTestLabInfo= firstWithValue(values.lastInrTestLabInfo, this.lastInrTestLabInfo);
       }
     },
     reasonForWarfarin: {

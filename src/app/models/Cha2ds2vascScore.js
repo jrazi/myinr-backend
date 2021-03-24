@@ -1,4 +1,7 @@
 const Sequelize = require('sequelize');
+const TypeChecker = require("../util/TypeChecker");
+const SequelizeUtil = require("../util/SequelizeUtil");
+const DatabaseNormalizer = require("../util/DatabaseNormalizer");
 module.exports = (sequelize, DataTypes) => {
   return Cha2ds2vascScore.init(sequelize, DataTypes);
 }
@@ -18,13 +21,37 @@ class Cha2ds2vascScore extends Sequelize.Model {
       allowNull: false,
       field: 'PatientID',
     },
+    data: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return {
+          ageGroup: this.ageGroup,
+          gender: this.gender,
+          heartFailureHistory: this.heartFailureHistory,
+          hypertensionHistory: this.hypertensionHistory,
+          strokeHistory: this.strokeHistory,
+          vascular: this.vascular,
+          diabetes: this.diabetes,
+        }
+      },
+      set(scores) {
+        if (!TypeChecker.isObject(scores)) return;
+        this.ageGrup = DatabaseNormalizer.firstWithValue(scores.ageGroup, this.ageGrup);
+        this.gender = DatabaseNormalizer.firstWithValue(scores.gender, this.gender);
+        this.heartFailureHistory = DatabaseNormalizer.firstWithValue(scores.heartFailureHistory, this.heartFailureHistory);
+        this.hypertensionHistory = DatabaseNormalizer.firstWithValue(scores.hypertensionHistory, this.hypertensionHistory);
+        this.strokeHistory = DatabaseNormalizer.firstWithValue(scores.strokeHistory, this.strokeHistory);
+        this.vascular = DatabaseNormalizer.firstWithValue(scores.vascular, this.vascular);
+        this.diabetes = DatabaseNormalizer.firstWithValue(scores.diabetes, this.diabetes);
+      }
+    },
     ageGroup: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'Age',
       defaultValue: 0,
     },
-    sex: {
+    gender: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'Sex',
@@ -73,7 +100,8 @@ class Cha2ds2vascScore extends Sequelize.Model {
           { name: "ID" },
         ]
       },
-    ]
+    ],
+
   });
   return Cha2ds2vascScore;
   }

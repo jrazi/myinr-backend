@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+const SequelizeUtil = require("../util/SequelizeUtil");
 module.exports = (sequelize, DataTypes) => {
   return HasBledStage.init(sequelize, DataTypes);
 }
@@ -17,6 +18,34 @@ class HasBledStage extends Sequelize.Model {
       type: DataTypes.INTEGER,
       allowNull: false,
       field: 'PatientID',
+    },
+    data: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return {
+          hypertension: this.hypertension,
+          renalDisease: this.renalDisease,
+          liverDisease: this.liverDisease,
+          strokeHistory: this.strokeHistory,
+          priorBleeding: this.priorBleeding,
+          labileInr: this.labileInr,
+          ageGroup: this.ageGroup,
+          medUsagePredisposingToBleeding: this.medUsagePredisposingToBleeding,
+          alcoholOrDrugUsageHistory: this.alcoholOrDrugUsageHistory,
+        }
+      },
+      set(scores) {
+        if (!TypeChecker.isObject(scores)) return;
+        this.hypertension = DatabaseNormalizer.firstWithValue(scores.hypertension, this.hypertension);
+        this.renalDisease = DatabaseNormalizer.firstWithValue(scores.renalDisease, this.renalDisease);
+        this.liverDisease = DatabaseNormalizer.firstWithValue(scores.liverDisease, this.liverDisease);
+        this.strokeHistory = DatabaseNormalizer.firstWithValue(scores.strokeHistory, this.strokeHistory);
+        this.priorBleeding = DatabaseNormalizer.firstWithValue(scores.priorBleeding, this.priorBleeding);
+        this.labileInr = DatabaseNormalizer.firstWithValue(scores.labileInr, this.labileInr);
+        this.ageGroup = DatabaseNormalizer.firstWithValue(scores.ageGroup, this.ageGroup);
+        this.medUsagePredisposingToBleeding = DatabaseNormalizer.firstWithValue(scores.medUsagePredisposingToBleeding, this.medUsagePredisposingToBleeding);
+        this.alcoholOrDrugUsageHistory = DatabaseNormalizer.firstWithValue(scores.alcoholOrDrugUsageHistory, this.alcoholOrDrugUsageHistory);
+      }
     },
     hypertension: {
       type: DataTypes.INTEGER,
@@ -66,7 +95,7 @@ class HasBledStage extends Sequelize.Model {
       field: 'predisposing',
       defaultValue: 0,
     },
-    alcaholOrDrugUsageHistory: {
+    alcoholOrDrugUsageHistory: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'drug',
@@ -85,7 +114,7 @@ class HasBledStage extends Sequelize.Model {
           { name: "ID" },
         ]
       },
-    ]
+    ],
   });
   return HasBledStage;
   }

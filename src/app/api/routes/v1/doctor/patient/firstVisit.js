@@ -41,8 +41,10 @@ async function getFirstVisitInfo(req, res, next) {
 
     const firstVisit = SequelizeUtil.filterFields(patient.firstVisit.get({plain: true}), firstVisitIncludedFields);
     firstVisit.medicationHistory = patient.medicationHistory;
+
     firstVisit.hasBledScore = SequelizeUtil.getMaxOfList(patient.hasBledScore);
     firstVisit.cha2ds2Score = SequelizeUtil.getMaxOfList(patient.cha2ds2Score);
+
     firstVisit.warfarinInfo.lastWarfarinDosage = SequelizeUtil.getMaxOfList(patient.warfarinWeeklyDosages);
     firstVisit.warfarinInfo.firstTimeWarfarin = !hasValue(firstVisit.warfarinInfo.lastWarfarinDosage) && (firstWithValue(firstVisit.warfarinInfo.dateOfFirstWarfarin, "") == "");
     // firstVisit.recommendedDosage = patient.warfarinDosageRecords;
@@ -326,7 +328,7 @@ const firstVisitIncludedFields = [
     'visitDate',
     'dateOfDiagnosis',
     'warfarinInfo',
-    'lastInrTest',
+    'inr',
     'testResult',
     'medicalHistory',
     'physicalExam',
@@ -336,7 +338,6 @@ const firstVisitIncludedFields = [
     'drugHistory',
     'habit',
     'flags',
-    'inr',
     'reportComment',
 ]
 
