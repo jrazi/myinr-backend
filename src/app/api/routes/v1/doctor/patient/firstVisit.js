@@ -147,9 +147,8 @@ async function updateFirstVisit(req, res, next) {
         patient.firstVisit[key] = firstVisitUpdatedInfo[key];
     }
 
-    const insertToSecondaryTableIfValueProvided = async (key, modelToUpdate, tableName, tr) => {
-        const recordToUpdate = firstVisitUpdatedInfo[key];
-        if (hasValue(recordToUpdate)) {
+    const insertToSecondaryTableIfValueProvided = async (recordToUpdate, modelToUpdate, tableName, tr) => {
+        if (hasValue(recordToUpdate) && Object.keys(recordToUpdate).length > 0) {
             const maxId = await modelToUpdate.max('id', {transaction: tr});
             const id = maxId + 1;
             const insertResult = await modelToUpdate.sequelize.query(
@@ -238,7 +237,6 @@ async function updateFirstVisit(req, res, next) {
     try {
         updateIfHasValue('dateOfDiagnosis');
         updateIfHasValue('warfarinInfo');
-        updateIfHasValue('lastInrTest');
         updateIfHasValue('testResult');
         updateIfHasValue('medicalHistory');
         updateIfHasValue('physicalExam');
@@ -252,8 +250,8 @@ async function updateFirstVisit(req, res, next) {
 
         await models.FirstVisit.sequelize.transaction(async (tr) => {
             const result = await patient.firstVisit.save({transaction: tr});
-            await insertToSecondaryTableIfValueProvided('hasBledScore', models.HasBledStage, 'HAS-BLEDTbl', tr);
-            await insertToSecondaryTableIfValueProvided('cha2ds2Score', models.Cha2ds2vascScore, 'CHADS-VAScTbl', tr);
+            await insertToSecondaryTableIfValueProvided((firstVisitUpdatedInfo.hasBledScore || {}).data, models.HasBledStage, 'HAS-BLEDTbl', tr);
+            await insertToSecondaryTableIfValueProvided((firstVisitUpdatedInfo.cha2ds2Score || {}).data, models.Cha2ds2vascScore, 'CHADS-VAScTbl', tr);
 
             const medicationHistory = firstVisitUpdatedInfo['medicationHistory'];
             if (hasValue(medicationHistory) && TypeChecker.isList(medicationHistory)) {

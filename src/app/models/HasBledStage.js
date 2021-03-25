@@ -1,5 +1,7 @@
 const Sequelize = require('sequelize');
 const SequelizeUtil = require("../util/SequelizeUtil");
+const TypeChecker = require("../util/TypeChecker");
+const DatabaseNormalizer = require("../util/DatabaseNormalizer");
 module.exports = (sequelize, DataTypes) => {
   return HasBledStage.init(sequelize, DataTypes);
 }

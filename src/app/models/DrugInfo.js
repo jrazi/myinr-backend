@@ -28,12 +28,12 @@ class DrugInfo extends Sequelize.Model {
       allowNull: true,
       field: 'DosageForm',
     },
-    strengh: {
+    strength: {
       type: DataTypes.STRING(100),
       allowNull: true,
       field: 'Strengh',
     },
-    routeofAdminstration: {
+    routeOfAdministration: {
       type: DataTypes.TEXT,
       allowNull: true,
       field: 'RouteofAdmin',
