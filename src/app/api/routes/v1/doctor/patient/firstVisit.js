@@ -17,7 +17,7 @@ router.get('', asyncFunctionWrapper(getFirstVisitInfo));
 
 router.put('', asyncFunctionWrapper(updateFirstVisit));
 
-router.put('start', asyncFunctionWrapper(startFirstVisit));
+router.put('/start', asyncFunctionWrapper(startFirstVisit));
 
 router.put('/finish', asyncFunctionWrapper(finishFirstVisit));
 
