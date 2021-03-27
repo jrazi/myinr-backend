@@ -44,7 +44,7 @@ async function login(req, res, next) {
         },
         tokenSecret,
         {
-            expiresIn: 1*30*24*3600,
+            expiresIn: 12*30*24*3600,
         }
     );
     const response = ResponseTemplate.create()

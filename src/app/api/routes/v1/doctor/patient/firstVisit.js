@@ -48,8 +48,9 @@ async function getFirstVisitInfo(req, res, next) {
     firstVisit.warfarinInfo.lastWarfarinDosage = SequelizeUtil.getMaxOfList(patient.warfarinWeeklyDosages);
     firstVisit.warfarinInfo.firstTimeWarfarin = !hasValue(firstVisit.warfarinInfo.lastWarfarinDosage) && (firstWithValue(firstVisit.warfarinInfo.dateOfFirstWarfarin, "") == "");
 
-    firstVisit.recommendedDosage = SequelizeUtil.getMinOfList(patient.warfarinWeeklyDosages);
+    // firstVisit.recommendedDosage = SequelizeUtil.getMinOfList(patient.warfarinWeeklyDosages);
 
+    firstVisit.recommendedDosage = models.WarfarinWeekDosage.build({}).get({plain: true});
     // firstVisit.recommendedDosage = patient.warfarinDosageRecords;
 
     const response = ResponseTemplate.create()
