@@ -169,7 +169,19 @@ class FirstVisit extends Sequelize.Model {
           }
         }
       },
-      set(values) {
+      set(dateObj) {
+        const date = (dateObj || {}).value;
+        let values = {};
+        if (typeof date == 'string') {
+          const dateParts = DatabaseNormalizer.stringToList(date, '/');
+          values.visitYear = dateParts[0] || null;
+          values.visitMonth = dateParts[1] || null;
+          values.visitDay = dateParts[2] || null;
+        }
+        else if (typeof date == 'object') {
+          values = date;
+        }
+
         this.visitDay= firstWithValue(values.visitDay, this.visitDay);
         this.visitMonth= firstWithValue(values.visitMonth, this.visitMonth);
         this.visitYear= firstWithValue(values.visitYear, this.visitYear);

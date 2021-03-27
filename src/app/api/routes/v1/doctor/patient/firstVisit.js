@@ -246,6 +246,7 @@ async function updateFirstVisit(req, res, next) {
         updateIfHasValue('electrocardiography');
         updateIfHasValue('reportComment');
         updateIfHasValue('bleedingOrClottingTypes');
+        updateIfHasValue('visitDate');
 
 
         await models.FirstVisit.sequelize.transaction(async (tr) => {
