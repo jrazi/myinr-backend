@@ -13,7 +13,9 @@ module.exports.Cha2ds2vascScore = models.Cha2ds2vascScore;
 module.exports.WarfarinWeekDosage = models.WarfarinWeekDosage;
 module.exports.DrugInfo = models.DrugInfo;
 module.exports.WarfarinDosageRecord = models.WarfarinDosageRecord;
-module.exports.PatientMedicationRecord = models.PatientMedicationRecord;
+module.exports.PatientMedicationRecord = models.PatientMedicationRecord
+module.exports.Visit = models.Visit;
+module.exports.VisitAppointment = models.VisitAppointment;
 module.exports.Place = models.Place;
 module.exports.UserPlace = models.UserPlace
 ;

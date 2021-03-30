@@ -3,10 +3,10 @@ const DatabaseNormalizer = require("../util/DatabaseNormalizer");
 const {firstWithValue} = DatabaseNormalizer;
 
 module.exports = (sequelize, DataTypes) => {
-  return secondTbl.init(sequelize, DataTypes);
+  return Visit.init(sequelize, DataTypes);
 }
 
-class secondTbl extends Sequelize.Model {
+class Visit extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   super.init({
     id: {
@@ -273,6 +273,6 @@ class secondTbl extends Sequelize.Model {
       },
     ]
   });
-  return secondTbl;
+  return Visit;
   }
 }

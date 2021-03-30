@@ -1,7 +1,7 @@
 var DataTypes = require("sequelize").DataTypes;
 var _adminTbl = require("./AdminTbl");
 var _ansectorTbl = require("./Place");
-var _appointmentTbl = require("./AppointmentTbl");
+var _appointmentTbl = require("./VisitAppointment");
 var _chadsVaScTbl = require("./Cha2ds2vascScore");
 var _dosageTbl = require("./WarfarinDosageRecord");
 var _drugTbl = require("./DrugInfo");
@@ -16,7 +16,7 @@ var _phAnTbl = require("./UserPlace");
 var _physicianTbl = require("./Physician");
 var _ptToPyTbl = require("./PtToPyTbl");
 var _pyToPtTbl = require("./PyToPtTbl");
-var _secondTbl = require("./SecondTbl");
+var _secondTbl = require("./Visit");
 var _secretaryTbl = require("./SecretaryTbl");
 var _userTbl = require("./User");
 var _event = require("./Event");
@@ -25,7 +25,7 @@ var _flagTbl = require("./FlagTbl");
 function initModels(sequelize) {
   var adminTbl = _adminTbl(sequelize, DataTypes);
   var Place = _ansectorTbl(sequelize, DataTypes);
-  var appointmentTbl = _appointmentTbl(sequelize, DataTypes);
+  var VisitAppointment = _appointmentTbl(sequelize, DataTypes);
   var Cha2ds2vascScore = _chadsVaScTbl(sequelize, DataTypes);
   var WarfarinDosageRecord = _dosageTbl(sequelize, DataTypes);
   var DrugInfo = _drugTbl(sequelize, DataTypes);
@@ -40,7 +40,7 @@ function initModels(sequelize) {
   var Physician = _physicianTbl(sequelize, DataTypes);
   var ptToPyTbl = _ptToPyTbl(sequelize, DataTypes);
   var pyToPtTbl = _pyToPtTbl(sequelize, DataTypes);
-  var secondTbl = _secondTbl(sequelize, DataTypes);
+  var Visit = _secondTbl(sequelize, DataTypes);
   var secretaryTbl = _secretaryTbl(sequelize, DataTypes);
   var User = _userTbl(sequelize, DataTypes);
   var event = _event(sequelize, DataTypes);
@@ -70,12 +70,18 @@ function initModels(sequelize) {
   WarfarinDosageRecord.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
   Patient.hasMany(WarfarinDosageRecord, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'warfarinDosageRecords', sourceKey: 'userId'});
 
+  Visit.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
+  Patient.hasMany(Visit, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'visits', sourceKey: 'userId'});
+
+  VisitAppointment.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
+  Patient.hasMany(VisitAppointment, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'appointments', sourceKey: 'userId'});
+
   Physician.belongsToMany(Place, {through: UserPlace, foreignKey: 'userId', otherKey: 'placeId', uniqueKey: 'id', sourceKey: 'userId', targetKey: 'id', as: 'workPlaces', });
 
   return {
     adminTbl,
     Place,
-    appointmentTbl,
+    VisitAppointment,
     Cha2ds2vascScore,
     WarfarinDosageRecord,
     DrugInfo,
@@ -90,7 +96,7 @@ function initModels(sequelize) {
     Physician,
     ptToPyTbl,
     pyToPtTbl,
-    secondTbl,
+    Visit,
     secretaryTbl,
     User,
     event,
