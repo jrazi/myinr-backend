@@ -8,6 +8,7 @@ const errors = require("../../../../errors");
 const ResponseTemplate = require("../../../../ResponseTemplate");
 const SequelizeUtil = require("../../../../../util/SequelizeUtil");
 const TypeChecker = require("../../../../../util/TypeChecker");
+const JalaliDate = require("../../../../../util/JalaliDate");
 const {asyncFunctionWrapper} = require("../../../util");
 const {firstWithValue} = require("../../../../../util/DatabaseNormalizer");
 const {hasValue} = require("../../../../../util/SimpleValidators");
@@ -90,6 +91,8 @@ async function startFirstVisit(req, res, next) {
             );
 
             const firstVisit = models.FirstVisit.build({});
+            firstVisit.visitDate = JalaliDate.now().toJson().jalali.asString;
+            firstVisit.patientUserId = patient.userId;
 
             const updateResult = await models.FirstVisit.update(firstVisit.get({plain: true}), {where: {id:  id}, transaction: tr});
 
@@ -247,8 +250,7 @@ async function updateFirstVisit(req, res, next) {
         updateIfHasValue('electrocardiography');
         updateIfHasValue('reportComment');
         updateIfHasValue('bleedingOrClottingTypes');
-        updateIfHasValue('visitDate');
-
+        patient.firstVisit.visitDate = JalaliDate.now().toJson().jalali.asString;
 
         await models.FirstVisit.sequelize.transaction(async (tr) => {
             const result = await patient.firstVisit.save({transaction: tr});
@@ -312,6 +314,7 @@ async function finishFirstVisit(req, res, next) {
     patient.firstVisit.flags = {
         isEnded: true,
     }
+    patient.firstVisit.visitDate = JalaliDate.now().toJson().jalali.asString;
 
     await patient.firstVisit.save();
 

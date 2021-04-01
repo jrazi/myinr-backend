@@ -170,7 +170,7 @@ class FirstVisit extends Sequelize.Model {
         }
       },
       set(dateObj) {
-        const date = (dateObj || {}).value;
+        const date = typeof dateObj == 'string' ? dateObj : (dateObj || {}).value;
         let values = {};
         if (typeof date == 'string') {
           const dateParts = DatabaseNormalizer.stringToList(date, '/');
