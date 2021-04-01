@@ -10,6 +10,7 @@ const SequelizeUtil = require("../../../../../util/SequelizeUtil");
 const TypeChecker = require("../../../../../util/TypeChecker");
 const JalaliDate = require("../../../../../util/JalaliDate");
 const ListUtil = require("../../../../../util/ListUtil");
+const SimpleValidators = require("../../../../../util/SimpleValidators");
 const {asyncFunctionWrapper} = require("../../../util");
 const {firstWithValue} = require("../../../../../util/DatabaseNormalizer");
 const {hasValue} = require("../../../../../util/SimpleValidators");
@@ -263,6 +264,30 @@ async function updateFirstVisit(req, res, next) {
                 patient.medicalCondition = updatedMedicalConditions;
                 await patient.save({transaction: tr});
             }
+            
+            if (SimpleValidators.hasValue(firstVisitUpdatedInfo.nextVisitDate || "")) {
+                const jDate = JalaliDate.create(firstVisitUpdatedInfo.nextVisitDate);
+                if (jDate.isValidDate()) {
+                    const appointmentMaxId = await models.VisitAppointment.max('id', {transaction: tr});
+                    const appointmentId = appointmentMaxId + 1;
+                    const approximateVisitDate = JalaliDate.create(firstVisitUpdatedInfo.nextVisitDate).toJson().jalali.asObject;
+
+                    const insertResult = await models.VisitAppointment.sequelize.query(
+                        `INSERT INTO [myinrir_test].[AppointmentTbl] ([IDVisit],[UserIDPatient],[AYearVisit],[AMonthVisit],[ADayVisit]) VALUES (${appointmentId}, ${patientUserId}, ${approximateVisitDate.year}, ${approximateVisitDate.month}, ${approximateVisitDate.day})`,
+                        {type: QueryTypes.INSERT, transaction: tr}
+                    );
+
+                    const appointmentToAdd = {
+                        id: appointmentId,
+                        patientUserId: patientUserId,
+                        approximateVisitDate: jDate.toJson().jalali.asObject,
+                    }
+
+                    const record = models.VisitAppointment.build(appointmentToAdd);
+                    const updateResult = await models.VisitAppointment.update(record.get({plain: true}), {where: {id: appointmentId, patientUserId: patientUserId}, transaction: tr});
+                }
+            }
+            
             const result = await patient.firstVisit.save({transaction: tr});
             await insertToSecondaryTableIfValueProvided((firstVisitUpdatedInfo.hasBledScore || {}).data, models.HasBledStage, 'HAS-BLEDTbl', tr);
             await insertToSecondaryTableIfValueProvided((firstVisitUpdatedInfo.cha2ds2Score || {}).data, models.Cha2ds2vascScore, 'CHADS-VAScTbl', tr);
