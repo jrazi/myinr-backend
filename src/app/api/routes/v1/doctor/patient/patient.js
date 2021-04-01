@@ -4,6 +4,7 @@ var router = express.Router();
 
 const firstVisitRoute = require('./firstVisit');
 const appointmentRouter = require('./appointment/appointment');
+const visitRouter = require('./visit/visit');
 
 const models = require("../../../../../models");
 const errors = require("../../../../errors");
@@ -24,6 +25,8 @@ router.get('/:userId', asyncFunctionWrapper(getPatient));
 router.use('/:userId/firstVisit', firstVisitRoute);
 router.use('/:userId/appointment', appointmentRouter);
 
+router.use('/:userId/appointment', appointmentRouter);
+router.use('/:userId/visit', visitRouter);
 
 
 async function getAllPatients(req, res, next) {

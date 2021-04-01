@@ -1,6 +1,9 @@
 const Sequelize = require('sequelize');
 const DatabaseNormalizer = require("../util/DatabaseNormalizer");
+const SequelizeUtil = require("../util/SequelizeUtil");
+const JalaliDate = require("../util/JalaliDate");
 const {firstWithValue} = DatabaseNormalizer;
+const DomainNameTable = require("./StaticDomainNameTable");
 
 module.exports = (sequelize, DataTypes) => {
   return Visit.init(sequelize, DataTypes);
@@ -27,7 +30,7 @@ class Visit extends Sequelize.Model {
       field: 'ReasonforusingWarfarin',
       defaultValue: "",
       get() {
-        const rawValue = this.getDataValue('ReasonforusingWarfarin');
+        const rawValue = this.getDataValue('reasonForVisit');
         const conditionIds = DatabaseNormalizer.stringToList(rawValue, ',');
 
         const conditions = conditionIds.map(id => DomainNameTable[id]);
@@ -37,7 +40,7 @@ class Visit extends Sequelize.Model {
       set(conditionIdList) {
         const conditionsAsString = DatabaseNormalizer.listToString(conditionIdList, ',');
         const rawValue = `${conditionsAsString}`;
-        this.setDataValue('ReasonforusingWarfarin', rawValue);
+        this.setDataValue('reasonForVisit', rawValue);
       }
 
     },
@@ -114,6 +117,14 @@ class Visit extends Sequelize.Model {
       allowNull: true,
       field: 'DateofINRTest',
       defaultValue: "",
+      get() {
+        const jalali = JalaliDate.create(this.getDataValue('dateOfLastInrTest'));
+        return jalali.toJson();
+      },
+      set(value) {
+        const jalali = JalaliDate.create(value).toJson().jalali.asString;
+        this.setDataValue('dateOfLastInrTest', jalali|| "");
+      }
     },
     wasHospitalized: {
       type: DataTypes.STRING(1),
@@ -166,10 +177,10 @@ class Visit extends Sequelize.Model {
       defaultValue: "",
       get() {
         const rawValue = this.getDataValue('recommendationForFuture');
-        return DomainNameTable[rawValue] || null;
+        return DomainNameTable[rawValue] || "";
       },
       set(value) {
-        this.setDataValue('recommendationForFuture', DatabaseNormalizer.firstWithValue((value || {}).id, null));
+        this.setDataValue('recommendationForFuture', DatabaseNormalizer.firstWithValue((value || {}).id, ""));
       }
 
     },
@@ -184,6 +195,14 @@ class Visit extends Sequelize.Model {
       allowNull: true,
       field: 'NextINRCheck',
       defaultValue: "",
+      get() {
+        const jalali = JalaliDate.create(this.getDataValue('nextInrCheckDate'));
+        return jalali.toJson();
+      },
+      set(value) {
+        const jalali = JalaliDate.create(value).toJson().jalali.asString;
+        this.setDataValue('nextInrCheckDate', jalali || "");
+      }
     },
     reportComment: {
       type: DataTypes.TEXT,
@@ -207,25 +226,20 @@ class Visit extends Sequelize.Model {
     visitDate: {
       type: DataTypes.VIRTUAL,
       get() {
-        let value = "";
-        if ((this.visitYear || "") != "") {
-          value += this.visitYear;
-          if ((this.visitMonth || "") != "") {
-            value += '/' + this.visitMonth;
-            if ((this.visitDay || "") != "") {
-              value += '/' + this.visitDay;
-            }
-          }
-        }
-        return {
-          value: value,
-          details: {
-            visitDay: this.visitDay,
-            visitMonth: this.visitMonth,
-            visitYear: this.visitYear,
-          }
-        }
+        const jalali = JalaliDate.create({
+          year: this.visitYear,
+          month: this.visitMonth,
+          day: this.visitDay,
+        });
+        return jalali.toJson();
       },
+      set(value) {
+        const jalali = JalaliDate.create(value).toJson().jalali.asObject;
+
+        this.visitYear= firstWithValue(jalali.year, "");
+        this.visitMonth= firstWithValue(jalali.month, "");
+        this.visitDay= firstWithValue(jalali.day, "");
+      }
     },
     visitDay: {
       type: DataTypes.STRING(2),
@@ -275,4 +289,24 @@ class Visit extends Sequelize.Model {
   });
   return Visit;
   }
+}
+
+Visit.prototype.getApiObject = function () {
+  const plainObject = this.get({plain: true});
+  return SequelizeUtil.filterFields(plainObject, [
+      'id',
+      'patientUserId',
+      'reasonForVisit',
+      'inr',
+      'procedurePreparing',
+      'wasHospitalized',
+      'hasERVisit',
+      'bleedingOrClottingTypes',
+      'recommendationForFuture',
+      'recommendedDaysWithoutWarfarin',
+      'reportComment',
+      'hasTakenWarfarinToday',
+      'visitDate',
+      'visitFlag',
+  ]);
 }

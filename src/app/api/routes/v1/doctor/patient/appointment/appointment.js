@@ -6,16 +6,20 @@ const models = require('../../../../../../models');
 const ResponseTemplate = require("../../../../../ResponseTemplate");
 const JalaliDate = require("../../../../../../util/JalaliDate");
 const errors = require("../../../../../errors");
+const SimpleValidators = require("../../../../../../util/SimpleValidators");
 const {asyncFunctionWrapper} = require("../../../../util");
-
-router.get('/:appointmentId', asyncFunctionWrapper(getAppointment));
-router.get('/:appointmentId/:visitId', asyncFunctionWrapper(getVisit));
+const {QueryTypes} = require("sequelize");
 
 router.get('', asyncFunctionWrapper(getAppointmentList));
+router.post('', asyncFunctionWrapper(addAppointment));
+
+router.put('/:appointmentId', asyncFunctionWrapper(updateAppointment));
+router.get('/:appointmentId', asyncFunctionWrapper(getAppointment));
+
+
 
 async function getAppointmentList(req, res, next) {
     const patientUserId = req.patientInfo.userId;
-
 
     let patient = await models.Patient.findOne({
         where: {userId: patientUserId, physicianUserId: req.principal.userId},
@@ -68,8 +72,88 @@ async function getAppointment(req, res, next) {
     res.json(response);
 }
 
-async function getVisit(req, res, next) {
+async function addAppointment(req, res, next) {
+    const patientUserId = req.patientInfo.userId;
 
+    const appointmentToAdd = req.body.appointment;
+
+    if ((appointmentToAdd || null) == null) {
+        next(new errors.IncompleteRequest("Appointment info was not provided."));
+        return;
+    }
+
+    let patient = await models.Patient.findOne({
+        where: {userId: patientUserId, physicianUserId: req.principal.userId},
+        include: [],
+    });
+
+    if (patient == null) {
+        next(new errors.PatientNotFound());
+        return;
+    }
+
+    await models.VisitAppointment.sequelize.transaction(async (tr) => {
+        const maxId = await models.VisitAppointment.max('id', {transaction: tr});
+        const id = maxId + 1;
+        const approximateVisitDate = JalaliDate.create(appointmentToAdd.approximateVisitDate).toJson().jalali.asObject;
+
+        const insertResult = await models.VisitAppointment.sequelize.query(
+            `INSERT INTO [myinrir_test].[AppointmentTbl] ([IDVisit],[UserIDPatient],[AYearVisit],[AMonthVisit],[ADayVisit]) VALUES (${id}, ${patientUserId}, ${approximateVisitDate.year}, ${approximateVisitDate.month}, ${approximateVisitDate.day})`,
+            {type: QueryTypes.INSERT, transaction: tr}
+        );
+
+        appointmentToAdd.patientUserId = patientUserId;
+        appointmentToAdd.id = id;
+
+        const record = models.VisitAppointment.build(appointmentToAdd);
+        const updateResult = await models.VisitAppointment.update(record.get({plain: true}), {where: {id: id, patientUserId: patientUserId}, transaction: tr});
+
+        const response =  ResponseTemplate.create()
+            .withData({
+                appointment: record.getApiObject(),
+            });
+
+        res.json(response);
+    });
+}
+async function updateAppointment(req, res, next) {
+    const patientUserId = req.patientInfo.userId;
+    const appointmentId = req.params.appointmentId;
+
+    const updatedAppointment = req.body.appointment;
+
+    if ((updatedAppointment || null) == null) {
+        next(new errors.IncompleteRequest("Appointment info was not provided."));
+        return;
+    }
+
+    let patient = await models.Patient.findOne({
+        where: {userId: patientUserId, physicianUserId: req.principal.userId},
+        include: [],
+    });
+
+    if (patient == null) {
+        next(new errors.PatientNotFound());
+        return;
+    }
+
+    const record = models.VisitAppointment.build(updatedAppointment);
+
+    const updateResult = await models.VisitAppointment.update(record.get({plain: true}), {where: {id: appointmentId, patientUserId: patientUserId}});
+    if (updateResult[0] == 1) {
+        record.id = appointmentId;
+        record.patientUserId = patientUserId;
+        const response =  ResponseTemplate.create()
+            .withData({
+                appointment: record.getApiObject(),
+            });
+
+        res.json(response);
+    }
+    else {
+        next(new errors.AppointmentNotFound());
+        return;
+    }
 }
 
 

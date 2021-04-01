@@ -270,6 +270,53 @@ const StaticDomainNameTable = {
         name: 'Third',
         groupId: 7,
     },
+
+    55: {
+        id: 55,
+        name: 'Dose Adjustment',
+        groupId: 8,
+    },
+    56: {
+        id: 56,
+        name: 'Prescription Refill',
+        groupId: 8,
+    },
+    57: {
+        id: 57,
+        name: 'Telephone Contact',
+        groupId: 8,
+    },
+    58: {
+        id: 58,
+        name: 'Scheduled Appointment',
+        groupId: 8,
+    },
+    59: {
+        id: 59,
+        name: 'Minor Bleeding',
+        groupId: 8,
+    },
+    60: {
+        id: 60,
+        name: 'Major Bleeding',
+        groupId: 8,
+    },
+
+    84: {
+        id: 84,
+        name: 'Keep continue the previous program',
+        groupId: 10,
+    },
+    85: {
+        id: 85,
+        name: 'New Prescription',
+        groupId: 10,
+    },
+    86: {
+        id: 86,
+        name: 'Refer to ER',
+        groupId: 10,
+    },
 }
 
 module.exports = StaticDomainNameTable;
