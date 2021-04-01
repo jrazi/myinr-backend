@@ -35,7 +35,7 @@ class DatabaseNormalizer {
             return "";
 
         const valueAsString = (value) => {
-            return TypeChecker.isObject(value) ? (value.id || "") : (value || "");
+            return TypeChecker.isObject(value) ? (DatabaseNormalizer.firstWithValue(value.id, "")) : (DatabaseNormalizer.firstWithValue(value, ""));
         }
 
         let listAsString = list.reduce((acc, currentValue) =>  acc + valueAsString(currentValue) + separator , "");

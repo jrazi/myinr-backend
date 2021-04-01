@@ -109,6 +109,28 @@ class JalaliDate {
     getGeorgianDate() {
         return ((this.jDate || {})._d) || null;
     }
+
+    isValidDate() {
+        return this.jDate != null;
+    }
+
+    toJson() {
+        const isValidDate = this.jDate != null;
+        const jalaliDateArray = !isValidDate ? null : [this.jDate.getFullYear(), this.jDate.getMonth(), this.jDate.getDate()];
+        return {
+            timestamp: this.getGeorgianDate() == null ? null : this.getGeorgianDate().getTime(),
+            iso: this.getGeorgianDate() == null ? null : this.getGeorgianDate().toString(),
+            jalali: {
+                asString: !isValidDate ? null : DatabaseNormalizer.listToString(jalaliDateArray, '/'),
+                asArray: !isValidDate ? [] : jalaliDateArray,
+                asObject: {
+                    year: !isValidDate ? null : jalaliDateArray[0],
+                    month: !isValidDate ? null : jalaliDateArray[1],
+                    day: !isValidDate ? null : jalaliDateArray[2],
+                }
+            }
+        }
+    }
 }
 
 module.exports = JalaliDate;

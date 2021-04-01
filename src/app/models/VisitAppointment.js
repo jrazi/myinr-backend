@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const DatabaseNormalizer = require("../util/DatabaseNormalizer");
+const JalaliDate = require("../util/JalaliDate");
 const {firstWithValue} = DatabaseNormalizer;
 
 module.exports = (sequelize, DataTypes) => {
@@ -21,38 +22,63 @@ class VisitAppointment extends Sequelize.Model {
       allowNull: false,
       field: 'UserIDPatient',
     },
+    expired: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        const jalali = JalaliDate.create(this.scheduledVisitDate.jalali.asString);
+        return !this.hasVisitHappened && jalali.isValidDate() && jalali.compareWithToday() < 0;
+      },
+      set() {
+        return null;
+      }
+    },
+    isScheduled: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return this.scheduledVisitDate.iso != null;
+      },
+      set() {
+        return null;
+      }
+    },
     approximateVisitDate: {
       type: DataTypes.VIRTUAL,
       get() {
-        return {
+        const jalali = JalaliDate.create({
           year: this.approximateVisitYear,
           month: this.approximateVisitMonth,
           day: this.approximateVisitDay,
-        }
+        });
+        return jalali.toJson();
       },
-      set(values) {
-        this.year= firstWithValue(values.year, this.approximateVisitYear);
-        this.month= firstWithValue(values.month, this.approximateVisitMonth);
-        this.day= firstWithValue(values.day, this.approximateVisitDay);
+      set(value) {
+        const jalali = JalaliDate.create(value).toJson().jalali.asObject;
+
+        this.approximateVisitYear= jalali.year;
+        this.approximateVisitMonth= jalali.month;
+        this.approximateVisitDay= jalali.day;
       }
     },
-    scheduleVisitDate: {
+    scheduledVisitDate: {
       type: DataTypes.VIRTUAL,
       get() {
-        return {
+        const jalali = JalaliDate.create({
           year: this.visitYear,
           month: this.visitMonth,
           day: this.visitDay,
           hour: this.visitHour,
           minute: this.visitMinute,
-        }
+        });
+        return jalali.toJson();
       },
-      set(values) {
-        this.year= firstWithValue(values.year, this.visitYear);
-        this.month= firstWithValue(values.month, this.visitMonth);
-        this.day= firstWithValue(values.day, this.visitDay);
-        this.hour= firstWithValue(values.hour, this.visitHour);
-        this.minute= firstWithValue(values.minute, this.visitMinute);
+      set(value) {
+        const jalali = JalaliDate.create(value).toJson().jalali.asObject;
+
+        this.visitYear = jalali.year || null;
+        this.visitMonth = jalali.month || null;
+        this.visitDay = jalali.day || null;
+        this.visitHour = jalali.hour || null;
+        this.visitMinute = jalali.minute || null;
       }
     },
     hasVisitHappened: {
@@ -134,8 +160,21 @@ class VisitAppointment extends Sequelize.Model {
         }
       },
 
-    }
+    },
   });
   return VisitAppointment;
+  }
+}
+
+VisitAppointment.prototype.getApiObject = function () {
+  const plainObject = this.get({plain: true});
+  return {
+    id: plainObject.id,
+    patientUserId: plainObject.patientUserId,
+    hasVisitHappened: plainObject.hasVisitHappened,
+    expired: plainObject.expired,
+    isScheduled: plainObject.isScheduled,
+    approximateVisitDate: plainObject.approximateVisitDate,
+    scheduledVisitDate: plainObject.scheduledVisitDate,
   }
 }

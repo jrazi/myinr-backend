@@ -4,6 +4,7 @@ const router = express.Router();
 
 const models = require('../../../../../../models');
 const ResponseTemplate = require("../../../../../ResponseTemplate");
+const JalaliDate = require("../../../../../../util/JalaliDate");
 const {asyncFunctionWrapper} = require("../../../../util");
 
 router.get('/:appointmentId', asyncFunctionWrapper(getAppointment));
@@ -17,15 +18,16 @@ async function getAppointmentList(req, res, next) {
     const scopes = [
         'defaultScope',
         req.query.attended ? 'attended' : null,
-        req.query.expired ? 'expired' : null,
     ].filter(item => item != null);
 
 
-    const appointmentList = await models.VisitAppointment.scope(scopes).findAll({
+    let appointmentList = await models.VisitAppointment.scope(scopes).findAll({
         where: {
             patientUserId: patientUserId,
         }
     });
+
+    appointmentList = appointmentList.map(appointment => appointment.getApiObject());
 
     const response =  ResponseTemplate.create()
         .withData({
@@ -61,4 +63,5 @@ async function getVisit(req, res, next) {
 
 
 module.exports = router;
+
 
