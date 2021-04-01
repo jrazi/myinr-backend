@@ -46,6 +46,19 @@ class FirstVisitNotFound extends ApiError {
     }
 }
 
+class AppointmentNotFound extends ApiError {
+    constructor (message = "Appointment was not found.") {
+        super(400, "RECORD_NOT_FOUND", message);
+    }
+}
+
+class VisitNotFound extends ApiError {
+    constructor (message = "Visit was not found.") {
+        super(400, "RECORD_NOT_FOUND", message);
+    }
+}
+
+
 class IllegalOperation extends ApiError {
     constructor (message = "You can not do this operation.") {
         super(400, "ILLEGAL_OPERATION", message);
@@ -105,4 +118,6 @@ module.exports = {
     IllegalOperation,
     AlreadyExistsException,
     IncompleteRequest,
+    AppointmentNotFound,
+    VisitNotFound,
 };
