@@ -121,7 +121,20 @@ class VisitAppointment extends Sequelize.Model {
           { name: "IDVisit" },
         ]
       },
-    ]
+    ],
+    scopes: {
+      expired: {
+        where: {
+
+        }
+      },
+      attended: {
+        where: {
+          hasVisitHappened: true,
+        }
+      },
+
+    }
   });
   return VisitAppointment;
   }

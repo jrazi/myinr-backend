@@ -1,7 +1,9 @@
 
 var express = require('express');
 var router = express.Router();
+
 const firstVisitRoute = require('./firstVisit');
+const appointmentRouter = require('./appointment/appointment');
 
 const models = require("../../../../../models");
 const errors = require("../../../../errors");
@@ -11,15 +13,17 @@ const {asyncFunctionWrapper} = require("../../../util");
 
 router.get('', asyncFunctionWrapper(getAllPatients));
 
-router.get('/:userId', asyncFunctionWrapper(getPatient));
-
 router.use('/:userId', (req, res, next) => {
     req.patientInfo = {
         userId: req.params.userId,
     };
     next();
 })
+
+router.get('/:userId', asyncFunctionWrapper(getPatient));
 router.use('/:userId/firstVisit', firstVisitRoute);
+router.use('/:userId/appointment', appointmentRouter);
+
 
 
 async function getAllPatients(req, res, next) {
