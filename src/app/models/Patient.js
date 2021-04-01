@@ -119,7 +119,8 @@ class Patient extends Sequelize.Model {
 
         return conditions.map(condition => {return {name: condition};})
       },
-      set(conditionNameList) {
+      set(conditionList) {
+        const conditionNameList = (conditionList || []).map(condition => DatabaseNormalizer.firstWithValue(condition.name, ""));
         const conditionsAsString = DatabaseNormalizer.listToString(conditionNameList, '-');
         this.setDataValue('medicalCondition', conditionsAsString);
       }

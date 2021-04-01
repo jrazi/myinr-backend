@@ -9,6 +9,7 @@ const ResponseTemplate = require("../../../../ResponseTemplate");
 const SequelizeUtil = require("../../../../../util/SequelizeUtil");
 const TypeChecker = require("../../../../../util/TypeChecker");
 const JalaliDate = require("../../../../../util/JalaliDate");
+const ListUtil = require("../../../../../util/ListUtil");
 const {asyncFunctionWrapper} = require("../../../util");
 const {firstWithValue} = require("../../../../../util/DatabaseNormalizer");
 const {hasValue} = require("../../../../../util/SimpleValidators");
@@ -253,9 +254,19 @@ async function updateFirstVisit(req, res, next) {
         patient.firstVisit.visitDate = JalaliDate.now().toJson().jalali.asString;
 
         await models.FirstVisit.sequelize.transaction(async (tr) => {
+            const patientConditions = patient.medicalCondition.map(condition => condition.name);
+            const updatedMedicalConditions = [...patient.firstVisit.warfarinInfo.reasonForWarfarin.conditions, ...patient.firstVisit.warfarinInfo.reasonForWarfarin.heartValveReplacementConditions];
+
+            const firstVisitConditions = updatedMedicalConditions.map(condition => condition.name);
+
+            if (!ListUtil.listsEqual(patientConditions, firstVisitConditions)) {
+                patient.medicalCondition = updatedMedicalConditions;
+                await patient.save({transaction: tr});
+            }
             const result = await patient.firstVisit.save({transaction: tr});
             await insertToSecondaryTableIfValueProvided((firstVisitUpdatedInfo.hasBledScore || {}).data, models.HasBledStage, 'HAS-BLEDTbl', tr);
             await insertToSecondaryTableIfValueProvided((firstVisitUpdatedInfo.cha2ds2Score || {}).data, models.Cha2ds2vascScore, 'CHADS-VAScTbl', tr);
+
 
             const medicationHistory = firstVisitUpdatedInfo['medicationHistory'];
             if (hasValue(medicationHistory) && TypeChecker.isList(medicationHistory)) {
