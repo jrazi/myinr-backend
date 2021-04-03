@@ -122,7 +122,7 @@ async function updateFirstVisit(req, res, next) {
     const patientUserId = req.patientInfo.userId;
     const patient = await models.Patient.findOne({
         where: {userId: patientUserId, physicianUserId: req.principal.userId},
-        include: ['firstVisit', ],
+        include: ['firstVisit', 'appointments'],
     });
 
     if (patient == null) {
@@ -268,23 +268,37 @@ async function updateFirstVisit(req, res, next) {
             if (SimpleValidators.hasValue(firstVisitUpdatedInfo.nextVisitDate || "")) {
                 const jDate = JalaliDate.create(firstVisitUpdatedInfo.nextVisitDate);
                 if (jDate.isValidDate()) {
-                    const appointmentMaxId = await models.VisitAppointment.max('id', {transaction: tr});
-                    const appointmentId = appointmentMaxId + 1;
-                    const approximateVisitDate = JalaliDate.create(firstVisitUpdatedInfo.nextVisitDate).toJson().jalali.asObject;
+                    const nonExpiredAppointments = patient.appointments.filter(appointment => appointment.expired === false && appointment.hasVisitHappened === false);
 
-                    const insertResult = await models.VisitAppointment.sequelize.query(
-                        `INSERT INTO [myinrir_test].[AppointmentTbl] ([IDVisit],[UserIDPatient],[AYearVisit],[AMonthVisit],[ADayVisit]) VALUES (${appointmentId}, ${patientUserId}, ${approximateVisitDate.year}, ${approximateVisitDate.month}, ${approximateVisitDate.day})`,
-                        {type: QueryTypes.INSERT, transaction: tr}
-                    );
+                    if (nonExpiredAppointments.length > 0) {
+                        const earliestAppointment = JalaliDate.getMinimumDate(nonExpiredAppointments.map(appointment => appointment.approximateVisitDate));
+                        const earliestAppointmentIndex = earliestAppointment ? earliestAppointment.index : 0;
 
-                    const appointmentToAdd = {
-                        id: appointmentId,
-                        patientUserId: patientUserId,
-                        approximateVisitDate: jDate.toJson().jalali.asObject,
+                        const appointmentToChange = nonExpiredAppointments[earliestAppointmentIndex];
+                        appointmentToChange.approximateVisitDate = jDate.toJson().jalali.asObject;
+                        await appointmentToChange.save({transaction: tr});
+                    }
+                    else {
+                        const appointmentMaxId = await models.VisitAppointment.max('id', {transaction: tr});
+                        const appointmentId = appointmentMaxId + 1;
+                        const approximateVisitDate = JalaliDate.create(firstVisitUpdatedInfo.nextVisitDate).toJson().jalali.asObject;
+
+                        const insertResult = await models.VisitAppointment.sequelize.query(
+                            `INSERT INTO [myinrir_test].[AppointmentTbl] ([IDVisit],[UserIDPatient],[AYearVisit],[AMonthVisit],[ADayVisit]) VALUES (${appointmentId}, ${patientUserId}, ${approximateVisitDate.year}, ${approximateVisitDate.month}, ${approximateVisitDate.day})`,
+                            {type: QueryTypes.INSERT, transaction: tr}
+                        );
+
+                        const appointmentToAdd = {
+                            id: appointmentId,
+                            patientUserId: patientUserId,
+                            approximateVisitDate: jDate.toJson().jalali.asObject,
+                        }
+
+                        const record = models.VisitAppointment.build(appointmentToAdd);
+                        const updateResult = await models.VisitAppointment.update(record.get({plain: true}), {where: {id: appointmentId, patientUserId: patientUserId}, transaction: tr});
+
                     }
 
-                    const record = models.VisitAppointment.build(appointmentToAdd);
-                    const updateResult = await models.VisitAppointment.update(record.get({plain: true}), {where: {id: appointmentId, patientUserId: patientUserId}, transaction: tr});
                 }
             }
             

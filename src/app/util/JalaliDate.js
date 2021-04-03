@@ -11,18 +11,39 @@ class JalaliDate {
     static EmptyDate = new JalaliDate(null);
     jDate = null;
 
+    static getMinimumDate(jalaliDateList) {
+        if (!TypeChecker.isList(jalaliDateList) || jalaliDateList.length == 0)
+            return null;
+
+        let minDate = JalaliDate.create(jalaliDateList[0]);
+        let minIndex = 0;
+        jalaliDateList.forEach((dateItem, index) => {
+            const jDateItem = JalaliDate.create(dateItem);
+            if (jDateItem.isValidDate() && jDateItem.compareWithJalaliDate(minDate) <= 0) {
+                minDate = jDateItem;
+                minIndex = index;
+            }
+        })
+        return {index: minIndex, date: minDate};
+    }
+
     static now() {
         return JalaliDate.withGeorgianDate(new Date());
     }
 
     static create(date) {
         if (!hasValue(date)) return JalaliDate.EmptyDate;
-        if (date instanceof Date)
+        else if (date instanceof JalaliDate)
+            return JalaliDate.withGeorgianDate(date.getGeorgianDate());
+        else if (date instanceof Date)
             return JalaliDate.withGeorgianDate(date);
         else if (isNonEmptyString(date))
             return JalaliDate.withJalaliStringDate(date);
-        else if (typeof date == 'object')
-            return JalaliDate.withJalaliDateAsObject(date);
+        else if (typeof date == 'object') {
+            if (hasValue(date.jalali) && hasValue(date.jalali.asObject))
+                return JalaliDate.withJalaliDateAsObject(date.jalali.asObject);
+            else return JalaliDate.withJalaliDateAsObject(date);
+        }
         else return JalaliDate.EmptyDate;
     }
 
@@ -100,6 +121,16 @@ class JalaliDate {
         now.setUTCHours(0, 0, 0, 0);
         date.setUTCHours(0, 0, 0, 0);
         return date > now ? 1 : (now >= date && now <= date) ? 0 : -1;
+    }
+
+    compareWithJalaliDate(jalaliDate) {
+        if (this.jDate == null || !(jalaliDate instanceof JalaliDate) || !jalaliDate.isValidDate()) return null;
+        const toCompareDate = new Date(jalaliDate.getGeorgianDate());
+        const date = new Date(this.jDate._d);
+
+        toCompareDate.setUTCHours(0, 0, 0, 0);
+        date.setUTCHours(0, 0, 0, 0);
+        return date > toCompareDate ? 1 : (toCompareDate >= date && toCompareDate <= date) ? 0 : -1;
     }
 
     getJDate() {

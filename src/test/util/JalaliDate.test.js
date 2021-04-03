@@ -131,6 +131,30 @@ describe("jalali date constructor", () => {
 
         expect(jDate.getGeorgianDate().getFullYear().toString()).toEqual("2023");
     });
+
+    it('should have correct jdate when constructing with jdate json object', function () {
+        const jDate = JalaliDate.create({
+            jalali: {
+                asString: "99/12/03",
+                asObject: {
+                    year: 99,
+                    month: 12,
+                    day: "3",
+                },
+                asArray: [99, 12, 3],
+            }
+        });
+
+        expect(jDate.getJDate().getFullYear()).toEqual(1399);
+    });
+
+    it('should have correct jdate when constructing with jdate json object', function () {
+        const ref = JalaliDate.create("1398/04/05");
+        const jDate = JalaliDate.create(ref);
+
+
+        expect(jDate.getJDate().getFullYear()).toEqual(1398);
+    });
 });
 
 describe("jalali date comparison", () => {
@@ -166,5 +190,20 @@ describe("jalali date comparison", () => {
 
         expect(result).toBeNull();
     });
+
+});
+
+describe("jalali date list minimum function", () => {
+    it('should return minimum when comparing jalali dates with different formats', function () {
+        const dateList = ["99/12/07", null, "1400/03/08", [1388, 3, 9], null, {}, {jalali: {asObject: {year: 86, month: 3, day: 3}}}, "1387/10/22", null];
+
+        const minDateObj = JalaliDate.getMinimumDate(dateList);
+        const minIndex = minDateObj.index;
+        const minDate = minDateObj.date;
+
+        expect(minIndex).toEqual(6);
+        expect(minDate.toJson().jalali.asString).toEqual("1386/3/3");
+    });
+
 
 });
