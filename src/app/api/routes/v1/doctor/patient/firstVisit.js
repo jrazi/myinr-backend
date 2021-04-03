@@ -2,6 +2,7 @@
 var express = require('express');
 var router = express.Router();
 const {QueryTypes} = require("sequelize");
+const {Op} = require("sequelize");
 
 const models = require("../../../../../models");
 const errors = require("../../../../errors");
@@ -276,6 +277,18 @@ async function updateFirstVisit(req, res, next) {
 
                         const appointmentToChange = nonExpiredAppointments[earliestAppointmentIndex];
                         appointmentToChange.approximateVisitDate = jDate.toJson().jalali.asObject;
+
+                        await models.VisitAppointment.destroy({
+                            where: {
+                                patientUserId: patientUserId,
+                                id: {
+                                    [Op.not]: appointmentToChange.id,
+                                },
+                                hasVisitHappened:  false,
+                            },
+                            transaction: tr,
+                        });
+
                         await appointmentToChange.save({transaction: tr});
                     }
                     else {
