@@ -37,7 +37,7 @@ async function getAllPatients(req, res, next) {
         include: {
             model: models.Patient,
             as: 'patients',
-            include: 'firstVisit',
+            include: ['firstVisit'],
         },
     });
     if (doctor == null) {
@@ -69,7 +69,7 @@ async function getPatient(req, res, next) {
             userId: patientUserId,
             physicianUserId: req.principal.userId
         },
-        include: 'firstVisit',
+        include: ['firstVisit', 'appointments'],
     });
     if (patient == null) {
         next(new errors.PatientNotFound());
