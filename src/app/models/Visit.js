@@ -293,6 +293,7 @@ class Visit extends Sequelize.Model {
 
 Visit.prototype.getApiObject = function () {
   const plainObject = this.get({plain: true});
+  plainObject.medicationHistory = [];
   return SequelizeUtil.filterFields(plainObject, [
       'id',
       'patientUserId',
@@ -300,7 +301,7 @@ Visit.prototype.getApiObject = function () {
       'inr',
       'procedurePreparing',
       'wasHospitalized',
-      'hasERVisit',
+      'hadERVisit',
       'bleedingOrClottingTypes',
       'recommendationForFuture',
       'recommendedDaysWithoutWarfarin',
@@ -308,5 +309,6 @@ Visit.prototype.getApiObject = function () {
       'hasTakenWarfarinToday',
       'visitDate',
       'visitFlag',
+      'medicationHistory',
   ]);
 }

@@ -64,12 +64,20 @@ async function getAllPatients(req, res, next) {
 
 async function getPatient(req, res, next) {
     const patientUserId = req.params.userId;
+    const {includeFirstVisit, includeAppointments, includeVisits} = req.query;
+
+    let include = ['firstVisit'];
+    if (includeAppointments)
+        include.push('appointments');
+    if (includeVisits)
+        include.push('visits');
+
     const patient = await models.Patient.findOne({
         where: {
             userId: patientUserId,
             physicianUserId: req.principal.userId
         },
-        include: ['firstVisit', 'appointments'],
+        include: include,
     });
     if (patient == null) {
         next(new errors.PatientNotFound());
@@ -78,7 +86,9 @@ async function getPatient(req, res, next) {
 
     patient.firstVisitStatus = patient.firstVisit;
 
-    const patientData = SequelizeUtil.excludeFields(patient.get({plain: true}), ['firstVisit']);
+    const excludedFields = includeFirstVisit ? [] : ['firstVisit'];
+
+    const patientData = SequelizeUtil.excludeFields(patient.get({plain: true}), excludedFields);
 
     const response = ResponseTemplate.create()
         .withData({

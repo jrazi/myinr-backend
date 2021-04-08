@@ -59,7 +59,6 @@ async function getVisit(req, res, next) {
     }
 
     let visit = patient.visits[0].getApiObject();
-
     const response =  ResponseTemplate.create()
         .withData({
             visit,
