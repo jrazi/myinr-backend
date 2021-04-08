@@ -40,7 +40,9 @@ class JalaliDate {
         else if (isNonEmptyString(date))
             return JalaliDate.withJalaliStringDate(date);
         else if (typeof date == 'object') {
-            if (hasValue(date.jalali) && hasValue(date.jalali.asObject))
+            if (hasValue(date.jalali) && hasValue(date.jalali.asString))
+                return JalaliDate.withJalaliStringDate(date.jalali.asString);
+            else if (hasValue(date.jalali) && hasValue(date.jalali.asObject))
                 return JalaliDate.withJalaliDateAsObject(date.jalali.asObject);
             else return JalaliDate.withJalaliDateAsObject(date);
         }
