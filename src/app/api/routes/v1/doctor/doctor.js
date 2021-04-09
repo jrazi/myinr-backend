@@ -10,11 +10,13 @@ const SequelizeUtil = require("../../../../util/SequelizeUtil");
 
 const meRouter = require('./me');
 const patientRouter = require('./patient/patient');
+const appointmentRouter = require('./appointment/appointment');
 const drugsRouter = require('./drugs');
 
 router.use(doctorAuthorizationFilter);
 router.use('/me', meRouter);
 router.use('/patient', patientRouter);
+router.use('/appointment', appointmentRouter);
 router.use('/drugs', drugsRouter);
 
 

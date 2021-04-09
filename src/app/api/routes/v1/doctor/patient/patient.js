@@ -3,7 +3,7 @@ var express = require('express');
 var router = express.Router();
 
 const firstVisitRoute = require('./firstVisit');
-const appointmentRouter = require('./appointment/appointment');
+const appointmentRouter = require('./appointment/patient_appointment');
 const visitRouter = require('./visit/visit');
 
 const models = require("../../../../../models");
