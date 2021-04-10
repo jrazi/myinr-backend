@@ -66,8 +66,6 @@ class VisitAppointment extends Sequelize.Model {
           year: this.visitYear,
           month: this.visitMonth,
           day: this.visitDay,
-          hour: this.visitHour,
-          minute: this.visitMinute,
         });
         return jalali.toJson();
       },
@@ -77,8 +75,33 @@ class VisitAppointment extends Sequelize.Model {
         this.visitYear = jalali.year || null;
         this.visitMonth = jalali.month || null;
         this.visitDay = jalali.day || null;
-        this.visitHour = jalali.hour || null;
-        this.visitMinute = jalali.minute || null;
+      }
+    },
+    scheduledVisitTime: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        const [hour, minute] = [Number(this.visitHour || 0), Number(this.visitMinute || 0)];
+        const hourStr = hour.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
+        const minuteStr = minute.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
+        const time = {
+          asString: `${hourStr}:${minuteStr}`,
+          asObject: {
+            hour,
+            minute,
+          },
+          asArray: [hour, minute],
+        };
+        return time;
+      },
+      set(value) {
+        if (!value) return;
+        const [hour, minute] = [Number(value.hour || 0), Number(value.minute || 0)];
+
+        const hourStr = hour.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
+        const minuteStr = minute.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
+
+        this.visitHour = hourStr;
+        this.visitMinute = minuteStr;
       }
     },
     hasVisitHappened: {
@@ -176,5 +199,6 @@ VisitAppointment.prototype.getApiObject = function () {
     isScheduled: plainObject.isScheduled,
     approximateVisitDate: plainObject.approximateVisitDate,
     scheduledVisitDate: plainObject.scheduledVisitDate,
+    scheduledVisitTime: plainObject.scheduledVisitTime,
   }
 }

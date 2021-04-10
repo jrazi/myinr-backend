@@ -10,6 +10,10 @@ class JalaliDate {
 
     static EmptyDate = new JalaliDate(null);
     jDate = null;
+    time = {
+        hour: 0,
+        minute: 0,
+    }
 
     static getMinimumDate(jalaliDateList) {
         if (!TypeChecker.isList(jalaliDateList) || jalaliDateList.length == 0)

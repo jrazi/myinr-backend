@@ -39,6 +39,13 @@ async function getUnattendedAppointments(req, res, next) {
         return;
     }
 
+    doctor.patients.forEach(patient => {
+        const patientInfo = patient.get({plain: true});
+        delete patientInfo.appointments;
+        patient.appointments.forEach(appointment => {
+            appointment.patientInfo = patientInfo;
+        })
+    })
     let allAppointments = doctor.patients.reduce((accAppointments, currentPatient) => [...accAppointments, ...currentPatient.appointments], []);
 
     let today = JalaliDate.now();
@@ -50,7 +57,11 @@ async function getUnattendedAppointments(req, res, next) {
     });
 
 
-    let appointmentList = (filteredAppointments || []).map(appointment => appointment.getApiObject());
+    let appointmentList = (filteredAppointments || []).map(appointment => {
+        const obj = appointment.getApiObject();
+        obj.patient = appointment.patientInfo;
+        return obj;
+    });
 
     const response =  ResponseTemplate.create()
         .withData({
