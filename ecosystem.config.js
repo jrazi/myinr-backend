@@ -10,7 +10,7 @@ module.exports = {
             host : 'localhost',
             ref  : 'origin/master',
             repo : 'GIT_REPOSITORY',
-            path : 'DESTINATION_PATH',
+            path : '~/misd/myinr-backend/',
             'pre-deploy-local': '',
             'post-deploy' : 'npm install && pm2 reload ecosystem.config.js --env production',
             'pre-setup': ''
