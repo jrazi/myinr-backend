@@ -13,8 +13,8 @@ const devProps = {
 
 const productionProps = {
     database: 'myinrir_test',
-    user: 'CAUTION_myinrir_test',
-    password: 'CAUTION_kyIg72@2',
+    user: 'myinrir_test',
+    password: 'kyIg72@2',
     config: {
         host: '185.165.116.32',
         dialect: 'mssql',
@@ -23,7 +23,7 @@ const productionProps = {
 }
 function connect() {
     const {Sequelize} = require('sequelize');
-    const props = devProps;
+    const props = process.env.NODE_ENV == "production" ? productionProps : devProps;
     const dbConnection = new Sequelize(props.database, props.user, props.password, props.config);
     return dbConnection;
 }

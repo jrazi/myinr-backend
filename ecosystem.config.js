@@ -15,7 +15,8 @@ module.exports = {
             'post-deploy' : 'npm install && pm2 reload ecosystem.config.js --env production',
             'pre-setup': '',
             "env"  : {
-                "NODE_ENV": "production"
+                "NODE_ENV": "production",
+                "NODE_OPTIONS": "--tls-min-v1.0",
             }
         }
     }
