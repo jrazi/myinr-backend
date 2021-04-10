@@ -64,13 +64,15 @@ async function getAllPatients(req, res, next) {
 
 async function getPatient(req, res, next) {
     const patientUserId = req.params.userId;
-    const {includeFirstVisit, includeAppointments, includeVisits} = req.query;
+    const {includeFirstVisit, includeAppointments, includeVisits, includeMedicationHistory} = req.query;
 
     let include = ['firstVisit'];
     if (includeAppointments)
         include.push('appointments');
     if (includeVisits)
         include.push('visits');
+    if (includeMedicationHistory)
+        include.push('medicationHistory');
 
     const patient = await models.Patient.findOne({
         where: {
