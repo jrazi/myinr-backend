@@ -7,7 +7,7 @@ module.exports = {
     deploy : {
         production : {
             user : 'SSH_USERNAME',
-            host : 'SSH_HOSTMACHINE',
+            host : 'localhost',
             ref  : 'origin/master',
             repo : 'GIT_REPOSITORY',
             path : 'DESTINATION_PATH',
