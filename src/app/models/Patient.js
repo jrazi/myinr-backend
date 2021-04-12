@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const DatabaseNormalizer = require("../util/DatabaseNormalizer");
+const SequelizeUtil = require('../util/SequelizeUtil');
 module.exports = (sequelize, DataTypes) => {
   return Patient.init(sequelize, DataTypes);
 }
@@ -136,6 +137,24 @@ class Patient extends Sequelize.Model {
           flags: firstVisitInfo != null ? firstVisitInfo.flags : null,
         }
         this.setDataValue('firstVisitStatus', status);
+      }
+    },
+    visitStatus: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return this.getDataValue('visitStatus');
+      },
+      set(visits) {
+        visits = visits || [];
+        const firstOnVisitList = SequelizeUtil.getMinOfList(visits);
+        const lastOnVisitList = SequelizeUtil.getMaxOfList(visits);
+
+        const status = {
+          visitCount: visits.length,
+          firstVisitDate: firstOnVisitList ? firstOnVisitList.visitDate : null,
+          lastVisitDate: lastOnVisitList ? lastOnVisitList.visitDate : null,
+        }
+        this.setDataValue('visitStatus', status);
       }
     },
   }, {

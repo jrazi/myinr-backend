@@ -34,11 +34,13 @@ async function getAllPatients(req, res, next) {
         where: {
             userId: req.principal.userId
         },
-        include: {
-            model: models.Patient,
-            as: 'patients',
-            include: ['firstVisit'],
-        },
+        include: [
+            {
+                model: models.Patient,
+                as: 'patients',
+                include: ['firstVisit', 'visits'],    
+            },
+        ],
     });
     if (doctor == null) {
         next(new errors.PhysicianNotFound());
@@ -49,7 +51,8 @@ async function getAllPatients(req, res, next) {
 
     patientsList = patientsList.map(patient => {
         patient.firstVisitStatus = patient.firstVisit;
-        const patientData =  SequelizeUtil.excludeFields(patient.get({plain: true}), ['firstVisit']);
+        patient.visitStatus = patient.visits;
+        const patientData =  SequelizeUtil.excludeFields(patient.get({plain: true}), ['firstVisit', 'visits']);
         return patientData;
     })
 
@@ -87,6 +90,7 @@ async function getPatient(req, res, next) {
     }
 
     patient.firstVisitStatus = patient.firstVisit;
+    patient.visitStatus = includeVisits ? patient.visits : [];
 
     const excludedFields = includeFirstVisit ? [] : ['firstVisit'];
 

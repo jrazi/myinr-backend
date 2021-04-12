@@ -7,7 +7,7 @@ const devProps = {
     config: {
         host: 'localhost',
         dialect: 'mssql',
-        port: '1436',
+        port: '1431',
     }
 }
 

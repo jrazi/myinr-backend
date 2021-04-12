@@ -12,7 +12,7 @@ services:
     networks:
       - myinr-main-network
     ports:
-      - 1436:1433
+      - 1431:1433
     deploy:
       resources:
         limits:

@@ -26,7 +26,7 @@ async function getUnattendedAppointments(req, res, next) {
                 model: models.VisitAppointment,
                 as: 'appointments',
                 where: {hasVisitHappened: false}
-            }],
+            }, 'medicationHistory'],
         },
     });
 
@@ -48,12 +48,9 @@ async function getUnattendedAppointments(req, res, next) {
     })
     let allAppointments = doctor.patients.reduce((accAppointments, currentPatient) => [...accAppointments, ...currentPatient.appointments], []);
 
-    let today = JalaliDate.now();
 
     let filteredAppointments = allAppointments.filter(appointment => {
-        if (!appointment.isScheduled || appointment.expired) return false;
-        let appointmentDate = JalaliDate.create(appointment.scheduledVisitDate);
-        return appointmentDate.isValidDate() && today.compareWithJalaliDate(appointmentDate) <= 0;
+        return appointment.isScheduled && !appointment.expired;
     });
 
 

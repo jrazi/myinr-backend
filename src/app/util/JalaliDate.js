@@ -5,6 +5,8 @@ const {hasValue, isNonEmptyString, isNumber} = require("./SimpleValidators");
 const SequelizeUtil = require("./SequelizeUtil");
 const DatabaseNormalizer = require("./DatabaseNormalizer");
 const TypeChecker = require("./TypeChecker");
+const moment = require('moment-timezone');
+require('moment-timezone');
 
 class JalaliDate {
 
@@ -121,22 +123,24 @@ class JalaliDate {
 
     compareWithToday() {
         if (this.jDate == null) return null;
-        const now = new Date();
         const date = new Date(this.jDate._d);
 
-        now.setUTCHours(0, 0, 0, 0);
-        date.setUTCHours(0, 0, 0, 0);
-        return date > now ? 1 : (now >= date && now <= date) ? 0 : -1;
+        const today = moment.tz('Asia/Tehran').startOf('day').utc();
+        const toCompareDate = moment(date.getTime()).tz('Asia/Tehran').startOf('day').utc();
+
+        return toCompareDate.isSame(today) ? 0 : toCompareDate.isSameOrAfter(today) ? 1 : -1;
     }
 
     compareWithJalaliDate(jalaliDate) {
         if (this.jDate == null || !(jalaliDate instanceof JalaliDate) || !jalaliDate.isValidDate()) return null;
-        const toCompareDate = new Date(jalaliDate.getGeorgianDate());
-        const date = new Date(this.jDate._d);
 
-        toCompareDate.setUTCHours(0, 0, 0, 0);
-        date.setUTCHours(0, 0, 0, 0);
-        return date > toCompareDate ? 1 : (toCompareDate >= date && toCompareDate <= date) ? 0 : -1;
+        const date = new Date(this.jDate._d);
+        const toCompareDate = new Date(jalaliDate.getGeorgianDate());
+
+        const d1 = moment(date.getTime()).tz('Asia/Tehran').startOf('day').utc();
+        const d2 = moment(toCompareDate.getTime()).tz('Asia/Tehran').startOf('day').utc();
+
+        return d1.isSame(d2) ? 0 : d1.isSameOrAfter(d2) ? 1 : -1;
     }
 
     getJDate() {
