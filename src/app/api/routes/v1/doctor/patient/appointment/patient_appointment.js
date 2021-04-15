@@ -93,29 +93,19 @@ async function addAppointment(req, res, next) {
     }
 
     await models.VisitAppointment.sequelize.transaction(async (tr) => {
-        const maxId = await models.VisitAppointment.max('id', {transaction: tr});
-        const id = maxId + 1;
-        const approximateVisitDate = JalaliDate.create(appointmentToAdd.approximateVisitDate).toJson().jalali.asObject;
-
-        const insertResult = await models.VisitAppointment.sequelize.query(
-            `INSERT INTO [myinrir_test].[AppointmentTbl] ([IDVisit],[UserIDPatient],[AYearVisit],[AMonthVisit],[ADayVisit]) VALUES (${id}, ${patientUserId}, ${approximateVisitDate.year}, ${approximateVisitDate.month}, ${approximateVisitDate.day})`,
-            {type: QueryTypes.INSERT, transaction: tr}
-        );
 
         appointmentToAdd.patientUserId = patientUserId;
-        appointmentToAdd.id = id;
-
-        const record = models.VisitAppointment.build(appointmentToAdd);
-        const updateResult = await models.VisitAppointment.update(record.get({plain: true}), {where: {id: id, patientUserId: patientUserId}, transaction: tr});
+        const insertedAppointment = await models.VisitAppointment.create(appointmentToAdd, {transaction: tr});
 
         const response =  ResponseTemplate.create()
             .withData({
-                appointment: record.getApiObject(),
+                appointment: insertedAppointment.getApiObject(),
             });
 
         res.json(response);
     });
 }
+
 async function updateAppointment(req, res, next) {
     const patientUserId = req.patientInfo.userId;
     const appointmentId = req.params.appointmentId;
@@ -129,7 +119,7 @@ async function updateAppointment(req, res, next) {
 
     let patient = await models.Patient.findOne({
         where: {userId: patientUserId, physicianUserId: req.principal.userId},
-        include: [],
+        include: [{model: models.VisitAppointment, as: 'appointments', where: {id: appointmentId}}],
     });
 
     if (patient == null) {
@@ -137,23 +127,26 @@ async function updateAppointment(req, res, next) {
         return;
     }
 
-    const record = models.VisitAppointment.build(updatedAppointment);
-
-    const updateResult = await models.VisitAppointment.update(record.get({plain: true}), {where: {id: appointmentId, patientUserId: patientUserId}});
-    if (updateResult[0] == 1) {
-        record.id = appointmentId;
-        record.patientUserId = patientUserId;
-        const response =  ResponseTemplate.create()
-            .withData({
-                appointment: record.getApiObject(),
-            });
-
-        res.json(response);
-    }
-    else {
+    if (patient.appointments.length == 0) {
         next(new errors.AppointmentNotFound());
         return;
     }
+
+
+    const appointment = patient.appointments[0];
+
+    appointment.approximateVisitDate = updatedAppointment.approximateVisitDate;
+    appointment.scheduledVisitDate = updatedAppointment.scheduledVisitDate;
+    appointment.scheduledVisitTime = updatedAppointment.scheduledVisitTime;
+
+    await appointment.save();
+
+    const response =  ResponseTemplate.create()
+        .withData({
+            appointment: appointment.getApiObject(),
+        });
+
+    res.json(response);
 }
 
 
