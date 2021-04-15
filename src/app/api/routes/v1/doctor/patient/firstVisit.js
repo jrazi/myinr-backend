@@ -85,27 +85,18 @@ async function startFirstVisit(req, res, next) {
 
 
     try {
-        const result = await models.FirstVisit.sequelize.transaction(async (tr) => {
-            const maxId = await models.FirstVisit.max('id', {transaction: tr});
-            const id = maxId + 1;
-            const insertResult = await models.FirstVisit.sequelize.query(
-                `INSERT INTO [myinrir_test].[FirstTbl] ([IDFirst],[IDUserPatient]) VALUES (${id}, ${patientUserId})`,
-                {type: QueryTypes.INSERT, transaction: tr}
-            );
+        await models.FirstVisit.sequelize.transaction(async (tr) => {
+            const visitToAdd = {
+                patientUserId: patientUserId,
+                visitDate: JalaliDate.now().toJson().jalali.asString,
 
-            const firstVisit = models.FirstVisit.build({});
-            firstVisit.visitDate = JalaliDate.now().toJson().jalali.asString;
-            firstVisit.patientUserId = patient.userId;
+            };
 
-            const updateResult = await models.FirstVisit.update(firstVisit.get({plain: true}), {where: {id:  id}, transaction: tr});
-
-            const firstVisitData = firstVisit.get({plain: true});
-            firstVisitData.id = id;
-            firstVisitData.patientUserId = patient.userId;
+            const insertedVisit = await models.FirstVisit.create(visitToAdd, {transaction: tr});
 
             const response = ResponseTemplate.create()
                 .withData({
-                    firstVisit: firstVisit,
+                    firstVisit: SequelizeUtil.filterFields(insertedVisit.get({plain: true}), firstVisitIncludedFields),
                 })
                 .withMessage("First visit started")
                 .toJson();
@@ -154,88 +145,45 @@ async function updateFirstVisit(req, res, next) {
         patient.firstVisit[key] = firstVisitUpdatedInfo[key];
     }
 
-    const insertToSecondaryTableIfValueProvided = async (recordToUpdate, modelToUpdate, tableName, tr) => {
-        if (hasValue(recordToUpdate) && Object.keys(recordToUpdate).length > 0) {
-            const maxId = await modelToUpdate.max('id', {transaction: tr});
-            const id = maxId + 1;
-            const insertResult = await modelToUpdate.sequelize.query(
-                `INSERT INTO [myinrir_test].[${tableName}] ([ID],[PatientID]) VALUES (${id}, ${patientUserId})`,
-                {type: QueryTypes.INSERT, transaction: tr}
-            );
-
-            recordToUpdate.patientUserId = patientUserId;
-            recordToUpdate.id = id;
-
-            const record = modelToUpdate.build(recordToUpdate);
-            const updateResult = await modelToUpdate.update(record.get({plain: true}), {where: {id: id, patientUserId: patientUserId}, transaction: tr});
-            return updateResult;
-        }
-    }
-
-    const insertMedicationRecordsIfProvided = async (key, modelToUpdate, tableName, tr) => {
-        const recordsToUpdate = firstVisitUpdatedInfo[key];
-        if (hasValue(recordsToUpdate) && TypeChecker.isList(recordsToUpdate)) {
-            for (let recordToUpdate of recordsToUpdate) {
-                const maxId = await modelToUpdate.max('id', {transaction: tr});
-                const id = maxId + 1;
-
-                recordToUpdate.patientUserId = patientUserId;
-                recordToUpdate.id = id;
-
-                const record = modelToUpdate.build(recordToUpdate);
-                const insertResult = await modelToUpdate.sequelize.query(
-                    `INSERT INTO [myinrir_test].[${tableName}] ([ID],[IDPatient],[Drug],[Dateofstart],[Dateofend]) VALUES (${id}, ${patientUserId}, '${firstWithValue(record.drugName, '')}', '${firstWithValue(record.startDate, '')}', '${firstWithValue(record.endDate, '')}')`,
-                    {
-                        type: QueryTypes.INSERT,
-                        transaction: tr,
-                    }
-                );
-            }
-        }
-    }
-
     const upsertLastWarfarinDosageIfProvided = async (tr) => {
         const firstTimeWarfarin = (firstVisitUpdatedInfo['warfarinInfo'] || {})['firstTimeWarfarin'];
         let lastWarfarinDosageToUpdate = (firstVisitUpdatedInfo['warfarinInfo'] || {})['lastWarfarinDosage'];
 
-        const destroy = async () => {
+        if (firstTimeWarfarin === true) {
             await models.WarfarinWeekDosage.destroy({
                 where: {
                     patientUserId: patientUserId,
                 },
                 transaction: tr,
             });
-        }
-
-        const lastWarfarin = await models.WarfarinWeekDosage.findOne({
-            where: {
-                patientUserId: patientUserId,
-            },
-            transaction: tr,
-        });
-
-        if (firstTimeWarfarin === true && lastWarfarin != null) {
-            await destroy();
             return;
         }
-        else if (firstTimeWarfarin !== true && hasValue(lastWarfarinDosageToUpdate) && TypeChecker.isObject(lastWarfarinDosageToUpdate)) {
-            lastWarfarinDosageToUpdate = models.WarfarinWeekDosage.build(lastWarfarinDosageToUpdate);
+        else if (TypeChecker.isObject(lastWarfarinDosageToUpdate)) {
             lastWarfarinDosageToUpdate.patientUserId = patientUserId;
-            if (lastWarfarin != null) {
-                lastWarfarinDosageToUpdate.id = lastWarfarin.id;
-                const updateResult = await models.WarfarinWeekDosage.update(lastWarfarinDosageToUpdate.get({plain: true}), {where: {id: lastWarfarin.id, patientUserId: patientUserId}, transaction: tr});
-                return;
+
+            const currentRecord = await models.WarfarinWeekDosage.findOne({
+                where: {
+                    patientUserId: patientUserId,
+                },
+                transaction: tr,
+            });
+            if (currentRecord == null) {
+                const insertedRecord = await models.WarfarinWeekDosage.create(lastWarfarinDosageToUpdate,{
+                        transaction: tr
+                    });
+                return insertedRecord;
             }
             else {
-                const maxId = await models.WarfarinWeekDosage.max('id', {transaction: tr});
-                const id = maxId + 1;
-                const insertResult = await models.WarfarinWeekDosage.sequelize.query(
-                    `INSERT INTO [myinrir_test].[FirstDosageTbl] ([IDDosage],[IDUserPatient]) VALUES (${id}, ${patientUserId})`,
-                    {type: QueryTypes.INSERT, transaction: tr}
-                );
-                lastWarfarinDosageToUpdate.id = id;
-                const updateResult = await models.WarfarinWeekDosage.update(lastWarfarinDosageToUpdate.get({plain: true}), {where: {id: id, patientUserId: patientUserId}, transaction: tr});
-                return;
+                const updatedRecord = await models.WarfarinWeekDosage.update(
+                    lastWarfarinDosageToUpdate,
+                    {
+                        where: {
+                            patientUserId: patientUserId,
+                        },
+                        transaction: tr
+                    });
+                return updatedRecord;
+
             }
         }
     }
@@ -256,6 +204,8 @@ async function updateFirstVisit(req, res, next) {
         patient.firstVisit.visitDate = JalaliDate.now().toJson().jalali.asString;
 
         await models.FirstVisit.sequelize.transaction(async (tr) => {
+            const savedFirstVisit = await patient.firstVisit.save({transaction: tr});
+
             const patientConditions = patient.medicalCondition.map(condition => condition.name);
             const updatedMedicalConditions = [...patient.firstVisit.warfarinInfo.reasonForWarfarin.conditions, ...patient.firstVisit.warfarinInfo.reasonForWarfarin.heartValveReplacementConditions];
 
@@ -269,58 +219,28 @@ async function updateFirstVisit(req, res, next) {
             if (SimpleValidators.hasValue(firstVisitUpdatedInfo.nextVisitDate || "")) {
                 const jDate = JalaliDate.create(firstVisitUpdatedInfo.nextVisitDate);
                 if (jDate.isValidDate()) {
-                    const nonExpiredAppointments = patient.appointments.filter(appointment => appointment.expired === false && appointment.hasVisitHappened === false);
-
-                    if (nonExpiredAppointments.length > 0) {
-                        const earliestAppointment = JalaliDate.getMinimumDate(nonExpiredAppointments.map(appointment => appointment.approximateVisitDate));
-                        const earliestAppointmentIndex = earliestAppointment ? earliestAppointment.index : 0;
-
-                        const appointmentToChange = nonExpiredAppointments[earliestAppointmentIndex];
-                        appointmentToChange.approximateVisitDate = jDate.toJson().jalali.asObject;
-
-                        await models.VisitAppointment.destroy({
-                            where: {
-                                patientUserId: patientUserId,
-                                id: {
-                                    [Op.not]: appointmentToChange.id,
-                                },
-                                hasVisitHappened:  false,
-                            },
-                            transaction: tr,
-                        });
-
-                        await appointmentToChange.save({transaction: tr});
+                    const appointmentToAdd = {
+                        patientUserId: patientUserId,
+                        approximateVisitDate: jDate.toJson().jalali.asObject,
                     }
-                    else {
-                        const appointmentMaxId = await models.VisitAppointment.max('id', {transaction: tr});
-                        const appointmentId = appointmentMaxId + 1;
-                        const approximateVisitDate = JalaliDate.create(firstVisitUpdatedInfo.nextVisitDate).toJson().jalali.asObject;
-
-                        const insertResult = await models.VisitAppointment.sequelize.query(
-                            `INSERT INTO [myinrir_test].[AppointmentTbl] ([IDVisit],[UserIDPatient],[AYearVisit],[AMonthVisit],[ADayVisit]) VALUES (${appointmentId}, ${patientUserId}, ${approximateVisitDate.year}, ${approximateVisitDate.month}, ${approximateVisitDate.day})`,
-                            {type: QueryTypes.INSERT, transaction: tr}
-                        );
-
-                        const appointmentToAdd = {
-                            id: appointmentId,
-                            patientUserId: patientUserId,
-                            approximateVisitDate: jDate.toJson().jalali.asObject,
-                        }
-
-                        const record = models.VisitAppointment.build(appointmentToAdd);
-                        const updateResult = await models.VisitAppointment.update(record.get({plain: true}), {where: {id: appointmentId, patientUserId: patientUserId}, transaction: tr});
-
-                    }
-
+                    const insertedAppointment = await models.VisitAppointment.create(appointmentToAdd, {transaction: tr});
                 }
             }
-            
-            const result = await patient.firstVisit.save({transaction: tr});
-            await insertToSecondaryTableIfValueProvided((firstVisitUpdatedInfo.hasBledScore || {}).data, models.HasBledStage, 'HAS-BLEDTbl', tr);
-            await insertToSecondaryTableIfValueProvided((firstVisitUpdatedInfo.cha2ds2Score || {}).data, models.Cha2ds2vascScore, 'CHADS-VAScTbl', tr);
 
+            const hasBledScore = firstVisitUpdatedInfo.hasBledScore;
+            const cha2ds2Score = firstVisitUpdatedInfo.cha2ds2Score;
 
-            const medicationHistory = firstVisitUpdatedInfo['medicationHistory'];
+            if (hasValue(hasBledScore) && Object.keys(hasBledScore).length > 0) {
+                hasBledScore.patientUserId = patientUserId;
+                const insertedHasBledScore = await models.HasBledStage.create(hasBledScore, {transaction: tr});
+            }
+
+            if (hasValue(cha2ds2Score) && Object.keys(cha2ds2Score).length > 0) {
+                cha2ds2Score.patientUserId = patientUserId;
+                const insertedCha2ds2Score = await models.Cha2ds2vascScore.create(cha2ds2Score, {transaction: tr});
+            }
+
+            const medicationHistory = firstVisitUpdatedInfo.medicationHistory;
             if (hasValue(medicationHistory) && TypeChecker.isList(medicationHistory)) {
                 await models.PatientMedicationRecord.destroy({
                     where: {
@@ -328,13 +248,18 @@ async function updateFirstVisit(req, res, next) {
                     },
                     transaction: tr,
                 });
-                await insertMedicationRecordsIfProvided('medicationHistory', models.PatientMedicationRecord, 'PaDrTbl', tr);
+                medicationHistory.forEach(record => record.patientUserId = patientUserId);
+
+                const insertedMedicationHistory = await models.PatientMedicationRecord.bulkCreate(
+                    medicationHistory,
+                    {returning: true, transaction: tr}
+                )
             }
+
             await upsertLastWarfarinDosageIfProvided(tr);
 
-            // include: ['firstVisit', 'hasBledScore', 'cha2ds2Score', 'warfarinWeeklyDosages', 'medicationHistory',],
 
-            const firstVisit = SequelizeUtil.filterFields(result.get({plain: true}), firstVisitIncludedFields);
+            const firstVisit = SequelizeUtil.filterFields(savedFirstVisit.get({plain: true}), firstVisitIncludedFields);
             const response = ResponseTemplate.create()
                 .withData({
                     firstVisit,
