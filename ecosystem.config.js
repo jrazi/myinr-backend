@@ -1,7 +1,8 @@
 module.exports = {
     apps : [{
         script: './bin/www',
-        watch: '.'
+        watch: '.',
+        "log-type": "json",
     }],
 
     deploy : {
