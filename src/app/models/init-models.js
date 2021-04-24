@@ -14,8 +14,8 @@ var _paDrTbl = require("./PatientMedicationRecord");
 var _patientTbl = require("./Patient");
 var _phAnTbl = require("./UserPlace");
 var _physicianTbl = require("./Physician");
-var _ptToPyTbl = require("./PtToPyTbl");
-var _pyToPtTbl = require("./PyToPtTbl");
+var _ptToPyTbl = require("./PatientToPhysicianMessage");
+var _pyToPtTbl = require("./PhysicianToPatientMessage");
 var _secondTbl = require("./Visit");
 var _secretaryTbl = require("./SecretaryTbl");
 var _userTbl = require("./User");
@@ -38,8 +38,8 @@ function initModels(sequelize) {
   var Patient = _patientTbl(sequelize, DataTypes);
   var UserPlace = _phAnTbl(sequelize, DataTypes);
   var Physician = _physicianTbl(sequelize, DataTypes);
-  var ptToPyTbl = _ptToPyTbl(sequelize, DataTypes);
-  var pyToPtTbl = _pyToPtTbl(sequelize, DataTypes);
+  var PatientToPhysicianMessage = _ptToPyTbl(sequelize, DataTypes);
+  var PhysicianToPatientMessage = _pyToPtTbl(sequelize, DataTypes);
   var Visit = _secondTbl(sequelize, DataTypes);
   var secretaryTbl = _secretaryTbl(sequelize, DataTypes);
   var User = _userTbl(sequelize, DataTypes);
@@ -94,8 +94,8 @@ function initModels(sequelize) {
     Patient,
     UserPlace,
     Physician,
-    ptToPyTbl,
-    pyToPtTbl,
+    PatientToPhysicianMessage,
+    PhysicianToPatientMessage,
     Visit,
     secretaryTbl,
     User,

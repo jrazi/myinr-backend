@@ -9,6 +9,31 @@ describe("jalali date constructor", () => {
         expect(jDate.getGeorgianDate()).toBeNull();
     });
 
+    it('should have empty jdate when constructing with blank str', function () {
+        const jDate = JalaliDate.create("");
+
+        expect(jDate.getGeorgianDate()).toBeNull();
+        expect(jDate.toJson().jalali.asString).toBeNull();
+    });
+
+    it('should have empty jdate when constructing with empty str', function () {
+        const jDate = JalaliDate.create("    ");
+
+        expect(jDate.getGeorgianDate()).toBeNull();
+        expect(jDate.toJson().jalali.asString).toBeNull();
+    });
+
+    it('should have empty jdate when constructing object of blanks strings', function () {
+        const jDate = JalaliDate.create({
+            year: "",
+            month: "",
+            day: "",
+        });
+
+        expect(jDate.getGeorgianDate()).toBeNull();
+        expect(jDate.toJson().jalali.asString).toBeNull();
+    });
+
     it('should have the correct date when constructing with jalali string date', function () {
         const jDate = JalaliDate.create("1399/05/08");
 

@@ -1,9 +1,9 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return pyToPtTbl.init(sequelize, DataTypes);
+  return PhysicianToPatientMessage.init(sequelize, DataTypes);
 }
 
-class pyToPtTbl extends Sequelize.Model {
+class PhysicianToPatientMessage extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   super.init({
     IDPyToPt: {
@@ -87,6 +87,6 @@ class pyToPtTbl extends Sequelize.Model {
       },
     ]
   });
-  return pyToPtTbl;
+  return PhysicianToPatientMessage;
   }
 }

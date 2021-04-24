@@ -86,7 +86,7 @@ class JalaliDate {
 
         else return new JalaliDate(null);
 
-        if (!hasValue(year) || !hasValue(month) || !hasValue(day)) {
+        if (!isNonEmptyString(year) || !isNonEmptyString(month) || !isNonEmptyString(day)) {
             return new JalaliDate(null);
         }
 

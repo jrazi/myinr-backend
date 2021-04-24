@@ -17,8 +17,10 @@ module.exports.PatientMedicationRecord = models.PatientMedicationRecord
 module.exports.Visit = models.Visit;
 module.exports.VisitAppointment = models.VisitAppointment;
 module.exports.Place = models.Place;
-module.exports.UserPlace = models.UserPlace
-;
+module.exports.UserPlace = models.UserPlace;
+module.exports.PatientToPhysicianMessage = models.PatientToPhysicianMessage
+module.exports.PhysicianToPatientMessage = models.PhysicianToPatientMessage
+
 module.exports.DomainNameTable = models.DomainNameTable;
 
 module.exports.UserRoles = {

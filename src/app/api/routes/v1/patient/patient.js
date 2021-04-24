@@ -7,9 +7,11 @@ const ResponseTemplate = require("../../../ResponseTemplate");
 const SequelizeUtil = require("../../../../util/SequelizeUtil");
 
 const meRouter = require('./me');
+const messageRouter = require('./message');
 
 router.use(patientAuthorizationFilter);
 router.use('/me', meRouter);
+router.use('/message', messageRouter);
 
 
 function patientAuthorizationFilter(req, res, next) {
