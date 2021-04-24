@@ -36,7 +36,7 @@ async function getOutgoingMessages(req, res, next) {
 }
 
 async function getIncomingMessages(req, res, next) {
-    let messages = await models.PatientToPhysicianMessage.findAll({where: {patientUserId: req.principal.userId}});
+    let messages = await models.PatientToPhysicianMessage.findAll({where: {physicianUserId: req.principal.userId}});
     messages = messages.map(message => message.getApiObject());
 
     const response = ResponseTemplate.create()
