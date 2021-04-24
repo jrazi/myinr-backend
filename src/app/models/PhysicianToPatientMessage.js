@@ -90,6 +90,21 @@ class PhysicianToPatientMessage extends Sequelize.Model {
       type: DataTypes.STRING(50),
       allowNull: true,
       field: 'Instructions',
+      defaultValue: "",
+      get() {
+        const rawValue = this.getDataValue('physicianInstructions');
+        const conditionIds = DatabaseNormalizer.stringToList(rawValue, ',');
+
+        const conditions = conditionIds.map(id => DomainNameTable[id]);
+
+        return conditions;
+      },
+      set(conditionIdList) {
+        const conditionsAsString = DatabaseNormalizer.listToString(conditionIdList, ',');
+        const rawValue = `${conditionsAsString}`;
+        this.setDataValue('physicianInstructions', rawValue);
+      }
+
     },
     recommendedDaysWithoutWarfarin: {
       type: DataTypes.STRING(5),

@@ -78,7 +78,20 @@ class WarfarinDosageRecord extends Sequelize.Model {
           { name: "IDDosage" },
         ]
       },
-    ]
+    ],
+    defaultScope: {
+    },
+    scopes: {
+      lastRecordsOfPatient(patientUserId, count=7) {
+        return {
+          where: {
+            patientUserId: patientUserId,
+          },
+          limit: count,
+          order: [['id', 'DESC']]
+        }
+      }
+    }
   });
   return WarfarinDosageRecord;
   }

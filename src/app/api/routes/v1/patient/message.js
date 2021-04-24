@@ -64,15 +64,43 @@ async function sendMessage(req, res, next) {
     messageToAdd.messageDate = JalaliDate.now().toJson().jalali.asString;
     messageToAdd.messageTime = JalaliTime.now().toJson().asObject;
 
-    const insertedMessage = await models.PatientToPhysicianMessage.create(messageToAdd, {});
+    await models.Visit.sequelize.transaction(async (tr) => {
+        const insertedMessage = await models.PatientToPhysicianMessage.create(messageToAdd, {transaction: tr});
 
-    const response = ResponseTemplate.create()
-        .withData({
-            message: insertedMessage.getApiObject(),
-        })
-        .toJson();
+        if (TypeChecker.isList(messageToAdd.lastWarfarinDosage) && messageToAdd.lastWarfarinDosage.length === 7) {
+            const validObjectCount = messageToAdd.lastWarfarinDosage.reduce((acc, current) => Number((current||{}).dosagePH) >= 0 ? acc + 1 : acc, 0);
+            if (validObjectCount > 0) {
+                var last7DosageRecords = await models.WarfarinDosageRecord.scope({method: ['lastRecordsOfPatient', req.principal.userId]}).findAll();
+                if ((last7DosageRecords || []).length == 7) {
+                    for (let i = 0; i < last7DosageRecords.length; i++) {
+                        const record = last7DosageRecords[i];
+                        record.dosagePA = messageToAdd.lastWarfarinDosage[i];
+                        last7DosageRecords[i] = await record.save({transaction: tr});
+                    }
+                }
+                else {
+                    messageToAdd.lastWarfarinDosage.forEach(record => {
+                        record.patientUserId = req.principal.userId;
+                        record.dosagePH = null;
+                    })
+                    last7DosageRecords = await models.WarfarinDosageRecord.bulkCreate(messageToAdd.lastWarfarinDosage, {
+                        transaction: tr,
+                        returning: true,
+                    });
+                }
 
-    res.json(response);
+            }
+        }
+        const response = ResponseTemplate.create()
+            .withData({
+                message: insertedMessage.getApiObject(),
+                dosageRecords: last7DosageRecords,
+            })
+            .toJson();
+
+        res.json(response);
+
+    });
 
 }
 

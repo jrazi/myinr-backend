@@ -78,6 +78,19 @@ function initModels(sequelize) {
 
   Physician.belongsToMany(Place, {through: UserPlace, foreignKey: 'userId', otherKey: 'placeId', uniqueKey: 'id', sourceKey: 'userId', targetKey: 'id', as: 'workPlaces', });
 
+  PatientToPhysicianMessage.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
+  Patient.hasMany(PatientToPhysicianMessage, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'messagesToPhysician', sourceKey: 'userId'});
+
+  PhysicianToPatientMessage.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
+  Patient.hasMany(PhysicianToPatientMessage, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'messagesFromPhysician', sourceKey: 'userId'});
+
+  PhysicianToPatientMessage.belongsTo(Physician, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'physicianInfo', targetKey: 'userId'});
+  Physician.hasMany(PhysicianToPatientMessage, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'messagesToPatients', sourceKey: 'userId'});
+
+  PatientToPhysicianMessage.belongsTo(Physician, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'physicianInfo', targetKey: 'userId'});
+  Physician.hasMany(PatientToPhysicianMessage, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'messagesFromPatients', sourceKey: 'userId'});
+
+
   return {
     adminTbl,
     Place,

@@ -84,6 +84,8 @@ async function getPatient(req, res, next) {
         },
         include: include,
     });
+    const dosageRecords = await models.WarfarinDosageRecord.scope({method: ['lastRecordsOfPatient', req.principal.userId]}).findAll();
+
     if (patient == null) {
         next(new errors.PatientNotFound());
         return;
@@ -95,6 +97,7 @@ async function getPatient(req, res, next) {
     const excludedFields = includeFirstVisit ? [] : ['firstVisit'];
 
     const patientData = SequelizeUtil.excludeFields(patient.get({plain: true}), excludedFields);
+    patientData.latestWarfarinDosage = dosageRecords;
 
     const response = ResponseTemplate.create()
         .withData({

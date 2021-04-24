@@ -66,15 +66,46 @@ async function sendMessage(req, res, next) {
     messageToAdd.messageDate = JalaliDate.now().toJson().jalali.asString;
     messageToAdd.messageTime = JalaliTime.now().toJson().asObject;
 
-    const insertedMessage = await models.PhysicianToPatientMessage.create(messageToAdd, {});
+    await models.Visit.sequelize.transaction(async (tr) => {
 
-    const response = ResponseTemplate.create()
-        .withData({
-            message: insertedMessage.getApiObject(),
-        })
-        .toJson();
+        if (SimpleValidators.hasValue(messageToAdd.nextVisitDate || null)) {
+            const jDate = JalaliDate.create(messageToAdd.nextVisitDate);
+            const dateAsString = jDate.toJson().jalali.asString;
+            messageToAdd.visitDate = dateAsString;
+            if (jDate.isValidDate()) {
+                const appointmentToAdd = {
+                    patientUserId: patientUserId,
+                    approximateVisitDate: dateAsString,
+                }
+                var insertedAppointment = await models.VisitAppointment.create(appointmentToAdd, {transaction: tr});
+            }
+        }
 
-    res.json(response);
+        if (TypeChecker.isList(messageToAdd.prescription) && messageToAdd.prescription.length === 7) {
+            const validObjectCount = messageToAdd.prescription.reduce((acc, current) => Number((current||{}).dosagePH) >= 0 ? acc + 1 : acc, 0);
+            if (validObjectCount > 0) {
+                messageToAdd.prescription.forEach(dosage => dosage.patientUserId = patientUserId);
+
+                var insertedDosageRecords = await models.WarfarinDosageRecord.bulkCreate(messageToAdd.prescription, {
+                    transaction: tr,
+                    returning: true,
+                });
+            }
+        }
+        
+        const insertedMessage = await models.PhysicianToPatientMessage.create(messageToAdd, {});
+
+        const response = ResponseTemplate.create()
+            .withData({
+                message: insertedMessage.getApiObject(),
+                appointment: insertedAppointment || null,
+                prescription: insertedDosageRecords,
+            })
+            .toJson();
+
+        res.json(response);
+
+    })
 
 }
 

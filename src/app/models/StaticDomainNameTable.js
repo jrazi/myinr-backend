@@ -317,6 +317,28 @@ const StaticDomainNameTable = {
         name: 'Refer to ER',
         groupId: 10,
     },
+
+    90: {
+        id: 90,
+        name: 'فورا به اورژانس بیمارستان مراجعه نمایید.',
+        groupId: 13,
+    },
+    91: {
+        id: 91,
+        name: 'امروز در اولین فرصت با شما تماس گرفته می شود.',
+        groupId: 13,
+    },
+    92: {
+        id: 92,
+        name: 'امروز تست INR خود را در آزمایشگاه دیگری تکرار کنید.',
+        groupId: 13,
+    },
+    93: {
+        id: 93,
+        name: 'وارفارین را طبق روالی که اکنون اعلام کرده اید ادامه دھید.',
+        groupId: 13,
+    },
+
 }
 
 module.exports = StaticDomainNameTable;
