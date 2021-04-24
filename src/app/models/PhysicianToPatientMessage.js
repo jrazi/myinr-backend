@@ -1,4 +1,10 @@
 const Sequelize = require('sequelize');
+const JalaliTime = require("../util/JalaliTime");
+const DatabaseNormalizer = require("../util/DatabaseNormalizer");
+const JalaliDate = require("../util/JalaliDate");
+const SequelizeUtil = require("../util/SequelizeUtil");
+const {firstWithValue} = DatabaseNormalizer;
+
 module.exports = (sequelize, DataTypes) => {
   return PhysicianToPatientMessage.init(sequelize, DataTypes);
 }
@@ -6,71 +12,158 @@ module.exports = (sequelize, DataTypes) => {
 class PhysicianToPatientMessage extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   super.init({
-    IDPyToPt: {
+    id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      field: 'IDPyToPt',
     },
-    IDPatientPyToPt: {
+    patientUserId: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: true,
+      field: 'IDPatientPyToPt',
     },
-    IDPhysicianPyToPt: {
+    physicianUserId: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: true,
+      field: 'IDPhysicianPyToPt',
     },
-    YearPyToPt: {
+    messageDate: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        const jalali = JalaliDate.create({
+          year: this.messageYear,
+          month: this.messageMonth,
+          day: this.messageDay,
+        });
+        return jalali.toJson();
+      },
+      set(value) {
+        const jalali = JalaliDate.create(value).toJson().jalali.asObject;
+
+        this.messageYear = jalali.year || null;
+        this.messageMonth = jalali.month || null;
+        this.messageDay = jalali.day || null;
+      }
+    },
+    messageTime: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        const time = JalaliTime.ofHourMin(this.messageHour, this.messageMinute).toJson();
+        return time;
+      },
+      set(value) {
+        if (!value) return;
+        const time = JalaliTime.ofHourMin(value.hour, value.minute).toJson().asObject;
+
+        this.messageHour = time.hour;
+        this.messageMinute = time.minute;
+      }
+    },
+    messageYear: {
       type: DataTypes.STRING(4),
-      allowNull: true
+      allowNull: true,
+      field: 'YearPyToPt',
     },
-    MonthPyToPt: {
+    messageMonth: {
       type: DataTypes.STRING(2),
-      allowNull: true
+      allowNull: true,
+      field: 'MonthPyToPt',
     },
-    DayPyToPt: {
+    messageDay: {
       type: DataTypes.STRING(2),
-      allowNull: true
+      allowNull: true,
+      field: 'DayPyToPt',
     },
-    HourPyToPt: {
+    messageHour: {
       type: DataTypes.STRING(2),
-      allowNull: true
+      allowNull: true,
+      field: 'HourPyToPt',
     },
-    MinutePyToPt: {
+    messageMinute: {
       type: DataTypes.STRING(2),
-      allowNull: true
+      allowNull: true,
+      field: 'MinutePyToPt',
     },
-    Instructions: {
+    physicianInstructions: {
       type: DataTypes.STRING(50),
-      allowNull: true
+      allowNull: true,
+      field: 'Instructions',
     },
-    Stopusingwarfarin: {
+    recommendedDaysWithoutWarfarin: {
       type: DataTypes.STRING(5),
-      allowNull: true
+      allowNull: true,
+      field: 'Stopusingwarfarin',
+      defaultValue: "",
     },
-    NextINRCheck: {
+    nextInrCheckDate: {
       type: DataTypes.STRING(10),
-      allowNull: true
+      allowNull: true,
+      field: 'NextINRCheck',
+      defaultValue: "",
+      get() {
+        const jalali = JalaliDate.create(this.getDataValue('nextInrCheckDate'));
+        return jalali.toJson();
+      },
+      set(value) {
+        const jalali = JalaliDate.create(value).toJson().jalali.asString;
+        this.setDataValue('nextInrCheckDate', jalali || "");
+      }
     },
-    Comment: {
+    physicianComment: {
       type: DataTypes.TEXT,
-      allowNull: true
+      allowNull: true,
+      field: 'Comment',
+      defaultValue: "",
     },
-    YearVisit: {
+    visitDate: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        const jalali = JalaliDate.create({
+          year: this.visitYear,
+          month: this.visitMonth,
+          day: this.visitDay,
+        });
+        return jalali.toJson();
+      },
+      set(value) {
+        const jalali = JalaliDate.create(value).toJson().jalali.asObject;
+
+        this.visitYear= firstWithValue(jalali.year, "");
+        this.visitMonth= firstWithValue(jalali.month, "");
+        this.visitDay= firstWithValue(jalali.day, "");
+      }
+    },
+    visitDay: {
+      type: DataTypes.STRING(2),
+      allowNull: true,
+      field: 'DayVisit',
+      defaultValue: "",
+    },
+    visitMonth: {
+      type: DataTypes.STRING(2),
+      allowNull: true,
+      field: 'MonthVisit',
+      defaultValue: "",
+    },
+    visitYear: {
       type: DataTypes.STRING(4),
-      allowNull: true
+      allowNull: true,
+      field: 'YearVisit',
+      defaultValue: "",
     },
-    MonthVisit: {
-      type: DataTypes.STRING(2),
-      allowNull: true
-    },
-    DayVisit: {
-      type: DataTypes.STRING(2),
-      allowNull: true
-    },
-    FlagVisit: {
+    visitFlag: {
       type: DataTypes.STRING(1),
-      allowNull: true
+      allowNull: true,
+      field: 'FlagVisit',
+      defaultValue: "1",
+      get() {
+        return DatabaseNormalizer.booleanValue(this.getDataValue('visitFlag'));
+      },
+      set(value) {
+        this.setDataValue('visitFlag', DatabaseNormalizer.booleanToNumberedString(value));
+      }
     }
   }, {
     sequelize,
@@ -89,4 +182,21 @@ class PhysicianToPatientMessage extends Sequelize.Model {
   });
   return PhysicianToPatientMessage;
   }
+}
+
+PhysicianToPatientMessage.prototype.getApiObject = function () {
+  const plainObject = this.get({plain: true});
+  return SequelizeUtil.filterFields(plainObject, [
+    'id',
+    'patientUserId',
+    'physicianUserId',
+    'physicianComment',
+    'messageDate',
+    'messageTime',
+    'nextInrCheck',
+    'visitDate',
+    'physicianInstructions',
+    'recommendedDaysWithoutWarfarin',
+    'visitFlag',
+  ]);
 }

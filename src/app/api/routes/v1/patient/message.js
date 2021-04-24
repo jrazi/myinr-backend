@@ -12,12 +12,27 @@ const {asyncFunctionWrapper} = require("../../util");
 
 
 router.get('/outgoing', asyncFunctionWrapper(getOutgoingMessages));
+router.get('/incoming', asyncFunctionWrapper(getIncomingMessages));
+
 router.post('/outgoing', asyncFunctionWrapper(sendMessage));
 
 
 
 async function getOutgoingMessages(req, res, next) {
     let messages = await models.PatientToPhysicianMessage.findAll({where: {patientUserId: req.principal.userId}});
+    messages = messages.map(message => message.getApiObject());
+
+    const response = ResponseTemplate.create()
+        .withData({
+            messages: messages,
+        })
+        .toJson();
+
+    res.json(response);
+}
+
+async function getIncomingMessages(req, res, next) {
+    let messages = await models.PhysicianToPatientMessage.findAll({where: {patientUserId: req.principal.userId}});
     messages = messages.map(message => message.getApiObject());
 
     const response = ResponseTemplate.create()
