@@ -84,7 +84,11 @@ async function sendMessage(req, res, next) {
         if (TypeChecker.isList(messageToAdd.prescription) && messageToAdd.prescription.length === 7) {
             const validObjectCount = messageToAdd.prescription.reduce((acc, current) => Number((current||{}).dosagePH) >= 0 ? acc + 1 : acc, 0);
             if (validObjectCount > 0) {
-                messageToAdd.prescription.forEach(dosage => dosage.patientUserId = patientUserId);
+                messageToAdd.prescription.forEach(dosage => {
+                    dosage.patientUserId = patientUserId;
+                    dosage.dosagePA = null;
+                    dosage.dosagePH = dosage.dosagePH || 0;
+                });
 
                 var insertedDosageRecords = await models.WarfarinDosageRecord.bulkCreate(messageToAdd.prescription, {
                     transaction: tr,
@@ -99,7 +103,7 @@ async function sendMessage(req, res, next) {
             .withData({
                 message: insertedMessage.getApiObject(),
                 appointment: insertedAppointment || null,
-                prescription: insertedDosageRecords,
+                prescription: insertedDosageRecords || null,
             })
             .toJson();
 

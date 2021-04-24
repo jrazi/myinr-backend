@@ -67,23 +67,23 @@ async function sendMessage(req, res, next) {
     await models.Visit.sequelize.transaction(async (tr) => {
         const insertedMessage = await models.PatientToPhysicianMessage.create(messageToAdd, {transaction: tr});
 
-        if (TypeChecker.isList(messageToAdd.lastWarfarinDosage) && messageToAdd.lastWarfarinDosage.length === 7) {
-            const validObjectCount = messageToAdd.lastWarfarinDosage.reduce((acc, current) => Number((current||{}).dosagePH) >= 0 ? acc + 1 : acc, 0);
+        if (TypeChecker.isList(messageToAdd.latestWarfarinDosage) && messageToAdd.latestWarfarinDosage.length === 7) {
+            const validObjectCount = messageToAdd.latestWarfarinDosage.reduce((acc, current) => Number((current||{}).dosagePA) >= 0 ? acc + 1 : acc, 0);
             if (validObjectCount > 0) {
                 var last7DosageRecords = await models.WarfarinDosageRecord.scope({method: ['lastRecordsOfPatient', req.principal.userId]}).findAll();
                 if ((last7DosageRecords || []).length == 7) {
                     for (let i = 0; i < last7DosageRecords.length; i++) {
                         const record = last7DosageRecords[i];
-                        record.dosagePA = messageToAdd.lastWarfarinDosage[i];
+                        record.dosagePA = messageToAdd.latestWarfarinDosage[i].dosagePA;
                         last7DosageRecords[i] = await record.save({transaction: tr});
                     }
                 }
                 else {
-                    messageToAdd.lastWarfarinDosage.forEach(record => {
+                    messageToAdd.latestWarfarinDosage.forEach(record => {
                         record.patientUserId = req.principal.userId;
                         record.dosagePH = null;
                     })
-                    last7DosageRecords = await models.WarfarinDosageRecord.bulkCreate(messageToAdd.lastWarfarinDosage, {
+                    last7DosageRecords = await models.WarfarinDosageRecord.bulkCreate(messageToAdd.latestWarfarinDosage, {
                         transaction: tr,
                         returning: true,
                     });
@@ -94,7 +94,7 @@ async function sendMessage(req, res, next) {
         const response = ResponseTemplate.create()
             .withData({
                 message: insertedMessage.getApiObject(),
-                dosageRecords: last7DosageRecords,
+                latestWarfarinDosage: last7DosageRecords || null,
             })
             .toJson();
 
