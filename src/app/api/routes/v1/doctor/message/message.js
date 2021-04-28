@@ -10,13 +10,32 @@ const JalaliDate = require("../../../../../util/JalaliDate");
 const TypeChecker = require("../../../../../util/TypeChecker");
 const JalaliTime = require("../../../../../util/JalaliTime");
 const {asyncFunctionWrapper} = require("../../../util");
-
+router.get('/all', asyncFunctionWrapper(getAllMessages));
 router.get('/outgoing', asyncFunctionWrapper(getOutgoingMessages));
 router.get('/incoming', asyncFunctionWrapper(getIncomingMessages));
 
 router.post('/outgoing', asyncFunctionWrapper(sendMessage));
 
 
+async function getAllMessages(req, res, next) {
+    const outgoing = (await models.PhysicianToPatientMessage
+        .findAll({where: {physicianUserId: req.principal.userId}}))
+        .map(message => message.getApiObject());
+
+    const incoming = (await models.PatientToPhysicianMessage
+        .findAll({where: {physicianUserId: req.principal.userId}}))
+        .map(message => message.getApiObject());
+
+
+    const response = ResponseTemplate.create()
+        .withData({
+            outgoing,
+            incoming
+        })
+        .toJson();
+
+    res.json(response);
+}
 
 async function getOutgoingMessages(req, res, next) {
     let messages = await models.PhysicianToPatientMessage.findAll({
@@ -81,22 +100,8 @@ async function sendMessage(req, res, next) {
             }
         }
 
-        if (TypeChecker.isList(messageToAdd.prescription) && messageToAdd.prescription.length === 7) {
-            const validObjectCount = messageToAdd.prescription.reduce((acc, current) => Number((current||{}).dosagePH) >= 0 ? acc + 1 : acc, 0);
-            if (validObjectCount > 0) {
-                messageToAdd.prescription.forEach(dosage => {
-                    dosage.patientUserId = patientUserId;
-                    dosage.dosagePA = null;
-                    dosage.dosagePH = dosage.dosagePH || 0;
-                });
+        const insertedDosageRecords = await models.WarfarinDosageRecord.insertPrescriptionRecords(messageToAdd.prescription, patientUserId, new Date(), tr);
 
-                var insertedDosageRecords = await models.WarfarinDosageRecord.bulkCreate(messageToAdd.prescription, {
-                    transaction: tr,
-                    returning: true,
-                });
-            }
-        }
-        
         const insertedMessage = await models.PhysicianToPatientMessage.create(messageToAdd, {});
 
         const response = ResponseTemplate.create()

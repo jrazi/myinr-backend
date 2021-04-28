@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const JalaliDate = require("../util/JalaliDate");
 const DatabaseNormalizer = require("../util/DatabaseNormalizer");
+const TypeChecker = require("../util/TypeChecker");
 const {firstWithValue} = DatabaseNormalizer;
 
 module.exports = (sequelize, DataTypes) => {
@@ -95,4 +96,48 @@ class WarfarinDosageRecord extends Sequelize.Model {
   });
   return WarfarinDosageRecord;
   }
+}
+
+
+WarfarinDosageRecord.assignOneWeekDosageDates = function(records, startingDate) {
+  const startingJalaliDate = JalaliDate.create(startingDate || new Date());
+  const dates = JalaliDate.getConsecutiveDates(startingJalaliDate, 7);
+
+  records.forEach((record, index) => {
+    record.dosageDate = dates[index].toJson().jalali.asString;
+  });
+  return records;
+}
+
+WarfarinDosageRecord.sortByDateASC = function (records) {
+  return records.sort((r1, r2) => {
+    const r1Date = JalaliDate.create(r1.dosageDate);
+    const r2Date = JalaliDate.create(r2.dosageDate);
+    return r1Date.compareWithJalaliDate(r2Date);
+  })
+}
+
+WarfarinDosageRecord.insertPrescriptionRecords = async function(prescriptionRecords, patientUserId, startingDate, transaction) {
+
+  if (!TypeChecker.isList(prescriptionRecords) || prescriptionRecords.length != 7)
+    return null;
+
+  const validObjectCount = prescriptionRecords.reduce((acc, current) => Number((current||{}).dosagePH) >= 0 ? acc + 1 : acc, 0);
+  if (validObjectCount == 0)
+    return null;
+
+  prescriptionRecords.forEach(dosage => {
+    dosage.patientUserId = patientUserId;
+    dosage.dosagePA = null;
+    dosage.dosagePH = dosage.dosagePH || 0;
+  });
+
+  WarfarinDosageRecord.assignOneWeekDosageDates(prescriptionRecords, startingDate);
+
+  const insertedDosageRecords = await WarfarinDosageRecord.bulkCreate(prescriptionRecords, {
+    transaction: transaction,
+    returning: true,
+  });
+
+  return insertedDosageRecords;
 }

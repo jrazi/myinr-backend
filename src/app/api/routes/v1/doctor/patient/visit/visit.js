@@ -128,17 +128,7 @@ async function addVisit(req, res, next) {
             )
         }
 
-        if (TypeChecker.isList(visitToAdd.recommendedDosage) && visitToAdd.recommendedDosage.length === 7) {
-            const validObjectCount = visitToAdd.recommendedDosage.reduce((acc, current) => Number((current||{}).dosagePH) > 0 ? acc + 1 : acc, 0);
-            if (validObjectCount > 0) {
-                visitToAdd.recommendedDosage.forEach(dosage => dosage.patientUserId = patientUserId);
-
-                const insertedDosageRecords = await models.WarfarinDosageRecord.bulkCreate(visitToAdd.recommendedDosage, {
-                    transaction: tr,
-                    returning: true,
-                });
-            }
-        }
+        const insertedDosageRecords = await models.WarfarinDosageRecord.insertPrescriptionRecords(visitToAdd.recommendedDosage, patientUserId, new Date(), tr);
 
         if (SimpleValidators.hasValue(visitToAdd.nextVisitDate || null)) {
             const jDate = JalaliDate.create(visitToAdd.nextVisitDate);

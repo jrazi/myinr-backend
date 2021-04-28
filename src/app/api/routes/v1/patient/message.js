@@ -11,12 +11,32 @@ const JalaliTime = require("../../../../util/JalaliTime");
 const {asyncFunctionWrapper} = require("../../util");
 
 
+router.get('/all', asyncFunctionWrapper(getAllMessages));
 router.get('/outgoing', asyncFunctionWrapper(getOutgoingMessages));
 router.get('/incoming', asyncFunctionWrapper(getIncomingMessages));
 
 router.post('/outgoing', asyncFunctionWrapper(sendMessage));
 
 
+async function getAllMessages(req, res, next) {
+    const outgoing = (await models.PatientToPhysicianMessage
+        .findAll({where: {patientUserId: req.principal.userId}}))
+        .map(message => message.getApiObject());
+
+    const incoming = (await models.PhysicianToPatientMessage
+        .findAll({where: {patientUserId: req.principal.userId}}))
+        .map(message => message.getApiObject());
+
+
+    const response = ResponseTemplate.create()
+        .withData({
+            outgoing,
+            incoming
+        })
+        .toJson();
+
+    res.json(response);
+}
 
 async function getOutgoingMessages(req, res, next) {
     let messages = await models.PatientToPhysicianMessage.findAll({where: {patientUserId: req.principal.userId}});
@@ -71,6 +91,8 @@ async function sendMessage(req, res, next) {
             const validObjectCount = messageToAdd.latestWarfarinDosage.reduce((acc, current) => Number((current||{}).dosagePA) >= 0 ? acc + 1 : acc, 0);
             if (validObjectCount > 0) {
                 var last7DosageRecords = await models.WarfarinDosageRecord.scope({method: ['lastRecordsOfPatient', req.principal.userId]}).findAll();
+                models.WarfarinDosageRecord.sortByDateASC(last7DosageRecords);
+
                 if ((last7DosageRecords || []).length == 7) {
                     for (let i = 0; i < last7DosageRecords.length; i++) {
                         const record = last7DosageRecords[i];
@@ -83,6 +105,7 @@ async function sendMessage(req, res, next) {
                         record.patientUserId = req.principal.userId;
                         record.dosagePH = null;
                     })
+                    models.WarfarinDosageRecord.assignOneWeekDosageDates(messageToAdd.latestWarfarinDosage, new Date());
                     last7DosageRecords = await models.WarfarinDosageRecord.bulkCreate(messageToAdd.latestWarfarinDosage, {
                         transaction: tr,
                         returning: true,

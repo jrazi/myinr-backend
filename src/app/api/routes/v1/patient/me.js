@@ -26,7 +26,8 @@ async function getPatientInfo(req, res, next) {
         next(new errors.PatientNotFound());
         return;
     }
-    const dosageRecords = await models.WarfarinDosageRecord.scope({method: ['lastRecordsOfPatient', req.principal.userId]}).findAll();
+    let dosageRecords = await models.WarfarinDosageRecord.scope({method: ['lastRecordsOfPatient', req.principal.userId]}).findAll();
+    models.WarfarinDosageRecord.sortByDateASC(dosageRecords);
 
     const patientData = patient.get({plain: true});
     patientData.latestWarfarinDosage = dosageRecords;

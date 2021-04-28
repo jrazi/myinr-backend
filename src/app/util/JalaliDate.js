@@ -17,6 +17,18 @@ class JalaliDate {
         minute: 0,
     }
 
+    static getConsecutiveDates(startDate, numOfDates) {
+        const dates = [startDate,];
+        for (let i = 0; i < numOfDates-1; i++)
+            dates.push(dates[i].incrementDay());
+        return dates;
+    }
+
+    static sortDates(jalaliDateList) {
+        return (jalaliDateList || [])
+            .sort((first, second) => first.compareWithJalaliDate(second));
+    }
+
     static getMinimumDate(jalaliDateList) {
         if (!TypeChecker.isList(jalaliDateList) || jalaliDateList.length == 0)
             return null;
@@ -119,6 +131,12 @@ class JalaliDate {
                 this.jDate = null;
             else this.jDate = jDate;
         }
+    }
+
+    incrementDay() {
+        const thisMoment = moment(this.getGeorgianDate().getTime()).tz('Asia/Tehran').startOf('day').utc();
+        const nextDay = thisMoment.add(1, 'days');
+        return JalaliDate.create(nextDay.toDate());
     }
 
     compareWithToday() {
