@@ -18,12 +18,13 @@ router.post('/outgoing', asyncFunctionWrapper(sendMessage));
 
 
 async function getAllMessages(req, res, next) {
+    const patientQuery = SimpleValidators.hasValue(req.query.patientUserId) ? {patientUserId: req.query.patientUserId} : {};
     const outgoing = (await models.PhysicianToPatientMessage
-        .findAll({where: {physicianUserId: req.principal.userId}}))
+        .findAll({where: {physicianUserId: req.principal.userId, ...patientQuery}}))
         .map(message => message.getApiObject());
 
     const incoming = (await models.PatientToPhysicianMessage
-        .findAll({where: {physicianUserId: req.principal.userId}}))
+        .findAll({where: {physicianUserId: req.principal.userId, ...patientQuery}}))
         .map(message => message.getApiObject());
 
 
@@ -38,9 +39,11 @@ async function getAllMessages(req, res, next) {
 }
 
 async function getOutgoingMessages(req, res, next) {
+    const patientQuery = SimpleValidators.hasValue(req.query.patientUserId) ? {patientUserId: req.query.patientUserId} : {};
     let messages = await models.PhysicianToPatientMessage.findAll({
         where: {
-            physicianUserId: req.principal.userId
+            physicianUserId: req.principal.userId,
+            ...patientQuery
         },
     });
     messages = messages.map(message => message.getApiObject());
@@ -55,12 +58,14 @@ async function getOutgoingMessages(req, res, next) {
 }
 
 async function getIncomingMessages(req, res, next) {
+    const patientQuery = SimpleValidators.hasValue(req.query.patientUserId) ? {patientUserId: req.query.patientUserId} : {};
     let messages = await models.PatientToPhysicianMessage.findAll({where: {physicianUserId: req.principal.userId}});
     messages = messages.map(message => message.getApiObject());
 
     const response = ResponseTemplate.create()
         .withData({
             messages: messages,
+            ...patientQuery
         })
         .toJson();
 
