@@ -39,7 +39,7 @@ async function getAllMessages(req, res, next) {
 }
 
 async function getOutgoingMessages(req, res, next) {
-    const patientQuery = SimpleValidators.isNumber(req.query.patientUserId) ? {patientUserId: req.query.patientUserId} : {};
+    const patientQuery = SimpleValidators.isNumber(req.query.patientUserId || null) ? {patientUserId: req.query.patientUserId} : {};
     let messages = await models.PhysicianToPatientMessage.findAll({
         where: {
             physicianUserId: req.principal.userId,
@@ -62,7 +62,7 @@ async function getOutgoingMessages(req, res, next) {
 }
 
 async function getIncomingMessages(req, res, next) {
-    const patientQuery = SimpleValidators.isNumber(req.query.patientUserId) ? {patientUserId: req.query.patientUserId} : {};
+    const patientQuery = SimpleValidators.isNumber(req.query.patientUserId || null) ? {patientUserId: req.query.patientUserId} : {};
     let messages = await models.PatientToPhysicianMessage.findAll({
         where: {
             physicianUserId: req.principal.userId,
