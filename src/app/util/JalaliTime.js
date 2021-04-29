@@ -13,6 +13,10 @@ class JalaliTime {
         return new JalaliTime(hour, min);
     }
 
+    static ofSerializedJalaliTime(serialized) {
+        return new JalaliTime(serialized.asObject.hour, serialized.asObject.minute);
+    }
+
     static ofHourMin(hour, min) {
         return new JalaliTime(hour, min);
     }
@@ -20,6 +24,13 @@ class JalaliTime {
     constructor(hour, minute) {
         this.hour = hour;
         this.minute = minute;
+    }
+
+    compareWithJalaliTime(toCompareJalaliTime) {
+        const t1 = (this.hour || 0)*60 + (this.minute || 0);
+        const t2 = (toCompareJalaliTime.hour || 0)*60 + (toCompareJalaliTime.minute || 0);
+
+        return t1 - t2;
     }
 
     toJson() {

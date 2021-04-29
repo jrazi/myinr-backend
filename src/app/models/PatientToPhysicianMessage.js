@@ -344,5 +344,7 @@ PatientToPhysicianMessage.prototype.getApiObject = function () {
       'heartBeat',
       'bleedingOrClottingTypes',
       'dosageChangeDate',
+      'patientInfo',
+      'physicianInfo',
   ]);
 }

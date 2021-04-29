@@ -213,5 +213,7 @@ PhysicianToPatientMessage.prototype.getApiObject = function () {
     'physicianInstructions',
     'recommendedDaysWithoutWarfarin',
     'visitFlag',
+    'patientInfo',
+    'physicianInfo',
   ]);
 }

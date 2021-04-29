@@ -45,8 +45,12 @@ async function getOutgoingMessages(req, res, next) {
             physicianUserId: req.principal.userId,
             ...patientQuery
         },
+        include: [
+            'patientInfo',
+        ]
     });
     messages = messages.map(message => message.getApiObject());
+    sortMessageListByDateDESC(messages);
 
     const response =  ResponseTemplate.create()
         .withData({
@@ -59,13 +63,21 @@ async function getOutgoingMessages(req, res, next) {
 
 async function getIncomingMessages(req, res, next) {
     const patientQuery = SimpleValidators.hasValue(req.query.patientUserId) ? {patientUserId: req.query.patientUserId} : {};
-    let messages = await models.PatientToPhysicianMessage.findAll({where: {physicianUserId: req.principal.userId}});
+    let messages = await models.PatientToPhysicianMessage.findAll({
+        where: {
+            physicianUserId: req.principal.userId,
+            ...patientQuery,
+        },
+        include: [
+            'patientInfo',
+        ]
+    });
     messages = messages.map(message => message.getApiObject());
+    sortMessageListByDateDESC(messages);
 
     const response = ResponseTemplate.create()
         .withData({
             messages: messages,
-            ...patientQuery
         })
         .toJson();
 
@@ -123,6 +135,19 @@ async function sendMessage(req, res, next) {
 
 }
 
+function sortMessageListByDateDESC(messages) {
+    messages.sort((m1, m2) => {
+        const m1Date = JalaliDate.create(m1.messageDate);
+        const m2Date = JalaliDate.create(m2.messageDate);
+        const dateCmp = m1Date.compareWithJalaliDate(m2Date) || 0;
+
+        const m1Time = JalaliTime.ofSerializedJalaliTime(m1.messageTime);
+        const m2Time = JalaliTime.ofSerializedJalaliTime(m2.messageTime);
+        const timeCmp = m1Time.compareWithJalaliTime(m2Time) || 0;
+
+        return -(dateCmp !== 0 ? dateCmp : timeCmp);
+    })
+}
 module.exports = router;
 
 
