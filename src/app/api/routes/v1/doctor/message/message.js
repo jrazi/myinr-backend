@@ -39,7 +39,7 @@ async function getAllMessages(req, res, next) {
 }
 
 async function getOutgoingMessages(req, res, next) {
-    const patientQuery = SimpleValidators.hasValue(req.query.patientUserId) ? {patientUserId: req.query.patientUserId} : {};
+    const patientQuery = SimpleValidators.isNumber(req.query.patientUserId) ? {patientUserId: req.query.patientUserId} : {};
     let messages = await models.PhysicianToPatientMessage.findAll({
         where: {
             physicianUserId: req.principal.userId,
@@ -62,7 +62,7 @@ async function getOutgoingMessages(req, res, next) {
 }
 
 async function getIncomingMessages(req, res, next) {
-    const patientQuery = SimpleValidators.hasValue(req.query.patientUserId) ? {patientUserId: req.query.patientUserId} : {};
+    const patientQuery = SimpleValidators.isNumber(req.query.patientUserId) ? {patientUserId: req.query.patientUserId} : {};
     let messages = await models.PatientToPhysicianMessage.findAll({
         where: {
             physicianUserId: req.principal.userId,
@@ -72,8 +72,28 @@ async function getIncomingMessages(req, res, next) {
             'patientInfo',
         ]
     });
-    messages = messages.map(message => message.getApiObject());
     sortMessageListByDateDESC(messages);
+    messages = messages.map(message => message.getApiObject());
+
+    if (req.query.onlyNew == 'true') {
+        let outgoingMessages = await models.PhysicianToPatientMessage.findAll({
+            where: {
+                physicianUserId: req.principal.userId,
+            },
+        });
+        sortMessageListByDateDESC(outgoingMessages);
+        messages = filterNewIncomingMessages(messages, outgoingMessages);
+    }
+
+    else if (req.query.groupByNew == 'true') {
+        let outgoingMessages = await models.PhysicianToPatientMessage.findAll({
+            where: {
+                physicianUserId: req.principal.userId,
+            },
+        });
+        sortMessageListByDateDESC(outgoingMessages);
+        messages = groupMessagesByNewOrPrevious(messages, outgoingMessages);
+    }
 
     const response = ResponseTemplate.create()
         .withData({
@@ -136,17 +156,43 @@ async function sendMessage(req, res, next) {
 }
 
 function sortMessageListByDateDESC(messages) {
-    messages.sort((m1, m2) => {
-        const m1Date = JalaliDate.create(m1.messageDate);
-        const m2Date = JalaliDate.create(m2.messageDate);
-        const dateCmp = m1Date.compareWithJalaliDate(m2Date) || 0;
+    messages.sort((m1, m2) => compareTwoMessageDates(m2, m1))
+}
 
-        const m1Time = JalaliTime.ofSerializedJalaliTime(m1.messageTime);
-        const m2Time = JalaliTime.ofSerializedJalaliTime(m2.messageTime);
-        const timeCmp = m1Time.compareWithJalaliTime(m2Time) || 0;
-
-        return -(dateCmp !== 0 ? dateCmp : timeCmp);
+function filterNewIncomingMessages(incoming, outgoing) {
+    return incoming.filter((incomingMessage) => {
+        const latestOutgoingForPatient = outgoing.find(item => item.patientUserId == incomingMessage.patientUserId) || null;
+        if (latestOutgoingForPatient == null) return false;
+        return compareTwoMessageDates(incomingMessage, latestOutgoingForPatient) > 0;
     })
+}
+
+function groupMessagesByNewOrPrevious(incoming, outgoing) {
+    const groupedMessages  = {
+        new: [],
+        previous: [],
+    }
+    incoming.forEach((incomingMessage) => {
+        const latestOutgoingForPatient = outgoing.find(item => item.patientUserId == incomingMessage.patientUserId) || null;
+        const isNew = !latestOutgoingForPatient || (compareTwoMessageDates(incomingMessage, latestOutgoingForPatient) > 0);
+        if (isNew)
+            groupedMessages.new.push(incomingMessage);
+        else groupedMessages.previous.push(incomingMessage);
+    });
+    return groupedMessages;
+}
+
+
+function compareTwoMessageDates(m1, m2) {
+    const m1Date = JalaliDate.create(m1.messageDate);
+    const m2Date = JalaliDate.create(m2.messageDate);
+    const dateCmp = m1Date.compareWithJalaliDate(m2Date) || 0;
+
+    const m1Time = JalaliTime.ofSerializedJalaliTime(m1.messageTime);
+    const m2Time = JalaliTime.ofSerializedJalaliTime(m2.messageTime);
+    const timeCmp = m1Time.compareWithJalaliTime(m2Time) || 0;
+
+    return dateCmp !== 0 ? dateCmp : timeCmp;
 }
 module.exports = router;
 
