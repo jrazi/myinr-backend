@@ -13,6 +13,7 @@ const {asyncFunctionWrapper} = require("../../../util");
 router.get('/all', asyncFunctionWrapper(getAllMessages));
 router.get('/outgoing', asyncFunctionWrapper(getOutgoingMessages));
 router.get('/incoming', asyncFunctionWrapper(getIncomingMessages));
+router.get('/incoming/:messageId', asyncFunctionWrapper(getSingleIncomingMessageData));
 
 router.post('/outgoing', asyncFunctionWrapper(sendMessage));
 
@@ -60,6 +61,40 @@ async function getOutgoingMessages(req, res, next) {
     res.json(response);
 
 }
+
+async function getSingleIncomingMessageData(req, res, next) {
+    const messageId = req.params.messageId;
+    let message = await models.PatientToPhysicianMessage.findOne({
+        where: {
+            id: messageId,
+            physicianUserId: req.principal.userId,
+        },
+        include: [
+            'patientInfo',
+        ]
+    });
+
+    if (message == null) {
+        next(new errors.NotFound("Message was not found"));
+        return;
+    }
+
+    const lastVisitPromise = models.Visit.getLastVisitOfPatient(message.patientUserId);
+    const lastWarfarinDosagePromise = models.WarfarinDosageRecord.getLast7DosageRecordsForPatient(message.patientUserId);
+
+    let [lastVisit, lastWarfarinDosage] = await Promise.all([lastVisitPromise, lastWarfarinDosagePromise]);
+
+    const response = ResponseTemplate.create()
+        .withData({
+            message: message.getApiObject(),
+            lastVisit: lastVisit.getApiObject(),
+            lastWarfarinDosage: lastWarfarinDosage,
+        })
+        .toJson();
+
+    res.json(response);
+}
+
 
 async function getIncomingMessages(req, res, next) {
     const patientQuery = SimpleValidators.isNumber(req.query.patientUserId || null) ? {patientUserId: req.query.patientUserId} : {};

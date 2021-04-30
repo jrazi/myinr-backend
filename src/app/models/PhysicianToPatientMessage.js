@@ -208,7 +208,7 @@ PhysicianToPatientMessage.prototype.getApiObject = function () {
     'physicianComment',
     'messageDate',
     'messageTime',
-    'nextInrCheck',
+    'nextInrCheckDate',
     'visitDate',
     'physicianInstructions',
     'recommendedDaysWithoutWarfarin',

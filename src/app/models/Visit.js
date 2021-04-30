@@ -285,10 +285,29 @@ class Visit extends Sequelize.Model {
           { name: "IDSecond" },
         ]
       },
-    ]
+    ],
+    defaultScope: {
+    },
+    scopes: {
+      lastVisitOfPatient(patientUserId) {
+        return {
+          where: {
+            patientUserId: patientUserId,
+          },
+          limit: 1,
+          order: [['id', 'DESC']]
+        }
+      }
+    }
+
   });
   return Visit;
   }
+}
+
+Visit.getLastVisitOfPatient = async function(patientUserId, transaction) {
+  let lastVisit = await Visit.scope({method: ['lastVisitOfPatient', patientUserId]}).findOne({transaction: transaction});
+  return lastVisit;
 }
 
 Visit.prototype.getApiObject = function () {

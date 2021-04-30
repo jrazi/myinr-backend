@@ -141,3 +141,10 @@ WarfarinDosageRecord.insertPrescriptionRecords = async function(prescriptionReco
 
   return insertedDosageRecords;
 }
+
+
+WarfarinDosageRecord.getLast7DosageRecordsForPatient = async function(patientUserId, transaction=null) {
+  let dosageRecords = await WarfarinDosageRecord.scope({method: ['lastRecordsOfPatient', patientUserId]}).findAll({transaction: transaction});
+  WarfarinDosageRecord.sortByDateASC(dosageRecords);
+  return dosageRecords;
+}
