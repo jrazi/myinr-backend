@@ -324,10 +324,30 @@ class PatientToPhysicianMessage extends Sequelize.Model {
           { name: "IDPtToPy" },
         ]
       },
-    ]
+    ],
+    defaultScope: {
+    },
+    scopes: {
+      lastMessageFromPatient(patientUserId, physicianUserId) {
+        return {
+          where: {
+            patientUserId: patientUserId,
+            physicianUserId: physicianUserId,
+          },
+          limit: 1,
+          order: [['id', 'DESC']]
+        }
+      }
+    }
+
   });
   return PatientToPhysicianMessage;
   }
+}
+
+PatientToPhysicianMessage.getLastMessageFromPatient = async function(patientUserId, physicianUserId, transaction) {
+  let lastMessage = await PatientToPhysicianMessage.scope({method: ['lastMessageFromPatient', patientUserId, physicianUserId]}).findOne({transaction: transaction});
+  return lastMessage;
 }
 
 PatientToPhysicianMessage.prototype.getApiObject = function () {
