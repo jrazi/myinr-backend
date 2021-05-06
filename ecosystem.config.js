@@ -11,7 +11,7 @@ module.exports = {
             host : 'localhost',
             ref  : 'origin/master',
             repo : 'git@github.com:jrazi/myinr-backend.git',
-            path : '/pm2deploy',
+            path : '/home/ubuntu/myinr/deployed',
             'pre-deploy-local': '',
             'post-deploy' : 'npm install && pm2 reload ecosystem.config.js --env production',
             'pre-setup': '',
