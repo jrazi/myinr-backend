@@ -32,7 +32,7 @@ async function getPatientMedicalInfo(req, res, next) {
 
     let [lastVisit, lastWarfarinDosage, lastMessage] = await Promise.all([lastVisitPromise, lastWarfarinDosagePromise, lastMessagePromise]);
 
-    const objectInMessageFormat = lastMessage || models.PatientToPhysicianMessage.build({patientUserId: patientUserId, physicianUserId: physicianUserId});
+    const objectInMessageFormat = lastMessage || models.PatientToPhysicianMessage.build({patientUserId: patientUserId, physicianUserId: req.principal.userId});
 
     const hasMessage = SimpleValidators.hasValue(lastMessage);
     const hasVisit = SimpleValidators.hasValue(lastVisit);
