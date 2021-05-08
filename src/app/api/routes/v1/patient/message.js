@@ -17,6 +17,27 @@ router.get('/incoming', asyncFunctionWrapper(getIncomingMessages));
 
 router.post('/outgoing', asyncFunctionWrapper(sendMessage));
 
+function compareTwoMessageDates(m1, m2) {
+    const m1Date = JalaliDate.create(m1.messageDate);
+    const m2Date = JalaliDate.create(m2.messageDate);
+    const dateCmp = m1Date.compareWithJalaliDate(m2Date) || 0;
+
+    const m1Time = JalaliTime.ofSerializedJalaliTime(m1.messageTime);
+    const m2Time = JalaliTime.ofSerializedJalaliTime(m2.messageTime);
+    const timeCmp = m1Time.compareWithJalaliTime(m2Time) || 0;
+
+    return dateCmp !== 0 ? dateCmp : timeCmp;
+}
+
+function sortMessageListByDateDESC(messages) {
+    messages.sort((m1, m2) => compareTwoMessageDates(m2, m1))
+}
+
+function mergeIncomingOutgoingMessages(incoming, outgoing) {
+    const all = [...(incoming || []), ...(outgoing || [])];
+    sortMessageListByDateDESC(all);
+    return all;
+}
 
 async function getAllMessages(req, res, next) {
     const outgoing = (await models.PatientToPhysicianMessage
@@ -27,12 +48,20 @@ async function getAllMessages(req, res, next) {
         .findAll({where: {patientUserId: req.principal.userId}}))
         .map(message => message.getApiObject());
 
-
-    const response = ResponseTemplate.create()
-        .withData({
+    let messages = null;
+    if (req.query.merge == 'true') {
+        const all = mergeIncomingOutgoingMessages(incoming, outgoing);
+        messages = {messages: all};
+    } 
+    else {
+        messages = {
             outgoing,
             incoming
-        })
+        }
+    }
+
+    const response = ResponseTemplate.create()
+        .withData(messages)
         .toJson();
 
     res.json(response);

@@ -29,6 +29,20 @@ class PatientToPhysicianMessage extends Sequelize.Model {
       allowNull: false,
       field: 'IDPhysicianPtToPy',
     },
+    meta: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return {
+          fromPatient: true,
+          toPhysician: true, 
+          fromPhysician: false,
+          toPatient: false,
+        }
+      },
+      set(values) {
+        return;
+      }
+    },
     inr: {
       type: DataTypes.VIRTUAL,
       get() {
@@ -356,6 +370,7 @@ PatientToPhysicianMessage.prototype.getApiObject = function () {
       'id',
       'patientUserId',
       'physicianUserId',
+      'meta',
       'patientComment',
       'inr',
       'messageDate',
