@@ -4,6 +4,8 @@ const DatabaseNormalizer = require("../util/DatabaseNormalizer");
 const JalaliDate = require("../util/JalaliDate");
 const SequelizeUtil = require("../util/SequelizeUtil");
 const {firstWithValue} = DatabaseNormalizer;
+const DomainNameTable = require("./StaticDomainNameTable");
+
 
 module.exports = (sequelize, DataTypes) => {
   return PhysicianToPatientMessage.init(sequelize, DataTypes);

@@ -8,11 +8,14 @@ const SequelizeUtil = require("../../../../util/SequelizeUtil");
 
 const meRouter = require('./me');
 const messageRouter = require('./message');
+const physicianRouter = require('./physician');
+const appointmentRouter = require('./appointment');
 
 router.use(patientAuthorizationFilter);
 router.use('/me', meRouter);
 router.use('/message', messageRouter);
-
+router.use('/physician', physicianRouter);
+router.use('/appointment', appointmentRouter);
 
 function patientAuthorizationFilter(req, res, next) {
     const principal = req.principal;
