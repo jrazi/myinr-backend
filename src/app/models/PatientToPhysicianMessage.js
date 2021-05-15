@@ -216,9 +216,9 @@ class PatientToPhysicianMessage extends Sequelize.Model {
       set(value) {
         const jalali = JalaliDate.create(value).toJson().jalali.asObject;
 
-        this.lastIntTestYear = jalali.year;
-        this.lastInrTestMonth = jalali.month;
-        this.lastInrTestDay = jalali.day;
+        this.lastIntTestYear = jalali.year || "";
+        this.lastInrTestMonth = jalali.month || "";
+        this.lastInrTestDay = jalali.day || "";
       }
     },
     timeOfLastInrTest: {
