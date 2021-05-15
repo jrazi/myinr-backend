@@ -54,7 +54,7 @@ async function getPatientMedicalInfo(req, res, next) {
         heartBeat: objectInMessageFormat.heartBeat,
         inr: objectInMessageFormat.inr,
         lastWarfarinDosage: lastWarfarinDosage,
-        lastVisitDate: hasVisit ? lastVisit.visitDate : JalaliDate.create(null),
+        lastVisitDate: hasVisit ? lastVisit.visitDate : JalaliDate.create(null).toJson(),
         patientInfo: patient.get({plain: true}),
     }
 
