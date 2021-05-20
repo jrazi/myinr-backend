@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const DatabaseNormalizer = require("../util/DatabaseNormalizer");
 const SequelizeUtil = require('../util/SequelizeUtil');
+const SimpleValidators = require("../util/SimpleValidators");
 module.exports = (sequelize, DataTypes) => {
   return Patient.init(sequelize, DataTypes);
 }
@@ -79,6 +80,12 @@ class Patient extends Sequelize.Model {
       type: DataTypes.STRING(1),
       allowNull: true,
       field: 'Gender',
+      set(gender) {
+        let genderLetter = !SimpleValidators.isNonEmptyString(gender) ? null
+            : gender.toUpperCase()[0] == 'M' ? 'M' : gender.toUpperCase()[0] == 'F' ? 'F' : null;
+
+        this.setDataValue('gender', genderLetter);
+      }
     },
     fatherName: {
       type: DataTypes.STRING(100),

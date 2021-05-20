@@ -9,7 +9,7 @@ module.exports.asyncFunctionWrapper = function asyncFunctionWrapper(func) {
         } catch(err) {
             console.log(err);
             if (err instanceof ValidationError) {
-                next(new errors.Vali)
+                next(new errors.ValidationError(err.message))
             }
             else {
                 next(err);

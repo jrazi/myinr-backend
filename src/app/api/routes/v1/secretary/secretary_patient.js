@@ -1,3 +1,4 @@
+const {Op} = require("sequelize");
 
 var express = require('express');
 var router = express.Router();
@@ -87,6 +88,10 @@ async function upsertPatient(req, res, next) {
         next(new errors.IncompleteRequest("Field {physicianUserId} was not provided."));
         return;
     }
+    else if ((patientInfo.nationalId || null) == null) {
+        next(new errors.IncompleteRequest("Field {nationalId} was not provided."));
+        return;
+    }
 
     const secretary = await models.Secretary.findOne(
         {
@@ -116,37 +121,66 @@ async function upsertPatient(req, res, next) {
     patientInfo.secretaryId = req.principal.userId;
     delete patientInfo.userInfo;
 
-    if (SimpleValidators.hasValue(patientInfo.userId) && SimpleValidators.hasValue(patientInfo.patientId)) {
-        let patient = await models.Patient.findOne({
-            where: {
+    const hasUserId = SimpleValidators.hasValue(patientInfo.userId);
+    const patientQuery = [
+        {
+            nationalId: patientInfo.nationalId,
+        },
+    ];
+    if (hasUserId) {
+        patientQuery.push(
+            {
                 userId: patientInfo.userId,
-                patientInfo: patientInfo.patientId,
             },
-            include: ['userInfo'],
-        })
+        );
+    }
+    let patient = await models.Patient.findOne({
+        where: {
+            [Op.or]: patientQuery,
+        },
+        include: ['userInfo'],
+    })
+    if (patient != null && hasUserId) {
         if (patient.secretaryId !== req.principal.userId) {
             next(new errors.IllegalOperation("You can not edit this patient"));
             return;
         }
+        patientInfo.userId = patient.userId;
+        patientInfo.patientId = patient.patientId;
 
-        let savedPatient = await models.Patient.save(patientInfo);
-        savedPatient.userInfo = patient.userInfo;
+        await models.Patient.update(
+            patientInfo,
+            {
+                where: {
+                    userId: patient.userId,
+                },
+                returning: true,
+            }
+        )
+
+        let savedPatient = await patient.reload();
 
         const response =  ResponseTemplate.create()
             .withData({
-                patient: patient,
+                patient: savedPatient,
             });
 
         res.json(response);
         return;
     }
-
+    else if (patient != null) {
+        next(new errors.AlreadyExistsException("Patient with this national id already exists"));
+        return;
+    }
     else {
 
         await models.Visit.sequelize.transaction(async (tr) => {
             let createdUserInfo = await models.User.createPatient(patientInfo.nationalId, tr);
             patientInfo.userId = createdUserInfo.userId;
+            delete patientInfo.patientId;
+
             let createdPatient = await models.Patient.create(patientInfo, {transaction: tr});
+            createdPatient = createdPatient.get({plain: true});
 
             createdPatient.userInfo = createdUserInfo;
             const response =  ResponseTemplate.create()
