@@ -53,6 +53,9 @@ function initModels(sequelize) {
   Patient.belongsTo(Physician, {foreignKey: {name: 'physicianUserId', allowNull: true}, as: 'physician', targetKey: 'userId'});
   Physician.hasMany(Patient, {foreignKey: {name: 'physicianUserId', allowNull: true}, as: 'patients', sourceKey: 'userId'});
 
+  Patient.belongsTo(Secretary, {foreignKey: {name: 'secretaryId', allowNull: true}, as: 'secretary', targetKey: 'userId'});
+  Secretary.hasMany(Patient, {foreignKey: {name: 'secretaryId', allowNull: true}, as: 'patients', sourceKey: 'userId'});
+
   FirstVisit.belongsTo(Patient, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'patientInfo', targetKey: 'userId'});
   Patient.hasOne(FirstVisit, {foreignKey: {name: 'patientUserId', allowNull: false}, as: 'firstVisit', sourceKey: 'userId'});
 
