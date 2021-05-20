@@ -1,4 +1,8 @@
 const Sequelize = require('sequelize');
+const TypeChecker = require("../util/TypeChecker");
+const SimpleValidators = require("../util/SimpleValidators");
+const UserRoles = require("./UserRoles");
+
 module.exports = (sequelize, DataTypes) => {
   return User.init(sequelize, DataTypes);
 }
@@ -67,4 +71,24 @@ class User extends Sequelize.Model {
   });
   return User;
   }
+}
+
+
+User.createPatient = async function (nationalId, transaction) {
+  nationalId = nationalId.replace(/\s/g,'');
+
+  if (!SimpleValidators.isNonEmptyString(nationalId))
+    throw new Error("national id is not valid");
+
+  return await User.create(
+      {
+        role: UserRoles.patient.id,
+        username: nationalId,
+        password: '_' + nationalId,
+        status: 1,
+      },
+      {
+        transaction: transaction,
+      }
+  );
 }

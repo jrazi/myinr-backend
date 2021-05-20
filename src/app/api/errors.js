@@ -108,6 +108,12 @@ class AlreadyExistsException extends ApiError {
     }
 }
 
+class ValidationError extends ApiError {
+    constructor (message = "Failed to validate some of the fields.") {
+        super(400, "VALIDATION_ERROR", message);
+    }
+}
+
 
 module.exports = {
     ApiError,
@@ -127,4 +133,5 @@ module.exports = {
     IncompleteRequest,
     AppointmentNotFound,
     VisitNotFound,
+    ValidationError
 };
