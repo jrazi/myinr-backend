@@ -3,8 +3,10 @@ const errors = require("../../errors");
 const jwt = require("jsonwebtoken");
 var router = express.Router();
 var doctorRouter = require('./doctor/doctor');
+var secretaryRouter = require('./secretary/secretary');
 var patientRouter = require('./patient/patient');
 var authRouter = require('./authentication/auth');
+
 const models = require("../../../models");
 
 const unless = function(path, middleware) {
@@ -20,6 +22,8 @@ const unless = function(path, middleware) {
 router.use(unless(/^\/(auth).*$/, authorizationFilter));
 router.use('/doctor', doctorRouter);
 router.use('/patient', patientRouter);
+router.use('/secretary', secretaryRouter);
+
 router.use('/auth', authRouter);
 router.get('/me', redirectToRoleResource);
 
@@ -29,6 +33,12 @@ function redirectToRoleResource(req, res, next) {
 
   else if (req.principal.role == models.UserRoles.physician.id)
     res.redirect(307, '/api/v1/doctor/me');
+
+  else if (req.principal.role == models.UserRoles.secretary.id)
+    res.redirect(307, '/api/v1/secretary/me');
+
+  else if (req.principal.role == models.UserRoles.admin.id)
+    res.redirect(307, '/api/v1/admin/me');
 
   else throw new Error("Role not recognized.");
 }

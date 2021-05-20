@@ -29,11 +29,18 @@ async function login(req, res, next) {
     }
 
     let details = {};
+
     if (user.role == models.UserRoles.patient.id) {
         details = await models.Patient.findOne({where: {userId: user.userId}, include: ['userInfo', 'physician']});
     }
     else if (user.role == models.UserRoles.physician.id) {
         details = await models.Physician.findOne({where: {userId: user.userId}, include: ['userInfo', 'workPlaces'] });
+    }
+    else if (user.role == models.UserRoles.secretary.id) {
+        details = await models.Secretary.findOne({where: {userId: user.userId}, include: ['userInfo', 'workPlaces']});
+    }
+    else if (user.role == models.UserRoles.admin.id) {
+        details = await models.Admin.findOne({where: {userId: user.userId}, include: ['userInfo', 'workPlaces'] });
     }
 
     const tokenSecret = process.env.TOKEN_SECRET;

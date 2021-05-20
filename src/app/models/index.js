@@ -7,6 +7,8 @@ const models = initModels(sequelize);
 module.exports.Physician = models.Physician;
 module.exports.User = models.User;
 module.exports.Patient = models.Patient;
+module.exports.Secretary = models.Secretary;
+module.exports.Admin = models.Admin;
 module.exports.FirstVisit = models.FirstVisit;
 module.exports.HasBledStage = models.HasBledStage;
 module.exports.Cha2ds2vascScore = models.Cha2ds2vascScore;
@@ -24,9 +26,17 @@ module.exports.PhysicianToPatientMessage = models.PhysicianToPatientMessage
 module.exports.DomainNameTable = models.DomainNameTable;
 
 module.exports.UserRoles = {
+    admin: {
+        id: 0,
+        name: 'ADMIN',
+    },
     physician: {
         id: 1,
         name: 'PHYSICIAN',
+    },
+    secretary: {
+        id: 2,
+        name: 'SECRETARY',
     },
     patient: {
         id: 3,
@@ -34,10 +44,9 @@ module.exports.UserRoles = {
     },
 
     getById(id) {
-        if (this.physician.id == id)
-            return this.physician;
-        else if (this.patient.id == id)
-            return this.patient;
-        return null;
+        return Object.keys(this)
+            .filter(key => typeof (this[key]) == 'object')
+            .filter(key => (this[key] || {}).id == id)
+            .map(key => this[key])[0] || null;
     }
 }
