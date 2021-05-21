@@ -46,6 +46,13 @@ class SecretaryNotFound extends ApiError {
     }
 }
 
+class AdminNotFound extends ApiError {
+    constructor (message = "Admin was not found.") {
+        super(400, "RECORD_NOT_FOUND", message);
+    }
+}
+
+
 class FirstVisitNotFound extends ApiError {
     constructor (message = "No first visit was found for this patient.") {
         super(400, "RECORD_NOT_FOUND", message);
@@ -123,6 +130,7 @@ module.exports = {
     FirstVisitNotFound,
     PhysicianNotFound,
     SecretaryNotFound,
+    AdminNotFound,
     UserNotFound,
     UsernamePasswordMismatch,
     QueryParameterMissing,

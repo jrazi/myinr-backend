@@ -5,6 +5,8 @@ var router = express.Router();
 var doctorRouter = require('./doctor/doctor');
 var secretaryRouter = require('./secretary/secretary');
 var patientRouter = require('./patient/patient');
+var adminRouter = require('./admin/admin');
+
 var authRouter = require('./authentication/auth');
 
 const models = require("../../../models");
@@ -23,6 +25,7 @@ router.use(unless(/^\/(auth).*$/, authorizationFilter));
 router.use('/doctor', doctorRouter);
 router.use('/patient', patientRouter);
 router.use('/secretary', secretaryRouter);
+router.use('/admin', adminRouter);
 
 router.use('/auth', authRouter);
 router.get('/me', redirectToRoleResource);

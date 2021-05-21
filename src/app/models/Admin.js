@@ -1,4 +1,7 @@
+
 const Sequelize = require('sequelize');
+const SimpleValidators = require("../util/SimpleValidators");
+
 module.exports = (sequelize, DataTypes) => {
   return Admin.init(sequelize, DataTypes);
 }
@@ -6,17 +9,17 @@ module.exports = (sequelize, DataTypes) => {
 class Admin extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   super.init({
-    IDAdmin: {
+    id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
-      id: 'IDAdmin',
+      field: 'IDAdmin',
     },
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      id: 'IDUserAdmin',
+      field: 'IDUserAdmin',
     },
     fullName: {
       type: DataTypes.VIRTUAL,
@@ -32,27 +35,27 @@ class Admin extends Sequelize.Model {
     firstName: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      id: 'FNameAdmin',
+      field: 'FNameAdmin',
     },
     lastName: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      id: 'LNameAdmin',
+      field: 'LNameAdmin',
     },
     nationalId: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      id: 'NIDAdmin',
+      field: 'NIDAdmin',
     },
     phone: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      id: 'PhoneAdmin',
+      field: 'PhoneAdmin',
     },
     email: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      id: 'EmailAdmin',
+      field: 'EmailAdmin',
     },
   }, {
     sequelize,
@@ -72,3 +75,4 @@ class Admin extends Sequelize.Model {
   return Admin;
   }
 }
+
