@@ -10,8 +10,8 @@ const SequelizeUtil = require("../../../../util/SequelizeUtil");
 const SimpleValidators = require("../../../../util/SimpleValidators");
 const {asyncFunctionWrapper} = require("../../util");
 
-router.get('', asyncFunctionWrapper(getAllPatients));
-router.put('', asyncFunctionWrapper(upsertPatient));
+router.get('', asyncFunctionWrapper(getAllPhysicians));
+// router.put('', asyncFunctionWrapper(upsertPatient));
 
 router.use('/:userId', (req, res, next) => {
     req.patientInfo = {
@@ -20,80 +20,26 @@ router.use('/:userId', (req, res, next) => {
     next();
 })
 
-router.get('/:userId', asyncFunctionWrapper(getPatient));
+router.get('/:userId', asyncFunctionWrapper(getPhysician));
 
 
-async function getAllPatients(req, res, next) {
-    const secretary = await models.Secretary.findOne({
-        where: {
-            userId: req.principal.userId
-        },
-        include: [
-            {
-                model: models.Patient,
-                as: 'patients',
-            },
-        ],
-    });
-    if (secretary == null) {
-        next(new errors.SecretaryNotFound());
-        return;
-    }
+async function getAllPhysicians(req, res, next) {
 
-    let patientsList = secretary.patients;
+    let physicians = await models.Admin.findPhysicians(req.principal.userId);
 
     const response = ResponseTemplate.create()
         .withData({
-            patients: patientsList,
+            physicians: physicians,
         })
         .toJson();
 
     res.json(response);
 }
 
-async function getPatient(req, res, next) {
-    const patientUserId = req.params.userId;
+async function getPhysician(req, res, next) {
+    const physicianUserId = req.params.userId;
 
-    const patient = await models.Patient.findOne({
-        where: {
-            userId: patientUserId,
-            secretaryId: req.principal.userId
-        },
-        include: [],
-    });
-
-    if (patient == null) {
-        next(new errors.PatientNotFound());
-        return;
-    }
-
-    const response = ResponseTemplate.create()
-        .withData({
-            patient: patient,
-        })
-        .toJson();
-
-    res.json(response);
-}
-
-async function upsertPatient(req, res, next) {
-
-    const patientInfo = req.body.patient;
-
-    if ((patientInfo || null) == null) {
-        next(new errors.IncompleteRequest("Patient info was not provided."));
-        return;
-    }
-    else if ((patientInfo.physicianUserId || null) == null) {
-        next(new errors.IncompleteRequest("Field {physicianUserId} was not provided."));
-        return;
-    }
-    else if ((patientInfo.nationalId || null) == null) {
-        next(new errors.IncompleteRequest("Field {nationalId} was not provided."));
-        return;
-    }
-
-    const secretary = await models.Secretary.findOne(
+    const admin = await models.Admin.findOne(
         {
             where: {
                 userId: req.principal.userId
@@ -101,98 +47,77 @@ async function upsertPatient(req, res, next) {
             include: ['workPlaces']
         }
     );
-    if (secretary == null) {
-        next(new errors.SecretaryNotFound());
+    if (admin == null) {
+        next(new errors.AdminNotFound());
         return;
     }
 
-    let physician = await models.Physician.findOne({
-        where: {userId: patientInfo.physicianUserId},
-        include: 'workPlaces',
-    })
-
-    if (physician == null ||
-        (physician.workPlaces || []).filter(place => SimpleValidators.hasValue(place.id) && place.id == (secretary.workPlaces[0] || {}).id).length <= 0
-    ) {
-        next(new errors.PhysicianNotFound("Physician was not found"));
-        return;
-    }
-
-    patientInfo.secretaryId = req.principal.userId;
-    delete patientInfo.userInfo;
-
-    const hasUserId = SimpleValidators.hasValue(patientInfo.userId);
-    const patientQuery = [
-        {
-            nationalId: patientInfo.nationalId,
-        },
-    ];
-    if (hasUserId) {
-        patientQuery.push(
-            {
-                userId: patientInfo.userId,
-            },
-        );
-    }
-    let patient = await models.Patient.findOne({
+    const physician = await models.Physician.findOne({
         where: {
-            [Op.or]: patientQuery,
+            userId: physicianUserId,
         },
-        include: ['userInfo'],
-    })
-    if (patient != null && hasUserId) {
-        if (patient.secretaryId !== req.principal.userId) {
-            next(new errors.IllegalOperation("You can not edit this patient"));
-            return;
-        }
-        patientInfo.userId = patient.userId;
-        patientInfo.patientId = patient.patientId;
+        include: ['workPlaces'],
+    });
 
-        await models.Patient.update(
-            patientInfo,
-            {
-                where: {
-                    userId: patient.userId,
-                },
-                returning: true,
-            }
-        )
+    const sharesWorkPlace = physician.workPlaces
+        .some(physicianWorkPlace => admin.workPlaces.some(adminWorkPlace => adminWorkPlace.placeId == physicianWorkPlace.placeId));
 
-        let savedPatient = await patient.reload();
-
-        const response =  ResponseTemplate.create()
-            .withData({
-                patient: savedPatient,
-            });
-
-        res.json(response);
+    if (!sharesWorkPlace) {
+        next(new errors.PhysicianNotFound());
         return;
     }
-    else if (patient != null) {
-        next(new errors.AlreadyExistsException("Patient with this national id already exists"));
-        return;
-    }
-    else {
 
-        await models.Visit.sequelize.transaction(async (tr) => {
-            let createdUserInfo = await models.User.createPatient(patientInfo.nationalId, tr);
-            patientInfo.userId = createdUserInfo.userId;
-            delete patientInfo.patientId;
-
-            let createdPatient = await models.Patient.create(patientInfo, {transaction: tr});
-            createdPatient = createdPatient.get({plain: true});
-
-            createdPatient.userInfo = createdUserInfo;
-            const response =  ResponseTemplate.create()
-                .withData({
-                    patient: createdPatient,
-                });
-
-            res.json(response);
-            return;
+    const response = ResponseTemplate.create()
+        .withData({
+            physician: physician,
         })
-    }
+        .toJson();
 
+    res.json(response);
+}
+
+models.Admin.findPhysicians = async function (adminUserId) {
+
+    if (!SimpleValidators.isNumber(adminUserId))
+        throw new Error("Admin user id must be a number");
+
+    const workPlaces = await models.UserPlace.findAll(
+        {
+            where: {
+                userId: adminUserId,
+            }
+        },
+    );
+    if (!workPlaces || !workPlaces.length) return [];
+
+    const sharedUserPlaces = await models.UserPlace.findAll(
+        {
+            where: {
+                placeId: {
+                    [Op.in]: workPlaces.map(workPlace => workPlace.placeId),
+                    [Op.ne]: adminUserId,
+                },
+            }
+        }
+    )
+
+    const distinctSharedUserPlaces = sharedUserPlaces.filter((tag, index, array) => array.findIndex(t => t.userId == tag.userId) == index);
+
+    if (!distinctSharedUserPlaces || !distinctSharedUserPlaces.length)
+        return [];
+
+    const physicians = await models.Physician.findAll(
+        {
+            where: {
+                userId: {
+                    [Op.in]: distinctSharedUserPlaces.map(userPlace => userPlace.userId)
+                }
+            },
+            include: ['workPlaces']
+        }
+    );
+
+    return physicians || [];
 }
 
 module.exports = router;
