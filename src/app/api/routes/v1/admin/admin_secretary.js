@@ -8,19 +8,21 @@ const errors = require("../../../errors");
 const ResponseTemplate = require("../../../ResponseTemplate");
 const SequelizeUtil = require("../../../../util/SequelizeUtil");
 const SimpleValidators = require("../../../../util/SimpleValidators");
+const TypeChecker = require("../../../../util/TypeChecker");
 const {asyncFunctionWrapper} = require("../../util");
 
 router.get('', asyncFunctionWrapper(getAllSecretaries));
-// router.put('', asyncFunctionWrapper(upsertPatient));
+router.post('', asyncFunctionWrapper(addSecretary));
 
 router.use('/:userId', (req, res, next) => {
-    req.patientInfo = {
+    req.secretaryInfo = {
         userId: req.params.userId,
     };
     next();
 })
 
 router.get('/:userId', asyncFunctionWrapper(getSecretary));
+router.put('/:userId', asyncFunctionWrapper(updateSecretary));
 
 
 async function getAllSecretaries(req, res, next) {
@@ -75,6 +77,148 @@ async function getSecretary(req, res, next) {
 
     res.json(response);
 }
+
+async function addSecretary(req, res, next) {
+
+    const secretaryInfo = req.body.secretary;
+    const placeId = req.query.placeId;
+
+    if (!TypeChecker.isNumber(placeId)) {
+        next(new errors.IncompleteRequest("placeId was not provided."));
+        return;
+    }
+    if (!TypeChecker.isObject(secretaryInfo)) {
+        next(new errors.IncompleteRequest("Secretary info was not provided."));
+        return;
+    }
+    else if (!SimpleValidators.isNonEmptyString(secretaryInfo.nationalId)) {
+        next(new errors.IncompleteRequest("Field {nationalId} was not provided."));
+        return;
+    }
+
+    const secretary = await models.Secretary.findOne(
+        {
+            where: {
+                nationalId: secretaryInfo.nationalId
+            },
+        }
+    );
+
+    if (secretary != null) {
+        next(new errors.AlreadyExistsException("A secretary with this national id already exists"));
+        return;
+    }
+
+    const admin = await models.Admin.findOne(
+        {
+            where: {
+                userId: req.principal.userId
+            },
+            include: ['workPlaces']
+        }
+    );
+    if (admin == null) {
+        next(new errors.AdminNotFound());
+        return;
+    }
+    else if (admin.workPlaces.length == 0) {
+        next(new errors.IllegalOperation('You need to have a workplace before being able to add secretaries.'));
+        return;
+    }
+    const adminHasThePlace = admin.workPlaces.some(workPlace => workPlace.placeId == Number(placeId));
+
+    if (!adminHasThePlace) {
+        next(new errors.NotFound("You do not work in the place with the specified id"));
+        return;
+    }
+
+
+    delete secretaryInfo.id;
+    delete secretaryInfo.userId;
+    delete secretaryInfo.userInfo;
+
+    await models.Secretary.sequelize.transaction(async (tr) => {
+        let createdUserInfo = await models.User.createSecretary(secretaryInfo.nationalId, tr);
+        secretaryInfo.userId = createdUserInfo.userId;
+
+        let createdSecretary = await models.Secretary.create(secretaryInfo, {transaction: tr});
+        createdSecretary = createdSecretary.get({plain: true});
+
+        let createdPlace = await models.UserPlace.create(createdSecretary.userId, placeId, tr);
+
+        createdSecretary.userInfo = createdUserInfo;
+        const response =  ResponseTemplate.create()
+            .withData({
+                secretary: createdSecretary,
+                place: createdPlace,
+            });
+
+        res.json(response);
+        return;
+    })
+
+}
+
+async function updateSecretary(req, res, next) {
+
+    const secretaryInfo = req.body.secretary;
+    const secretaryUserId = req.secretaryInfo.userId;
+
+    if (!TypeChecker.isObject(secretaryInfo)) {
+        next(new errors.IncompleteRequest("Secretary info was not provided."));
+        return;
+    }
+    else if (!SimpleValidators.isNonEmptyString(secretaryInfo.nationalId)) {
+        next(new errors.IncompleteRequest("Field {nationalId} was not provided."));
+        return;
+    }
+    else if (!SimpleValidators.isNonEmptyString(secretaryUserId)) {
+        next(new errors.IncompleteRequest("Field {userId} was not provided."));
+        return;
+    }
+
+
+    const secretary = await models.Secretary.findOne(
+        {
+            where: {
+                userId: secretaryUserId,
+            },
+        }
+    );
+
+    if (!secretary) {
+        next(new errors.SecretaryNotFound("No secretary was found with the provided userId"));
+        return;
+    }
+
+    delete secretaryInfo.userInfo;
+
+    secretaryInfo.userId = secretary.userId;
+    secretaryInfo.id = secretary.id;
+
+    await models.Secretary.update(
+        secretaryInfo,
+        {
+            where: {
+                userId: secretary.userId,
+            },
+            returning: true,
+        }
+    );
+
+    let savedSecretary = await secretary.reload();
+
+    const response =  ResponseTemplate.create()
+        .withData({
+            secretary: savedSecretary,
+        });
+
+    res.json(response);
+    return;
+
+}
+
+
 
 models.Admin.findSecretaries = async function (adminUserId) {
 

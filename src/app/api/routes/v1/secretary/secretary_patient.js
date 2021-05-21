@@ -174,7 +174,7 @@ async function upsertPatient(req, res, next) {
     }
     else {
 
-        await models.Visit.sequelize.transaction(async (tr) => {
+        await models.Patient.sequelize.transaction(async (tr) => {
             let createdUserInfo = await models.User.createPatient(patientInfo.nationalId, tr);
             patientInfo.userId = createdUserInfo.userId;
             delete patientInfo.patientId;

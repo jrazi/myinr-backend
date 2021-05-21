@@ -73,16 +73,18 @@ class User extends Sequelize.Model {
   }
 }
 
-
-User.createPatient = async function (nationalId, transaction) {
+User.createUser = async function (nationalId, roleId, transaction) {
   nationalId = nationalId.replace(/\s/g,'');
 
   if (!SimpleValidators.isNonEmptyString(nationalId))
     throw new Error("national id is not valid");
 
+  else if (!TypeChecker.isNumber(roleId))
+    throw new Error("role id is not valid");
+
   return await User.create(
       {
-        role: UserRoles.patient.id,
+        role: roleId,
         username: nationalId,
         password: '_' + nationalId,
         status: 1,
@@ -92,3 +94,17 @@ User.createPatient = async function (nationalId, transaction) {
       }
   );
 }
+
+User.createPatient = function (nationalId, transaction) {
+  return User.createUser(nationalId, UserRoles.patient.id, transaction);
+}
+
+User.createSecretary = function (nationalId, transaction) {
+  return User.createUser(nationalId, UserRoles.secretary.id, transaction);
+}
+
+
+User.createPhysician = function (nationalId, transaction) {
+  return User.createUser(nationalId, UserRoles.physician.id, transaction);
+}
+
