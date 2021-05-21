@@ -23,6 +23,7 @@ router.use('/:userId', (req, res, next) => {
 
 router.get('/:userId', asyncFunctionWrapper(getSecretary));
 router.put('/:userId', asyncFunctionWrapper(updateSecretary));
+router.delete('/:userId', asyncFunctionWrapper(removeSecretary));
 
 
 async function getAllSecretaries(req, res, next) {
@@ -216,6 +217,22 @@ async function updateSecretary(req, res, next) {
     res.json(response);
     return;
 
+}
+
+async function removeSecretary(req, res, next) {
+
+    next(new errors.IllegalOperation("Not implemented"));
+    return;
+
+    const secretaryUserId = req.secretaryInfo.userId;
+
+    await models.Secretary.sequelize.transaction(async (tr) => {
+        const response = ResponseTemplate.create()
+            .withMessage("Secretary was removed from system.")
+            .toJson();
+
+        res.json(response);
+    });
 }
 
 
