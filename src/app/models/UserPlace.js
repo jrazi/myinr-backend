@@ -65,8 +65,8 @@ UserPlace.getSharedWorkPlaces = async function (userA, userB) {
   const workPlacesA = (userA || {}).workPlaces || [];
   const workPlacesB = (userB || {}).workPlaces || [];
 
-  const userASharedWorkPlaces = workPlacesA.filter(workPlaceA => workPlacesB.some(workPlaceB => workPalceA.placeId == workPlaceB.placeId)) || [];
-  const userBSharedWorkPlaces = workPlacesB.filter(workPlaceB => workPlacesA.some(workPlaceA => workPlaceB.placeId == workPlaceA.placeId)) || [];
+  const userASharedWorkPlaces = workPlacesA.filter(workPlaceA => workPlacesB.some(workPlaceB => workPalceA.id == workPlaceB.id)) || [];
+  const userBSharedWorkPlaces = workPlacesB.filter(workPlaceB => workPlacesA.some(workPlaceA => workPlaceB.id == workPlaceA.id)) || [];
 
   return[userASharedWorkPlaces, userBSharedWorkPlaces];
 

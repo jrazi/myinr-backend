@@ -43,6 +43,7 @@ class Physician extends Sequelize.Model {
       type: DataTypes.STRING(50),
       allowNull: false,
       field: 'MedicalIDPhysician',
+      defaultValue: "",
     },
     phone: {
       type: DataTypes.STRING(50),
@@ -53,6 +54,7 @@ class Physician extends Sequelize.Model {
       type: DataTypes.STRING(50),
       allowNull: false,
       field: 'EmailPhysician',
+      defaultValue: "",
     },
     address: {
       type: DataTypes.STRING(200),

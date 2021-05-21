@@ -125,10 +125,10 @@ async function addSecretary(req, res, next) {
         next(new errors.IllegalOperation('You need to have a workplace before being able to add secretaries.'));
         return;
     }
-    const adminHasThePlace = admin.workPlaces.some(workPlace => workPlace.placeId == Number(placeId));
+    const adminHasThePlace = admin.workPlaces.some(workPlace => Number(workPlace.id) == Number(placeId));
 
     if (!adminHasThePlace) {
-        next(new errors.NotFound("You do not work in the place with the specified id"));
+        next(new errors.NotFound("You do not work at the place with the specified id"));
         return;
     }
 
@@ -144,7 +144,7 @@ async function addSecretary(req, res, next) {
         let createdSecretary = await models.Secretary.create(secretaryInfo, {transaction: tr});
         createdSecretary = createdSecretary.get({plain: true});
 
-        let createdPlace = await models.UserPlace.create(createdSecretary.userId, placeId, tr);
+        let createdPlace = await models.UserPlace.createPlace(createdSecretary.userId, placeId, tr);
 
         createdSecretary.userInfo = createdUserInfo;
         const response =  ResponseTemplate.create()
@@ -206,7 +206,7 @@ async function updateSecretary(req, res, next) {
         }
     );
 
-    let savedSecretary = await secretary.reload();
+    let savedSecretary = await secretary.reload({include: ['workPlaces']});
 
     const response =  ResponseTemplate.create()
         .withData({

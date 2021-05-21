@@ -53,6 +53,7 @@ class Secretary extends Sequelize.Model {
       type: DataTypes.STRING(100),
       allowNull: false,
       field: 'EmailSecretary',
+      defaultValue: "",
     },
   }, {
     sequelize,
