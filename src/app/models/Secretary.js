@@ -48,12 +48,19 @@ class Secretary extends Sequelize.Model {
       type: DataTypes.STRING(50),
       allowNull: false,
       field: 'PhoneSecretary',
+      defaultValue: "",
+      set(value) {
+        this.setDataValue('phone', value || "");
+      }
     },
     email: {
       type: DataTypes.STRING(100),
       allowNull: false,
       field: 'EmailSecretary',
       defaultValue: "",
+      set(value) {
+        this.setDataValue('email', value || "");
+      }
     },
   }, {
     sequelize,

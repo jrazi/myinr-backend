@@ -232,3 +232,23 @@ describe("jalali date list minimum function", () => {
 
 
 });
+
+
+describe("jalali date consecutive dates function", () => {
+    it('it should return 7 consecutive dates from the starting date onwards', function () {
+
+        const startingDate = JalaliDate.create(new Date());
+
+        const dates = JalaliDate.getConsecutiveDates(startingDate, 7);
+
+        dates.forEach((date, index) => {
+            if (index == 0) return;
+            const curr = date;
+            const prev = dates[index - 1];
+
+            expect((curr.toJson().timestamp - prev.toJson().timestamp) > 0).toEqual(true);
+        })
+    });
+
+
+});

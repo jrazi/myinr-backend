@@ -134,7 +134,7 @@ class JalaliDate {
     }
 
     incrementDay() {
-        const thisMoment = moment(this.getGeorgianDate().getTime()).tz('Asia/Tehran').startOf('day').utc();
+        const thisMoment = moment(this.getGeorgianDate().getTime());
         const nextDay = thisMoment.add(1, 'days');
         return JalaliDate.create(nextDay.toDate());
     }
