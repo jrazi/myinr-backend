@@ -81,12 +81,7 @@ async function getPhysician(req, res, next) {
 async function addPhysician(req, res, next) {
 
     const physicianInfo = req.body.physician;
-    const placeId = req.query.placeId;
 
-    if (!TypeChecker.isNumber(placeId)) {
-        next(new errors.IncompleteRequest("placeId was not provided."));
-        return;
-    }
     if (!TypeChecker.isObject(physicianInfo)) {
         next(new errors.IncompleteRequest("Physician info was not provided."));
         return;
@@ -125,6 +120,8 @@ async function addPhysician(req, res, next) {
         next(new errors.IllegalOperation('You need to have a workplace before being able to add physicians.'));
         return;
     }
+    const placeId = SimpleValidators.hasValue(req.query.placeId) ? req.query.placeId : admin.workPlaces[0].id;
+    
     const adminHasThePlace = admin.workPlaces.some(workPlace => Number(workPlace.id) == Number(placeId));
 
     if (!adminHasThePlace) {

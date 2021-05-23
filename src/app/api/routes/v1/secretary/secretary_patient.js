@@ -32,6 +32,7 @@ async function getAllPatients(req, res, next) {
             {
                 model: models.Patient,
                 as: 'patients',
+                include: ['physician']
             },
         ],
     });
@@ -59,7 +60,7 @@ async function getPatient(req, res, next) {
             userId: patientUserId,
             secretaryId: req.principal.userId
         },
-        include: [],
+        include: ['physician'],
     });
 
     if (patient == null) {

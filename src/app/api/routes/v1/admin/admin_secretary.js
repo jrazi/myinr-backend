@@ -82,12 +82,7 @@ async function getSecretary(req, res, next) {
 async function addSecretary(req, res, next) {
 
     const secretaryInfo = req.body.secretary;
-    const placeId = req.query.placeId;
 
-    if (!TypeChecker.isNumber(placeId)) {
-        next(new errors.IncompleteRequest("placeId was not provided."));
-        return;
-    }
     if (!TypeChecker.isObject(secretaryInfo)) {
         next(new errors.IncompleteRequest("Secretary info was not provided."));
         return;
@@ -126,6 +121,7 @@ async function addSecretary(req, res, next) {
         next(new errors.IllegalOperation('You need to have a workplace before being able to add secretaries.'));
         return;
     }
+    const placeId = SimpleValidators.hasValue(req.query.placeId) ? req.query.placeId : admin.workPlaces[0].id;
     const adminHasThePlace = admin.workPlaces.some(workPlace => Number(workPlace.id) == Number(placeId));
 
     if (!adminHasThePlace) {

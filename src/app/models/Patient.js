@@ -2,6 +2,8 @@ const Sequelize = require('sequelize');
 const DatabaseNormalizer = require("../util/DatabaseNormalizer");
 const SequelizeUtil = require('../util/SequelizeUtil');
 const SimpleValidators = require("../util/SimpleValidators");
+const JalaliDate = require("../util/JalaliDate");
+
 module.exports = (sequelize, DataTypes) => {
   return Patient.init(sequelize, DataTypes);
 }
@@ -59,6 +61,18 @@ class Patient extends Sequelize.Model {
       references: {
         model: 'Physician',
         key: 'userId',
+      }
+    },
+    decoratedBirthDate: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        const jalali = JalaliDate.create(this.birthDate);
+        return jalali.toJson();
+      },
+      set(value) {
+        const jalali = JalaliDate.create(value).toJson().jalali.asString;
+
+        this.birthDate = jalali;
       }
     },
     birthDate: {

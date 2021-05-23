@@ -44,17 +44,27 @@ class Physician extends Sequelize.Model {
       allowNull: false,
       field: 'MedicalIDPhysician',
       defaultValue: "",
+      set(value) {
+        this.setDataValue('medicalId', value || "");
+      }
     },
     phone: {
       type: DataTypes.STRING(50),
       allowNull: false,
       field: 'PhonePhysician',
+      defaultValue: "",
+      set(value) {
+        this.setDataValue('phone', value || "");
+      }
     },
     email: {
       type: DataTypes.STRING(50),
       allowNull: false,
       field: 'EmailPhysician',
       defaultValue: "",
+      set(value) {
+        this.setDataValue('email', value || "");
+      }
     },
     address: {
       type: DataTypes.STRING(200),
