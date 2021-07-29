@@ -3,7 +3,7 @@
 const devProps = {
     database: 'myinrir_test',
     user: 'myinrir_test',
-    password: 'kyIg72@2',
+    password: '11__*password*__11',
     config: {
         host: 'localhost',
         dialect: 'mssql',
