@@ -1,8 +1,19 @@
 module.exports = {
     apps : [{
+        name: 'myinr',
         script: './bin/www',
         watch: '.',
-        "log_type": "json",
+        log_type: "json",
+        env_development: {
+            "NODE_ENV": "development",
+            "NODE_OPTIONS": "--tls-min-v1.0",
+            "PORT": 3000,
+        },
+        env_production: {
+            "NODE_ENV": "production",
+            "NODE_OPTIONS": "--tls-min-v1.0",
+            "PORT": 3000,
+        }
     }],
 
     deploy : {
